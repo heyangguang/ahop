@@ -1,0 +1,175 @@
+package services
+
+import (
+	"ahop/internal/models"
+	"ahop/pkg/config"
+	"ahop/pkg/logger"
+	"crypto/hmac"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+)
+
+// WorkerAuthService Worker认证服务
+type WorkerAuthService struct {
+	db *gorm.DB
+}
+
+// NewWorkerAuthService 创建Worker认证服务实例
+func NewWorkerAuthService(db *gorm.DB) *WorkerAuthService {
+	return &WorkerAuthService{
+		db: db,
+	}
+}
+
+// CreateWorkerAuth 创建Worker授权
+func (s *WorkerAuthService) CreateWorkerAuth(environment, description string) (*models.WorkerAuth, error) {
+	accessKey := s.generateAccessKey()
+	secretKey := s.generateSecretKey()
+
+	// 从配置文件获取数据库配置
+	cfg := config.GetConfig()
+
+	// 解析数据库端口
+	dbPort := 5432
+	if port, err := strconv.Atoi(cfg.Database.Port); err == nil {
+		dbPort = port
+	}
+
+
+	auth := &models.WorkerAuth{
+		AccessKey:   accessKey,
+		SecretKey:   secretKey,
+		Environment: environment,
+		Description: description,
+		Status:      "active",
+		// 数据库配置
+		DBHost:     cfg.Database.Host,
+		DBPort:     dbPort,
+		DBUser:     cfg.Database.User,
+		DBPassword: cfg.Database.Password,
+		DBName:     cfg.Database.DBName,
+		// Redis配置
+		RedisHost:     cfg.Redis.Host,
+		RedisPort:     cfg.Redis.Port,
+		RedisPassword: cfg.Redis.Password,
+		RedisDB:       cfg.Redis.DB,
+		RedisPrefix:   cfg.Redis.Prefix,
+	}
+
+	if err := s.db.Create(auth).Error; err != nil {
+		return nil, fmt.Errorf("创建Worker授权失败: %v", err)
+	}
+
+	return auth, nil
+}
+
+// ValidateAccessKey 验证AccessKey并返回认证信息
+func (s *WorkerAuthService) ValidateAccessKey(accessKey string) (*models.WorkerAuth, error) {
+	var auth models.WorkerAuth
+	err := s.db.Where("access_key = ? AND status = ?", accessKey, "active").First(&auth).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("无效的AccessKey")
+		}
+		return nil, fmt.Errorf("查询AccessKey失败: %v", err)
+	}
+
+	return &auth, nil
+}
+
+// VerifySignature 验证请求签名
+func (s *WorkerAuthService) VerifySignature(accessKey, workerID string, timestamp int64, signature, secretKey string) bool {
+	expectedSig := s.calculateSignature(accessKey, workerID, timestamp, secretKey)
+	return signature == expectedSig
+}
+
+// GetWorkerAuthList 获取Worker授权列表
+func (s *WorkerAuthService) GetWorkerAuthList(page, pageSize int) ([]models.WorkerAuth, int64, error) {
+	var auths []models.WorkerAuth
+	var total int64
+
+	// 计算总数
+	if err := s.db.Model(&models.WorkerAuth{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询
+	offset := (page - 1) * pageSize
+	err := s.db.Offset(offset).Limit(pageSize).Order("created_at DESC").Find(&auths).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return auths, total, nil
+}
+
+// UpdateWorkerAuthStatus 更新Worker授权状态
+func (s *WorkerAuthService) UpdateWorkerAuthStatus(id uint, status string) error {
+	return s.db.Model(&models.WorkerAuth{}).Where("id = ?", id).Update("status", status).Error
+}
+
+// DeleteWorkerAuth 删除Worker授权
+func (s *WorkerAuthService) DeleteWorkerAuth(id uint) error {
+	return s.db.Delete(&models.WorkerAuth{}, id).Error
+}
+
+// generateAccessKey 生成AccessKey
+func (s *WorkerAuthService) generateAccessKey() string {
+	return "AHOP_AK_" + s.randomString(16)
+}
+
+// generateSecretKey 生成SecretKey
+func (s *WorkerAuthService) generateSecretKey() string {
+	return "AHOP_SK_" + s.randomString(32)
+}
+
+// randomString 生成随机字符串
+func (s *WorkerAuthService) randomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	rand.Read(b)
+	for i := range b {
+		b[i] = charset[b[i]%byte(len(charset))]
+	}
+	return string(b)
+}
+
+// calculateSignature 计算请求签名
+func (s *WorkerAuthService) calculateSignature(accessKey, workerID string, timestamp int64, secretKey string) string {
+	// 构造待签名字符串
+	stringToSign := fmt.Sprintf("%s|%s|%d", accessKey, workerID, timestamp)
+
+	// HMAC-SHA256签名
+	h := hmac.New(sha256.New, []byte(secretKey))
+	h.Write([]byte(stringToSign))
+
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// IsValidTimestamp 验证时间戳有效性（防重放攻击）
+func (s *WorkerAuthService) IsValidTimestamp(timestamp int64) bool {
+	now := time.Now().Unix()
+	// 允许5分钟的时钟偏差
+	return now-timestamp <= 300 && timestamp-now <= 300
+}
+
+// LogWorkerAuth 记录Worker认证日志
+func (s *WorkerAuthService) LogWorkerAuth(workerID, accessKey, result, ipAddress string) {
+	log := logger.GetLogger()
+	log.WithFields(logrus.Fields{
+		"worker_id":  workerID,
+		"access_key": accessKey,
+		"result":     result,
+		"ip_address": ipAddress,
+		"timestamp":  time.Now(),
+		"action":     "worker_auth",
+	}).Info("Worker认证记录")
+}

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping任务WebSocket测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 200px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .button-danger {
+            background-color: #f44336;
+        }
+        .button-danger:hover {
+            background-color: #da190b;
+        }
+        #output {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log-entry {
+            padding: 4px;
+            border-bottom: 1px solid #eee;
+        }
+        .log-info {
+            color: #333;
+        }
+        .log-success {
+            color: #4CAF50;
+        }
+        .log-error {
+            color: #f44336;
+        }
+        .log-output {
+            color: #666;
+        }
+        .status {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status-connected {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-disconnected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .task-config {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .host-result {
+            margin-left: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-left: 3px solid #4CAF50;
+            margin-bottom: 5px;
+        }
+        .host-result.failed {
+            border-left-color: #f44336;
+        }
+        pre {
+            margin: 5px 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Ping任务WebSocket测试</h1>
+        
+        <div class="input-group">
+            <label for="baseUrl">服务器地址:</label>
+            <input type="text" id="baseUrl" placeholder="http://192.168.31.66:8080" value="http://192.168.31.66:8080">
+        </div>
+        
+        <div class="input-group">
+            <label for="username">用户名:</label>
+            <input type="text" id="username" value="admin">
+        </div>
+        
+        <div class="input-group">
+            <label for="password">密码:</label>
+            <input type="password" id="password" value="Admin@123">
+        </div>
+        
+        <div class="task-config">
+            <h3>任务配置</h3>
+            <div class="input-group">
+                <label for="taskConfig">任务JSON:</label>
+                <textarea id="taskConfig">{
+  "task_name": "测试Ping任务",
+  "task_type": "ping",
+  "description": "WebSocket测试ping任务",
+  "timeout": 300,
+  "params": {
+    "hosts": [
+      {
+        "hostname": "本地主机",
+        "ip": "127.0.0.1",
+        "port": 22,
+        "credential_id": 1
+      },
+      {
+        "hostname": "网关",
+        "ip": "192.168.31.1",
+        "port": 22,
+        "credential_id": 1
+      },
+      {
+        "hostname": "测试主机",
+        "ip": "192.168.31.66",
+        "port": 22,
+        "credential_id": 1
+      }
+    ]
+  },
+  "webhook": {
+    "enabled": false
+  }
+}</textarea>
+            </div>
+        </div>
+        
+        <button onclick="createTask()" id="createBtn">创建任务</button>
+        <button onclick="disconnect()" id="disconnectBtn" disabled class="button-danger">断开连接</button>
+        <button onclick="clearOutput()">清空输出</button>
+        
+        <div id="status" class="status status-disconnected">
+            📌 未连接
+        </div>
+        
+        <h3>输出日志</h3>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        let token = null;
+        let taskId = null;
+        const baseUrlInput = document.getElementById('baseUrl');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const taskConfigInput = document.getElementById('taskConfig');
+        const statusDiv = document.getElementById('status');
+        const outputDiv = document.getElementById('output');
+        const createBtn = document.getElementById('createBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `${timestamp} - ${message}`;
+            outputDiv.appendChild(entry);
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+        
+        function updateStatus(connected, message) {
+            statusDiv.className = connected ? 'status status-connected' : 'status status-disconnected';
+            statusDiv.textContent = message;
+            createBtn.disabled = connected;
+            disconnectBtn.disabled = !connected;
+        }
+        
+        async function login() {
+            const baseUrl = baseUrlInput.value.trim();
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (!baseUrl || !username || !password) {
+                log('请填写完整的登录信息', 'error');
+                return null;
+            }
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/v1/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`登录失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.code === 200 && data.data && data.data.token) {
+                    log('✅ 登录成功', 'success');
+                    return data.data.token;
+                } else {
+                    throw new Error(data.message || '登录失败');
+                }
+            } catch (error) {
+                log(`❌ 登录失败: ${error.message}`, 'error');
+                return null;
+            }
+        }
+        
+        async function createTask() {
+            // 先登录获取token
+            log('正在登录...', 'info');
+            token = await login();
+            if (!token) {
+                return;
+            }
+            
+            // 创建任务
+            const baseUrl = baseUrlInput.value.trim();
+            let taskConfig;
+            
+            try {
+                taskConfig = JSON.parse(taskConfigInput.value);
+            } catch (error) {
+                log(`❌ 任务配置JSON格式错误: ${error.message}`, 'error');
+                return;
+            }
+            
+            try {
+                log('正在创建任务...', 'info');
+                const response = await fetch(`${baseUrl}/api/v1/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(taskConfig)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`创建任务失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.code === 200 && data.data && data.data.task_id) {
+                    taskId = data.data.task_id;
+                    log(`✅ 任务创建成功，task_id: ${taskId}`, 'success');
+                    
+                    // 连接WebSocket
+                    connectWebSocket();
+                } else {
+                    throw new Error(data.message || '创建任务失败');
+                }
+            } catch (error) {
+                log(`❌ 创建任务失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function connectWebSocket() {
+            if (!taskId || !token) {
+                log('缺少taskId或token', 'error');
+                return;
+            }
+            
+            const baseUrl = baseUrlInput.value.trim();
+            const wsUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://');
+            const url = `${wsUrl}/api/v1/ws/task-logs/${taskId}?token=${token}`;
+            
+            log(`正在连接WebSocket: ${url}`, 'info');
+            
+            ws = new WebSocket(url);
+            
+            ws.onopen = function() {
+                log('🔌 WebSocket连接成功', 'success');
+                updateStatus(true, '🟢 已连接 - 正在接收日志...');
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    // 格式化输出
+                    const timestamp = new Date(data.timestamp * 1000).toLocaleTimeString();
+                    let message = `[${timestamp}] [${data.level}] [${data.source}]`;
+                    
+                    if (data.host_name) {
+                        message += ` [${data.host_name}]`;
+                    }
+                    
+                    message += ` ${data.message}`;
+                    
+                    // 如果有stderr，显示它
+                    if (data.stderr) {
+                        message += `\nSTDERR: ${data.stderr}`;
+                    }
+                    
+                    log(message, data.level);
+                    
+                    // 如果消息包含结果，特殊处理
+                    if (data.message.includes('ping任务完成')) {
+                        parseAndDisplayResults(data.message);
+                    }
+                } catch (error) {
+                    log(`收到消息: ${event.data}`, 'output');
+                }
+            };
+            
+            ws.onerror = function(error) {
+                log(`❌ WebSocket错误: ${error}`, 'error');
+                updateStatus(false, '❌ 连接错误');
+            };
+            
+            ws.onclose = function(event) {
+                log(`🔌 连接关闭 - 代码: ${event.code}, 原因: ${event.reason || '未知'}`, 'info');
+                updateStatus(false, '📌 连接已断开');
+                ws = null;
+                
+                // 获取最终任务状态
+                if (taskId) {
+                    getTaskStatus();
+                }
+            };
+        }
+        
+        async function getTaskStatus() {
+            if (!taskId || !token) return;
+            
+            const baseUrl = baseUrlInput.value.trim();
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/v1/tasks/${taskId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`获取任务状态失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.code === 200 && data.data) {
+                    const task = data.data;
+                    log(`\n📊 任务最终状态: ${task.status}`, task.status === 'success' ? 'success' : 'error');
+                    
+                    if (task.result) {
+                        displayTaskResult(task.result);
+                    }
+                }
+            } catch (error) {
+                log(`❌ 获取任务状态失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function displayTaskResult(result) {
+            log('\n📋 任务执行结果:', 'info');
+            
+            if (result.summary) {
+                log(`总计: ${result.summary.total} 台主机`, 'info');
+                log(`成功: ${result.summary.success} 台`, 'success');
+                log(`失败: ${result.summary.failed} 台`, 'error');
+            }
+            
+            if (result.hosts) {
+                log('\n📡 主机详情:', 'info');
+                for (const [hostKey, hostResult] of Object.entries(result.hosts)) {
+                    const div = document.createElement('div');
+                    div.className = `host-result ${hostResult.success ? '' : 'failed'}`;
+                    
+                    let html = `<strong>${hostResult.hostname} (${hostResult.ip})</strong><br>`;
+                    html += `状态: ${hostResult.success ? '✅ 成功' : '❌ 失败'}<br>`;
+                    html += `退出码: ${hostResult.exit_code}<br>`;
+                    
+                    if (hostResult.stderr) {
+                        html += `<strong>错误输出:</strong><pre>${hostResult.stderr}</pre>`;
+                    }
+                    
+                    if (hostResult.stats) {
+                        html += `<strong>统计信息:</strong> ${hostResult.stats}<br>`;
+                    }
+                    
+                    if (hostResult.output) {
+                        html += `<details><summary>查看完整输出</summary><pre>${hostResult.output}</pre></details>`;
+                    }
+                    
+                    div.innerHTML = html;
+                    outputDiv.appendChild(div);
+                }
+            }
+        }
+        
+        function parseAndDisplayResults(message) {
+            // 尝试从日志消息中提取汇总信息
+            const match = message.match(/成功(\d+)个，失败(\d+)个/);
+            if (match) {
+                log(`\n📊 汇总: 成功 ${match[1]} 个，失败 ${match[2]} 个`, 'info');
+            }
+        }
+        
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            updateStatus(false, '📌 手动断开连接');
+        }
+        
+        function clearOutput() {
+            outputDiv.innerHTML = '';
+            log('输出已清空', 'info');
+        }
+        
+        // 页面加载时的初始化
+        log('Ping任务WebSocket测试工具已就绪', 'info');
+        log('请填写服务器信息和任务配置，然后点击"创建任务"按钮', 'info');
+    </script>
+</body>
+</html>

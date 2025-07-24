@@ -1,0 +1,251 @@
+package auth
+
+import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
+)
+
+// AuthClient Worker认证客户端
+type AuthClient struct {
+	masterURL string
+	accessKey string
+	secretKey string
+	client    *http.Client
+}
+
+// NewAuthClient 创建认证客户端
+func NewAuthClient(masterURL, accessKey, secretKey string) *AuthClient {
+	return &AuthClient{
+		masterURL: masterURL,
+		accessKey: accessKey,
+		secretKey: secretKey,
+		client: &http.Client{
+			Timeout: 30 * time.Second,
+		},
+	}
+}
+
+// AuthRequest 认证请求
+type AuthRequest struct {
+	AccessKey string `json:"access_key"`
+	WorkerID  string `json:"worker_id"`
+	Timestamp int64  `json:"timestamp"`
+	Signature string `json:"signature"`
+}
+
+// AuthResponse 认证响应（AHOP标准格式）
+type AuthResponse struct {
+	Code    int                    `json:"code"`
+	Message string                 `json:"message"`
+	Data    map[string]interface{} `json:"data"`
+}
+
+// DatabaseConfig 数据库配置
+type DatabaseConfig struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	DBName   string `json:"dbname"`
+	SSLMode  string `json:"sslmode"`
+}
+
+// RedisConfig Redis配置
+type RedisConfig struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Password string `json:"password"`
+	DB       int    `json:"db"`
+	Prefix   string `json:"prefix"`
+}
+
+// AuthResult 认证结果
+type AuthResult struct {
+	DatabaseConfig *DatabaseConfig
+	RedisConfig    *RedisConfig
+}
+
+// Authenticate 向Master认证获取配置
+func (c *AuthClient) Authenticate(workerID string) (*AuthResult, error) {
+	// 1. 构造认证请求
+	timestamp := time.Now().Unix()
+	req := AuthRequest{
+		AccessKey: c.accessKey,
+		WorkerID:  workerID,
+		Timestamp: timestamp,
+	}
+
+	// 2. 计算签名
+	req.Signature = c.calculateSignature(req.AccessKey, req.WorkerID, req.Timestamp)
+
+	// 3. 发送HTTP请求
+	authURL := c.masterURL + "/api/v1/worker/auth"
+	jsonData, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("序列化请求失败: %v", err)
+	}
+
+	httpReq, err := http.NewRequest("POST", authURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, fmt.Errorf("创建HTTP请求失败: %v", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("User-Agent", "AHOP-Worker/1.0")
+
+	// 4. 执行请求
+	resp, err := c.client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("发送认证请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// 5. 解析响应
+	var authResp AuthResponse
+	if err := json.NewDecoder(resp.Body).Decode(&authResp); err != nil {
+		return nil, fmt.Errorf("解析认证响应失败: %v", err)
+	}
+
+
+	// 6. 检查认证结果
+	if resp.StatusCode != http.StatusOK || authResp.Code != 200 {
+		return nil, fmt.Errorf("认证失败: %s (HTTP %d, Code %d)", authResp.Message, resp.StatusCode, authResp.Code)
+	}
+
+	// 7. 转换配置
+	result := &AuthResult{}
+	
+	// 提取数据库配置
+	if databaseConfig, ok := authResp.Data["database_config"].(map[string]interface{}); ok {
+		dbConfig, err := c.convertDatabaseConfig(databaseConfig)
+		if err != nil {
+			return nil, fmt.Errorf("解析数据库配置失败: %v", err)
+		}
+		result.DatabaseConfig = dbConfig
+	} else {
+		return nil, fmt.Errorf("响应中缺少database_config字段")
+	}
+	
+	// 提取Redis配置
+	if redisConfig, ok := authResp.Data["redis_config"].(map[string]interface{}); ok {
+		redisConf, err := c.convertRedisConfig(redisConfig)
+		if err != nil {
+			return nil, fmt.Errorf("解析Redis配置失败: %v", err)
+		}
+		result.RedisConfig = redisConf
+	} else {
+		return nil, fmt.Errorf("响应中缺少redis_config字段")
+	}
+
+	return result, nil
+}
+
+// calculateSignature 计算请求签名
+func (c *AuthClient) calculateSignature(accessKey, workerID string, timestamp int64) string {
+	// 构造待签名字符串
+	stringToSign := fmt.Sprintf("%s|%s|%d", accessKey, workerID, timestamp)
+
+	// HMAC-SHA256签名
+	h := hmac.New(sha256.New, []byte(c.secretKey))
+	h.Write([]byte(stringToSign))
+
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// convertDatabaseConfig 转换数据库配置
+func (c *AuthClient) convertDatabaseConfig(configMap map[string]interface{}) (*DatabaseConfig, error) {
+	config := &DatabaseConfig{}
+
+	// 提取各字段
+	if host, ok := configMap["host"].(string); ok {
+		config.Host = host
+	} else {
+		return nil, fmt.Errorf("缺少host字段")
+	}
+
+	if port, ok := configMap["port"].(float64); ok {
+		config.Port = int(port)
+	} else {
+		config.Port = 5432 // 默认PostgreSQL端口
+	}
+
+	if user, ok := configMap["user"].(string); ok {
+		config.User = user
+	} else {
+		return nil, fmt.Errorf("缺少user字段")
+	}
+
+	if password, ok := configMap["password"].(string); ok {
+		config.Password = password
+	} else {
+		return nil, fmt.Errorf("缺少password字段")
+	}
+
+	if dbname, ok := configMap["dbname"].(string); ok {
+		config.DBName = dbname
+	} else {
+		return nil, fmt.Errorf("缺少dbname字段")
+	}
+
+	if sslmode, ok := configMap["sslmode"].(string); ok {
+		config.SSLMode = sslmode
+	} else {
+		config.SSLMode = "disable" // 默认值
+	}
+
+	return config, nil
+}
+
+// convertRedisConfig 转换Redis配置
+func (c *AuthClient) convertRedisConfig(configMap map[string]interface{}) (*RedisConfig, error) {
+	config := &RedisConfig{}
+
+	// 提取各字段
+	if host, ok := configMap["host"].(string); ok {
+		config.Host = host
+	} else {
+		return nil, fmt.Errorf("缺少host字段")
+	}
+
+	if port, ok := configMap["port"].(float64); ok {
+		config.Port = int(port)
+	} else {
+		config.Port = 6379 // 默认Redis端口
+	}
+
+	if password, ok := configMap["password"].(string); ok {
+		config.Password = password
+	}
+
+	if db, ok := configMap["db"].(float64); ok {
+		config.DB = int(db)
+	} else {
+		config.DB = 0 // 默认数据库
+	}
+
+	if prefix, ok := configMap["prefix"].(string); ok {
+		config.Prefix = prefix
+	} else {
+		config.Prefix = "ahop:queue" // 默认前缀
+	}
+
+	return config, nil
+}
+
+// GenerateWorkerID 生成唯一的Worker ID
+func GenerateWorkerID() string {
+	hostname, _ := os.Hostname()
+	if hostname == "" {
+		hostname = "unknown"
+	}
+	
+	// 使用主机名+时间戳纳秒确保唯一性
+	return fmt.Sprintf("worker-%s-%d", hostname, time.Now().UnixNano())
+}

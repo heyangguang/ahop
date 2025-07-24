@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AHOP WebSocket 网络扫描测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.connecting {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .log-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .log-entry.info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+        }
+        .log-entry.success {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+        .log-entry.error {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        .log-entry.warning {
+            background-color: #fff8e1;
+            border-left: 4px solid #ff9800;
+        }
+        .log-entry.progress {
+            background-color: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 11px;
+        }
+        .quick-fill {
+            margin-top: 10px;
+        }
+        .quick-fill button {
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 AHOP WebSocket 网络扫描测试</h1>
+        
+        <div class="status disconnected" id="status">
+            状态：未连接
+        </div>
+
+        <div class="form-group">
+            <label for="wsUrl">WebSocket URL:</label>
+            <input type="text" id="wsUrl" value="ws://192.168.31.66:8080/api/v1/ws/network-scan/" placeholder="ws://192.168.31.66:8080/api/v1/ws/network-scan/">
+        </div>
+
+        <div class="form-group">
+            <label for="scanId">扫描任务 ID:</label>
+            <input type="text" id="scanId" placeholder="例如: 5d41204a-883b-40d0-965f-ffe191c740a5">
+            <div class="quick-fill">
+                <button class="btn-warning" onclick="createNewScan()">创建新扫描任务</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="token">JWT Token:</label>
+            <textarea id="token" placeholder="请输入你的JWT Token"></textarea>
+            <div class="quick-fill">
+                <button class="btn-warning" onclick="loginAndGetToken()">登录获取Token</button>
+            </div>
+        </div>
+
+        <div class="form-group" id="scanConfig" style="display:none;">
+            <label>扫描配置:</label>
+            <input type="text" id="networks" placeholder="网段 (例如: 192.168.31.1/30)" value="192.168.31.1/30">
+            <div style="margin-top: 10px;">
+                <label><input type="checkbox" id="methodPing" checked> PING</label>
+                <label><input type="checkbox" id="methodTcp"> TCP</label>
+                <label><input type="checkbox" id="methodUdp"> UDP</label>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="connectWebSocket()">连接 WebSocket</button>
+            <button class="btn-danger" onclick="disconnectWebSocket()">断开连接</button>
+            <button class="btn-success" onclick="clearLogs()">清除日志</button>
+        </div>
+
+        <div class="progress-bar" id="progressBar" style="display:none;">
+            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+        </div>
+
+        <h3>📋 消息日志</h3>
+        <div class="log-container" id="logContainer">
+            <div class="log-entry info">
+                <span class="timestamp">${new Date().toLocaleTimeString()}</span> - 等待连接...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentScanId = null;
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span class="timestamp">${timestamp}</span> - ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStatus(status, text) {
+            const statusElement = document.getElementById('status');
+            statusElement.className = `status ${status}`;
+            statusElement.textContent = text;
+        }
+
+        function connectWebSocket() {
+            const wsUrl = document.getElementById('wsUrl').value;
+            const scanId = document.getElementById('scanId').value;
+            const token = document.getElementById('token').value;
+
+            if (!scanId) {
+                log('❌ 请输入扫描任务ID', 'error');
+                return;
+            }
+
+            if (!token) {
+                log('❌ 请输入JWT Token', 'error');
+                return;
+            }
+
+            const fullUrl = `${wsUrl}${scanId}?token=${token}`;
+            log(`正在连接: ${wsUrl}${scanId}`, 'info');
+            updateStatus('connecting', '状态：连接中...');
+
+            try {
+                ws = new WebSocket(fullUrl);
+                
+                ws.onopen = function() {
+                    log('✅ WebSocket连接成功！', 'success');
+                    updateStatus('connected', '状态：已连接');
+                    document.getElementById('progressBar').style.display = 'block';
+                };
+
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        log(`收到消息: ${JSON.stringify(data, null, 2)}`, 'info');
+                        
+                        if (data.type === 'progress') {
+                            handleProgressMessage(data.data);
+                        } else if (data.type === 'result') {
+                            handleResultMessage(data.data);
+                        } else if (data.type === 'complete') {
+                            handleCompleteMessage(data.data);
+                        } else if (data.type === 'status') {
+                            handleStatusMessage(data.data);
+                        }
+                    } catch (e) {
+                        log(`解析消息失败: ${e.message}`, 'error');
+                    }
+                };
+
+                ws.onerror = function(error) {
+                    log(`❌ WebSocket错误: ${error}`, 'error');
+                    updateStatus('disconnected', '状态：连接错误');
+                };
+
+                ws.onclose = function(event) {
+                    log(`🔌 连接关闭 - 代码: ${event.code}, 原因: ${event.reason || '未知'}`, 'warning');
+                    updateStatus('disconnected', '状态：已断开');
+                    ws = null;
+                };
+
+            } catch (e) {
+                log(`❌ 创建WebSocket失败: ${e.message}`, 'error');
+                updateStatus('disconnected', '状态：连接失败');
+            }
+        }
+
+        function handleProgressMessage(data) {
+            log(`📊 进度: ${data.progress}% - ${data.message} (已扫描: ${data.scanned}/${data.total}, 发现: ${data.found})`, 'progress');
+            updateProgressBar(data.progress);
+        }
+
+        function handleResultMessage(data) {
+            log(`🔍 发现存活主机: ${data.ip}`, 'success');
+            if (data.results) {
+                data.results.forEach(result => {
+                    log(`  - 协议: ${result.protocol}, 状态: ${result.status}, 响应时间: ${result.rtt}`, 'info');
+                });
+            }
+        }
+
+        function handleCompleteMessage(data) {
+            log(`✅ 扫描完成! 共发现 ${data.total_found} 个存活主机, 耗时: ${data.duration}`, 'success');
+            updateProgressBar(100);
+        }
+
+        function handleStatusMessage(data) {
+            log(`📋 任务状态: ${data.status}, 进度: ${data.progress}%, 已发现: ${data.results} 个结果`, 'info');
+        }
+
+        function updateProgressBar(progress) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = progress + '%';
+            progressFill.textContent = progress + '%';
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                log('正在断开连接...', 'warning');
+            } else {
+                log('当前没有活动的WebSocket连接', 'warning');
+            }
+        }
+
+        function clearLogs() {
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = '';
+            log('日志已清除', 'info');
+        }
+
+        async function loginAndGetToken() {
+            log('正在登录获取Token...', 'info');
+            
+            try {
+                const url = 'http://192.168.31.66:8080/api/v1/auth/login';
+                log(`正在发送请求到: ${url}`, 'info');
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'Admin@123'
+                    })
+                });
+
+                log(`响应状态: ${response.status} ${response.statusText}`, response.ok ? 'info' : 'error');
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    log(`响应内容: ${text}`, 'error');
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.code === 200) {
+                    document.getElementById('token').value = data.data.token;
+                    log('✅ 成功获取Token!', 'success');
+                } else {
+                    log(`❌ 登录失败: ${data.message}`, 'error');
+                }
+            } catch (e) {
+                log(`❌ 登录请求失败: ${e.message}`, 'error');
+                console.error('详细错误:', e);
+            }
+        }
+
+        async function createNewScan() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                log('❌ 请先获取Token', 'error');
+                return;
+            }
+
+            document.getElementById('scanConfig').style.display = 'block';
+            log('正在创建新的扫描任务...', 'info');
+
+            const methods = [];
+            if (document.getElementById('methodPing').checked) methods.push('ping');
+            if (document.getElementById('methodTcp').checked) methods.push('tcp');
+            if (document.getElementById('methodUdp').checked) methods.push('udp');
+
+            const networks = document.getElementById('networks').value.split(',').map(n => n.trim());
+
+            try {
+                const url = 'http://192.168.31.66:8080/api/v1/network-scan/start';
+                log(`正在发送请求到: ${url}`, 'info');
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        networks: networks,
+                        methods: methods,
+                        timeout: 5,
+                        concurrency: 3,
+                        ports: [22, 80, 443]
+                    })
+                });
+
+                log(`响应状态: ${response.status} ${response.statusText}`, response.ok ? 'info' : 'error');
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    log(`响应内容: ${text}`, 'error');
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.code === 200) {
+                    document.getElementById('scanId').value = data.data.scan_id;
+                    currentScanId = data.data.scan_id;
+                    log(`✅ 扫描任务创建成功! ID: ${data.data.scan_id}`, 'success');
+                    
+                    // 自动连接WebSocket
+                    setTimeout(() => {
+                        log('自动连接WebSocket...', 'info');
+                        connectWebSocket();
+                    }, 500);
+                } else {
+                    log(`❌ 创建扫描失败: ${data.message}`, 'error');
+                }
+            } catch (e) {
+                log(`❌ 创建扫描请求失败: ${e.message}`, 'error');
+                console.error('详细错误:', e);
+            }
+        }
+
+        // 页面加载时自动填充一些测试数据
+        window.onload = function() {
+            // 如果URL中有参数，自动填充
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('scanId')) {
+                document.getElementById('scanId').value = urlParams.get('scanId');
+            }
+            if (urlParams.get('token')) {
+                document.getElementById('token').value = urlParams.get('token');
+            }
+        };
+    </script>
+</body>
+</html>

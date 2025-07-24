@@ -1,0 +1,92 @@
+package main
+
+import (
+	"ahop/internal/database"
+	"ahop/internal/router"
+	"ahop/pkg/config"
+	"ahop/pkg/logger"
+	"errors"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
+
+func main() {
+	// 加载配置
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
+
+	// 初始化日志
+	if err := logger.Initialize(cfg); err != nil {
+		log.Fatalf("Failed to initialize logger: %v", err)
+	}
+
+	appLogger := logger.GetLogger()
+	appLogger.Info("Starting Auto Healing Platform...")
+
+	// 初始化数据库
+	if err := database.Initialize(cfg); err != nil {
+		appLogger.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer func() {
+		// 关闭数据库连接
+		if err := database.Close(); err != nil {
+			appLogger.Error("Failed to close database:", err)
+		}
+		// 关闭Redis连接
+		if err := database.CloseRedisQueue(); err != nil {
+			appLogger.Error("Failed to close Redis:", err)
+		}
+	}()
+
+	// 执行数据库迁移 - 在这里调用migrate
+	if err := database.Migrate(); err != nil {
+		appLogger.Fatalf("Failed to migrate database: %v", err)
+	}
+
+	// 执行种子数据初始化
+	if err := seedData(); err != nil {
+		appLogger.Fatalf("Failed to initialize seed data: %v", err)
+	}
+
+	// 设置Gin模式
+	gin.SetMode(cfg.Server.Mode)
+
+	// 设置路由
+	r := router.SetupRouter()
+
+	// 启动服务器
+	server := &http.Server{
+		Addr:         ":" + cfg.Server.Port,
+		Handler:      r,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	// 启动服务
+	go func() {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			appLogger.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	appLogger.Infof("Server started on port %s", cfg.Server.Port)
+
+	// 优雅关闭
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	appLogger.Info("Shutting down server...")
+	if err := server.Close(); err != nil {
+		appLogger.Error("Server forced to shutdown:", err)
+	}
+	appLogger.Info("Server exited")
+}
