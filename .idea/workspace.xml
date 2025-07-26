@@ -5,39 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26fa7800-2958-40fd-b497-6c36d4420e74" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/test.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/server/seed.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/seed.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/database/migrate.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/database/migrate.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/credential_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/credential_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/worker_auth_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/worker_auth_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/models/tenant.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/tenant.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/router/router.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/credential_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/credential_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/worker_auth_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/worker_auth_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/worker_manager_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/worker_manager_service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/task_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/task_handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/models/task.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/task.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/task_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/task_service.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/app.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/queue/redis_queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/queue/redis_queue.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/response/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/response/response.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/task-logs-websocket.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-stderr.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_ping_websocket.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/websocket-test.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/ansible.cfg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/build/ahop-worker" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/build/ahop-worker" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/internal/types/types.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/types/types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker-dist/internal/models/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/models/models.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/internal/worker/worker.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/worker/worker.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/logs/worker.log" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/logs/worker.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/pkg/auth/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/pkg/auth/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/pkg/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/pkg/config/config.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/worker" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/worker" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -115,9 +93,9 @@
       <window_info anchor="bottom" id="Problems" order="1" />
       <window_info anchor="bottom" id="Problems View" order="2" weight="0.5676758" />
       <window_info anchor="bottom" id="Services" order="3" weight="0.5676758" />
-      <window_info anchor="bottom" id="TODO" order="4" weight="0.50285506" />
-      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="5" sideWeight="0.50650054" visible="true" weight="0.5676758" />
-      <window_info anchor="bottom" id="Run" order="6" weight="0.5676758" />
+      <window_info anchor="bottom" id="TODO" order="4" weight="0.5605521" />
+      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="5" sideWeight="0.50650054" visible="true" weight="0.5605521" />
+      <window_info anchor="bottom" id="Run" order="6" weight="0.5605521" />
       <window_info anchor="bottom" id="Database Changes" order="7" weight="0.5676758" />
       <window_info anchor="bottom" id="Find" order="8" weight="0.4550321" />
       <window_info anchor="right" id="Notifications" order="0" weight="0.22140865" />
@@ -132,6 +110,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/test/playbooks" />
       <recent name="$PROJECT_DIR$/internal/database" />
       <recent name="$PROJECT_DIR$/pkg/response" />
       <recent name="$PROJECT_DIR$" />

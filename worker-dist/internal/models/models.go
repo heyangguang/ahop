@@ -146,6 +146,33 @@ type Tag struct {
 	UpdatedBy   uint   `json:"updated_by"`
 }
 
+// GitRepository Git仓库模型（只读）
+type GitRepository struct {
+	BaseModel
+	TenantID uint   `gorm:"not null;index" json:"tenant_id"`
+	Name     string `gorm:"size:100;not null" json:"name"`
+	LocalPath string `gorm:"size:500;not null" json:"local_path"`
+}
+
+// TaskTemplate 任务模板模型（只读）
+type TaskTemplate struct {
+	ID       uint   `gorm:"primarykey" json:"id"`
+	TenantID uint   `gorm:"not null;index" json:"tenant_id"`
+	Name     string `gorm:"size:100;not null" json:"name"`
+	Code     string `gorm:"size:50;not null" json:"code"`
+	
+	// 脚本信息
+	ScriptType     string `gorm:"size:20;not null" json:"script_type"` // shell/ansible
+	EntryFile      string `gorm:"size:500;not null" json:"entry_file"` // 主执行文件路径
+	RepositoryID   uint   `gorm:"not null;index" json:"repository_id"`
+	
+	// 执行配置
+	RequireSudo bool `gorm:"default:false" json:"require_sudo"`
+	
+	// 关联
+	Repository GitRepository `gorm:"foreignKey:RepositoryID" json:"repository,omitempty"`
+}
+
 // Worker Worker注册信息
 type Worker struct {
 	ID         uint   `gorm:"primarykey" json:"id"`

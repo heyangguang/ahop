@@ -1,0 +1,70 @@
+---
+# Nginx部署和配置Playbook
+# 简化版 - 不使用facts
+
+- name: Deploy and Configure Nginx
+  hosts: all
+  become: yes
+  vars:
+    # 这些变量会通过AHOP平台传入
+    nginx_version: "{{ nginx_version | default('stable') }}"
+    server_name: "{{ server_name | default('example.com') }}"
+    listen_port: "{{ listen_port | default('80') }}"
+    enable_ssl: "{{ enable_ssl | default('false') }}"
+    ssl_cert_path: "{{ ssl_cert_path | default('') }}"
+    worker_processes: "{{ worker_processes | default('auto') }}"
+
+  tasks:
+    - name: Display deployment information
+      debug:
+        msg: |
+          =================================
+          Nginx Deployment Configuration
+          =================================
+          Version: {{ nginx_version }}
+          Server Name: {{ server_name }}
+          Listen Port: {{ listen_port }}
+          SSL Enabled: {{ enable_ssl }}
+          Worker Processes: {{ worker_processes }}
+          =================================
+
+    # CentOS/RHEL系统
+    - name: Install EPEL repository
+      yum:
+        name: epel-release
+        state: present
+
+    - name: Install Nginx
+      yum:
+        name: nginx
+        state: present
+
+    - name: Ensure Nginx is started and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Create test site config
+      copy:
+        content: |
+          server {
+              listen {{ listen_port }};
+              server_name {{ server_name }};
+              
+              location / {
+                  return 200 "Hello from {{ server_name }}!\n";
+                  add_header Content-Type text/plain;
+              }
+          }
+        dest: "/etc/nginx/conf.d/{{ server_name }}.conf"
+        mode: '0644'
+
+    - name: Test nginx configuration
+      command: nginx -t
+      register: nginx_test
+
+    - name: Reload nginx
+      service:
+        name: nginx
+        state: reloaded

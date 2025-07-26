@@ -148,6 +148,70 @@ func (s *TaskService) ListTasks(tenantID uint, page, pageSize int, filters map[s
 	return tasks, total, nil
 }
 
+// CreateTemplateTask 创建模板任务
+func (s *TaskService) CreateTemplateTask(task *models.Task, templateID uint, variables map[string]interface{}, hostIDs []uint) error {
+	// 验证任务模板是否存在
+	var template models.TaskTemplate
+	if err := s.db.Where("id = ? AND tenant_id = ?", templateID, task.TenantID).First(&template).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return fmt.Errorf("任务模板不存在")
+		}
+		return err
+	}
+
+	// 验证主机是否存在且属于当前租户
+	var hosts []models.Host
+	if err := s.db.Where("id IN ? AND tenant_id = ?", hostIDs, task.TenantID).Find(&hosts).Error; err != nil {
+		return err
+	}
+	if len(hosts) != len(hostIDs) {
+		return fmt.Errorf("部分主机不存在或不属于当前租户")
+	}
+
+	// 构建任务参数，将主机ID数组转换为 interface{} 数组
+	hostsInterface := make([]interface{}, len(hostIDs))
+	for i, id := range hostIDs {
+		hostsInterface[i] = id
+	}
+
+	taskParams := models.TaskParams{
+		TemplateID: templateID,
+		Variables:  variables,
+		Hosts:      hostsInterface, // 使用 hosts 字段传递主机ID
+	}
+
+	paramsJSON, err := json.Marshal(taskParams)
+	if err != nil {
+		return fmt.Errorf("序列化任务参数失败: %v", err)
+	}
+
+	// 设置任务属性
+	task.TaskType = models.TaskTypeTemplate
+	task.Params = paramsJSON
+	
+	// 如果没有设置任务名称，使用模板名称
+	if task.Name == "" {
+		task.Name = fmt.Sprintf("%s - %s", template.Name, time.Now().Format("2006-01-02 15:04:05"))
+	}
+
+	// 如果没有设置超时时间，使用模板的超时时间
+	if task.Timeout == 0 && template.Timeout > 0 {
+		task.Timeout = template.Timeout
+	}
+
+	// 调用基础的创建任务方法
+	return s.CreateTask(task)
+}
+
+
+// SaveTaskLogs 批量保存任务日志
+func (s *TaskService) SaveTaskLogs(logs []models.TaskLog) error {
+	if len(logs) == 0 {
+		return nil
+	}
+	return s.db.CreateInBatches(logs, 100).Error
+}
+
 // UpdateTaskStatus 更新任务状态
 func (s *TaskService) UpdateTaskStatus(taskID string, status string, progress int, workerID string) error {
 	// 更新数据库
@@ -161,12 +225,13 @@ func (s *TaskService) UpdateTaskStatus(taskID string, status string, progress in
 		updates["worker_id"] = workerID
 	}
 
+	now := time.Now()
 	if status == "locked" {
-		updates["locked_at"] = time.Now()
+		updates["locked_at"] = &now
 	} else if status == "running" {
-		updates["started_at"] = time.Now()
+		updates["started_at"] = &now
 	} else if status == "success" || status == "failed" || status == "cancelled" || status == "timeout" {
-		updates["finished_at"] = time.Now()
+		updates["finished_at"] = &now
 	}
 
 	result := s.db.Model(&models.Task{}).
@@ -187,6 +252,22 @@ func (s *TaskService) UpdateTaskStatus(taskID string, status string, progress in
 	}
 
 	return nil
+}
+
+// UpdateTemplateTaskResult 更新模板任务执行结果
+func (s *TaskService) UpdateTemplateTaskResult(taskID string, result *models.TaskTemplateResult) error {
+	if result == nil {
+		return nil
+	}
+	
+	resultJSON, err := json.Marshal(result)
+	if err != nil {
+		return fmt.Errorf("序列化任务结果失败: %v", err)
+	}
+	
+	return s.db.Model(&models.Task{}).
+		Where("task_id = ?", taskID).
+		Update("result", resultJSON).Error
 }
 
 // SetTaskResult 设置任务结果

@@ -240,6 +240,13 @@ func (w *Worker) registerExecutors() {
 		w.executors[taskType] = pingExecutor
 	}
 
+	// 注册模板执行器（用于template任务）
+	templateExecutor := executor.NewTemplateExecutor(w.db, w.config.Git.RepoBaseDir, w.log)
+	templateExecutor.SetRedisClient(redisClient)
+	for _, taskType := range templateExecutor.GetSupportedTypes() {
+		w.executors[taskType] = templateExecutor
+	}
+
 	// 创建Git同步执行器（不作为普通任务执行器注册）
 	w.gitSyncExecutor = executor.NewGitSyncExecutor(w.db, w.authClient, w.config.Git.RepoBaseDir, w.log)
 
@@ -512,7 +519,7 @@ func (w *Worker) processTask(log *logrus.Entry) error {
 	if result.Success {
 		w.queue.SetTaskResult(taskMessage.TaskID, result.Result, "")
 	} else {
-		w.queue.SetTaskResult(taskMessage.TaskID, nil, result.Error)
+		w.queue.SetTaskResult(taskMessage.TaskID, result.Result, result.Error)
 	}
 
 	// 更新数据库任务状态
@@ -617,6 +624,11 @@ func (w *Worker) updateTaskInDB(task *models.Task, result *executor.TaskResult) 
 	} else {
 		updates["status"] = "failed"
 		updates["error"] = result.Error
+		// 失败时也保存result
+		if result.Result != nil {
+			resultData, _ := json.Marshal(result.Result)
+			updates["result"] = models.JSON(resultData)
+		}
 	}
 
 	w.db.Model(task).Updates(updates)

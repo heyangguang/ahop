@@ -1,0 +1,122 @@
+{
+  "说明": "任务模板执行测试用例",
+  "base_url": "http://localhost:8080",
+  
+  "1_执行数据库备份任务": {
+    "method": "POST",
+    "url": "/api/v1/tasks",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "测试MySQL备份",
+      "task_type": "template",
+      "hosts": [
+        {
+          "host_id": 1,
+          "credential_id": 1
+        }
+      ],
+      "template_id": 1,
+      "variables": {
+        "db_host": "localhost",
+        "db_port": "3306",
+        "db_name": "test_db",
+        "db_user": "root",
+        "db_password": "Admin@123",
+        "backup_path": "/tmp/backup",
+        "retention_days": "7"
+      }
+    }
+  },
+
+  "2_执行系统信息收集任务": {
+    "method": "POST",
+    "url": "/api/v1/tasks",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "收集系统信息",
+      "task_type": "template",
+      "hosts": [
+        {
+          "host_id": 1,
+          "credential_id": 1
+        },
+        {
+          "host_id": 2,
+          "credential_id": 2
+        }
+      ],
+      "template_id": 2,
+      "variables": {
+        "output_format": "json",
+        "show_disk": "yes",
+        "show_network": "yes"
+      }
+    }
+  },
+
+  "3_执行Nginx部署任务": {
+    "method": "POST",
+    "url": "/api/v1/tasks",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "部署Nginx",
+      "task_type": "template",
+      "hosts": [
+        {
+          "host_id": 3,
+          "credential_id": 3
+        }
+      ],
+      "template_id": 3,
+      "variables": {
+        "nginx_version": "stable",
+        "server_name": "example.com",
+        "listen_port": "80",
+        "enable_ssl": "false",
+        "worker_processes": "auto"
+      },
+      "ansible_options": {
+        "become": true,
+        "become_method": "sudo",
+        "become_user": "root"
+      }
+    }
+  },
+
+  "4_获取任务详情": {
+    "method": "GET",
+    "url": "/api/v1/tasks/{task_id}",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    }
+  },
+
+  "5_获取任务日志": {
+    "method": "GET",
+    "url": "/api/v1/tasks/{task_id}/logs",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    }
+  },
+
+  "6_WebSocket连接实时日志": {
+    "method": "WebSocket",
+    "url": "ws://localhost:8080/ws/task/{task_id}/logs?token={token}",
+    "说明": "通过WebSocket实时接收任务执行日志"
+  },
+
+  "注意事项": {
+    "task_type": "必须设置为 'template' 表示执行模板任务",
+    "template_id": "需要使用实际创建的任务模板ID",
+    "host_id": "需要使用实际的主机ID",
+    "credential_id": "需要使用实际的凭证ID",
+    "variables": "根据模板定义的参数传递相应的值",
+    "ansible_options": "仅在ansible类型任务时使用"
+  }
+}

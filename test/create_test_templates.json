@@ -1,0 +1,132 @@
+{
+  "说明": "测试用的任务模板，不依赖外部命令和facts",
+  
+  "1_创建Shell测试模板": {
+    "method": "POST",
+    "url": "/api/v1/task-templates",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "Echo测试模板",
+      "code": "echo_test",
+      "description": "简单的echo测试脚本",
+      "script_type": "shell",
+      "entry_file": "test/scripts/test_echo.sh",
+      "repository_id": 1,
+      "execution_type": "ssh",
+      "require_sudo": false,
+      "timeout": 60,
+      "parameters": [
+        {
+          "variable": "message",
+          "type": "text",
+          "question_name": "测试消息",
+          "question_description": "要显示的消息内容",
+          "required": false,
+          "default": "Hello from AHOP!"
+        },
+        {
+          "variable": "count",
+          "type": "text",
+          "question_name": "重复次数",
+          "question_description": "消息重复显示的次数",
+          "required": false,
+          "default": "3"
+        }
+      ]
+    }
+  },
+
+  "2_创建Ansible测试模板": {
+    "method": "POST",
+    "url": "/api/v1/task-templates",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "Ansible Echo测试模板",
+      "code": "ansible_echo_test",
+      "description": "简单的Ansible测试任务，不需要facts",
+      "script_type": "ansible",
+      "entry_file": "test/playbooks/test_echo.yml",
+      "repository_id": 1,
+      "execution_type": "ansible",
+      "require_sudo": false,
+      "timeout": 120,
+      "parameters": [
+        {
+          "variable": "message",
+          "type": "text",
+          "question_name": "测试消息",
+          "question_description": "要显示的消息内容",
+          "required": false,
+          "default": "Hello from AHOP Task Template!"
+        },
+        {
+          "variable": "count",
+          "type": "text",
+          "question_name": "重复次数",
+          "question_description": "消息重复显示的次数",
+          "required": false,
+          "default": "3"
+        }
+      ]
+    }
+  },
+
+  "3_创建Nginx部署模板（无Facts版）": {
+    "method": "POST",
+    "url": "/api/v1/task-templates",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "Nginx部署模板（无Facts）",
+      "code": "nginx_deploy_no_facts",
+      "description": "不依赖facts的Nginx部署模板",
+      "script_type": "ansible",
+      "entry_file": "test/playbooks/nginx_deploy_no_facts.yml",
+      "repository_id": 1,
+      "execution_type": "ansible",
+      "require_sudo": true,
+      "timeout": 600,
+      "parameters": [
+        {
+          "variable": "nginx_version",
+          "type": "select",
+          "question_name": "Nginx版本",
+          "question_description": "要安装的Nginx版本",
+          "required": false,
+          "default": "stable",
+          "choices": ["stable", "mainline"]
+        },
+        {
+          "variable": "server_name",
+          "type": "text",
+          "question_name": "服务器域名",
+          "question_description": "Nginx站点域名",
+          "required": false,
+          "default": "example.com"
+        },
+        {
+          "variable": "listen_port",
+          "type": "text",
+          "question_name": "监听端口",
+          "question_description": "Nginx监听端口",
+          "required": false,
+          "default": "80"
+        },
+        {
+          "variable": "os_type",
+          "type": "select",
+          "question_name": "操作系统类型",
+          "question_description": "目标服务器的操作系统",
+          "required": true,
+          "default": "ubuntu",
+          "choices": ["ubuntu", "debian", "centos", "rhel"]
+        }
+      ]
+    }
+  }
+}

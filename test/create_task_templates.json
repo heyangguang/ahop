@@ -1,0 +1,204 @@
+{
+  "说明": "基于扫描结果创建任务模板的API请求",
+  "base_url": "http://localhost:8080",
+  
+  "1_创建数据库备份模板": {
+    "method": "POST",
+    "url": "/api/v1/task-templates",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "数据库备份模板",
+      "code": "db_backup",
+      "description": "MySQL数据库备份脚本",
+      "script_type": "shell",
+      "entry_file": "scripts/backup_database.sh",
+      "repository_id": 73,
+      "execution_type": "ssh",
+      "require_sudo": false,
+      "timeout": 600,
+      "parameters": [
+        {
+          "variable": "db_host",
+          "type": "text",
+          "question_name": "数据库主机地址",
+          "question_description": "数据库主机地址",
+          "required": true,
+          "default": "localhost"
+        },
+        {
+          "variable": "db_port",
+          "type": "text",
+          "question_name": "数据库端口",
+          "question_description": "数据库端口",
+          "required": false,
+          "default": "3306"
+        },
+        {
+          "variable": "db_name",
+          "type": "text",
+          "question_name": "数据库名称",
+          "question_description": "数据库名称",
+          "required": true
+        },
+        {
+          "variable": "db_user",
+          "type": "text",
+          "question_name": "数据库用户名",
+          "question_description": "数据库用户名",
+          "required": true,
+          "default": "root"
+        },
+        {
+          "variable": "db_password",
+          "type": "password",
+          "question_name": "数据库密码",
+          "question_description": "数据库密码",
+          "required": true
+        },
+        {
+          "variable": "backup_path",
+          "type": "text",
+          "question_name": "备份文件保存路径",
+          "question_description": "备份文件保存路径",
+          "required": true,
+          "default": "/backup/mysql"
+        },
+        {
+          "variable": "retention_days",
+          "type": "text",
+          "question_name": "备份保留天数",
+          "question_description": "备份保留天数",
+          "required": false,
+          "default": "7"
+        }
+      ]
+    }
+  },
+
+  "2_创建系统信息收集模板": {
+    "method": "POST",
+    "url": "/api/v1/task-templates",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "系统信息收集模板",
+      "code": "system_info",
+      "description": "收集系统基本信息",
+      "script_type": "shell",
+      "entry_file": "scripts/system_info.sh",
+      "repository_id": 73,
+      "execution_type": "ssh",
+      "require_sudo": false,
+      "timeout": 300,
+      "parameters": [
+        {
+          "variable": "output_format",
+          "type": "multiplechoice",
+          "question_name": "输出格式",
+          "question_description": "输出格式（text/json）",
+          "required": false,
+          "default": "text",
+          "choices": ["text", "json"]
+        },
+        {
+          "variable": "show_disk",
+          "type": "multiplechoice",
+          "question_name": "显示磁盘信息",
+          "question_description": "是否显示磁盘信息（yes/no）",
+          "required": false,
+          "default": "yes",
+          "choices": ["yes", "no"]
+        },
+        {
+          "variable": "show_network",
+          "type": "multiplechoice",
+          "question_name": "显示网络信息",
+          "question_description": "是否显示网络信息（yes/no）",
+          "required": false,
+          "default": "yes",
+          "choices": ["yes", "no"]
+        }
+      ]
+    }
+  },
+
+  "3_创建Nginx部署模板": {
+    "method": "POST",
+    "url": "/api/v1/task-templates",
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body": {
+      "name": "Nginx部署模板",
+      "code": "nginx_deploy",
+      "description": "部署和配置Nginx Web服务器",
+      "script_type": "ansible",
+      "entry_file": "deploy_nginx.yml",
+      "repository_id": 73,
+      "execution_type": "ansible",
+      "require_sudo": true,
+      "timeout": 900,
+      "parameters": [
+        {
+          "variable": "nginx_version",
+          "type": "multiplechoice",
+          "question_name": "Nginx版本",
+          "question_description": "Nginx版本",
+          "required": true,
+          "default": "stable",
+          "choices": ["stable", "mainline", "1.20", "1.22"]
+        },
+        {
+          "variable": "server_name",
+          "type": "text",
+          "question_name": "服务器域名",
+          "question_description": "服务器域名",
+          "required": true,
+          "default": "example.com"
+        },
+        {
+          "variable": "listen_port",
+          "type": "text",
+          "question_name": "监听端口",
+          "question_description": "监听端口",
+          "required": false,
+          "default": "80"
+        },
+        {
+          "variable": "enable_ssl",
+          "type": "multiplechoice",
+          "question_name": "启用SSL",
+          "question_description": "启用SSL",
+          "required": true,
+          "default": "false",
+          "choices": ["true", "false"]
+        },
+        {
+          "variable": "ssl_cert_path",
+          "type": "text",
+          "question_name": "SSL证书路径",
+          "question_description": "SSL证书路径",
+          "required": false
+        },
+        {
+          "variable": "worker_processes",
+          "type": "text",
+          "question_name": "工作进程数",
+          "question_description": "工作进程数",
+          "required": false,
+          "default": "auto"
+        }
+      ]
+    }
+  },
+
+  "注意事项": {
+    "parameters字段格式": "使用SurveyParameter格式，主要字段为variable、type、question_name等",
+    "type类型映射": "text->string, multiplechoice->select, integer->string, password->password",
+    "repository_id": "请确保使用正确的仓库ID (这里是73)",
+    "entry_file": "文件路径相对于仓库根目录"
+  }
+}

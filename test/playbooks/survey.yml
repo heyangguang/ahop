@@ -1,0 +1,56 @@
+name: Nginx部署配置
+description: 部署和配置Nginx Web服务器
+spec:
+  - type: multiplechoice
+    variable: nginx_version
+    question_name: Nginx版本
+    question_description: 选择要安装的Nginx版本
+    required: true
+    default: "stable"
+    choices:
+      - "stable"
+      - "mainline"
+      - "1.20"
+      - "1.22"
+  
+  - type: text
+    variable: server_name
+    question_name: 服务器域名
+    question_description: 输入Nginx服务器的域名（如：example.com）
+    required: true
+    default: "example.com"
+    min_length: 3
+    max_length: 255
+  
+  - type: integer
+    variable: listen_port
+    question_name: 监听端口
+    question_description: HTTP服务监听端口
+    required: false
+    default: 80
+    min: 1
+    max: 65535
+  
+  - type: multiplechoice
+    variable: enable_ssl
+    question_name: 启用SSL
+    question_description: 是否启用HTTPS支持
+    required: true
+    default: "false"
+    choices:
+      - "true"
+      - "false"
+  
+  - type: text
+    variable: ssl_cert_path
+    question_name: SSL证书路径
+    question_description: SSL证书文件的完整路径（启用SSL时必填）
+    required: false
+    default: ""
+  
+  - type: text
+    variable: worker_processes
+    question_name: 工作进程数
+    question_description: Nginx工作进程数（auto表示自动检测）
+    required: false
+    default: "auto"

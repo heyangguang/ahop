@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 // TaskHandler 任务处理器
@@ -31,17 +32,45 @@ func (h *TaskHandler) Create(c *gin.Context) {
 	claims := c.MustGet("claims").(*jwt.JWTClaims)
 
 	var req struct {
-		TaskType    string                 `json:"task_type" binding:"required,oneof=ping collect"`
+		TaskType    string                 `json:"task_type" binding:"required,oneof=ping collect template"`
 		Name        string                 `json:"name" binding:"required,min=1,max=200"`
-		Priority    int                    `json:"priority" binding:"min=1,max=10"`
-		Timeout     int                    `json:"timeout" binding:"min=1,max=86400"`
+		Priority    int                    `json:"priority" binding:"omitempty,min=1,max=10"`
+		Timeout     int                    `json:"timeout" binding:"omitempty,min=1,max=86400"`
 		Description string                 `json:"description" binding:"max=500"`
-		Hosts       []uint                 `json:"hosts" binding:"required,min=1"`
+		
+		// 所有任务类型都使用 hosts 字段
+		// ping/collect: 主机ID数组
+		// template: 主机ID数组
+		Hosts       []uint                 `json:"hosts,omitempty"`
+		
+		// template任务专用字段
+		TemplateID  uint                   `json:"template_id,omitempty"`
 		Variables   map[string]interface{} `json:"variables,omitempty"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, err.Error())
+		// 解析验证错误，提供更友好的提示
+		if validationErr, ok := err.(validator.ValidationErrors); ok {
+			errorMsg := "参数验证失败："
+			for _, fieldErr := range validationErr {
+				switch fieldErr.Field() {
+				case "TaskType":
+					errorMsg = "任务类型必须是 ping、collect 或 template"
+				case "Name":
+					errorMsg = "任务名称不能为空，且长度在1-200个字符之间"
+				case "Priority":
+					errorMsg = "任务优先级必须在1-10之间"
+				case "Timeout":
+					errorMsg = "超时时间必须在1-86400秒之间"
+				default:
+					errorMsg = fmt.Sprintf("字段 %s 验证失败", fieldErr.Field())
+				}
+				break // 只返回第一个错误
+			}
+			response.BadRequest(c, errorMsg)
+			return
+		}
+		response.BadRequest(c, "请求参数格式错误")
 		return
 	}
 
@@ -53,46 +82,89 @@ func (h *TaskHandler) Create(c *gin.Context) {
 		req.Timeout = 3600 // 默认1小时
 	}
 
-	// 验证主机是否存在且属于当前租户
-	if err := h.validateHosts(claims.CurrentTenantID, req.Hosts); err != nil {
-		response.BadRequest(c, err.Error())
+	// 根据任务类型进行不同的处理
+	switch req.TaskType {
+	case models.TaskTypeTemplate:
+		// 模板任务
+		if req.TemplateID == 0 {
+			response.BadRequest(c, "模板任务必须指定template_id")
+			return
+		}
+		if len(req.Hosts) == 0 {
+			response.BadRequest(c, "模板任务必须指定目标主机")
+			return
+		}
+
+		// 创建基础任务对象
+		task := &models.Task{
+			TenantID:    claims.CurrentTenantID,
+			Name:        req.Name,
+			Priority:    req.Priority,
+			Timeout:     req.Timeout,
+			Description: req.Description,
+			CreatedBy:   claims.UserID,
+			Username:    claims.Username,
+			Source:      "api",
+		}
+
+		// 调用模板任务创建方法
+		if err := h.taskService.CreateTemplateTask(task, req.TemplateID, req.Variables, req.Hosts); err != nil {
+			response.ServerError(c, err.Error())
+			return
+		}
+		response.Success(c, task)
+
+	case models.TaskTypePing, models.TaskTypeCollect:
+		// ping/collect任务
+		if len(req.Hosts) == 0 {
+			response.BadRequest(c, "ping/collect任务必须指定hosts")
+			return
+		}
+
+		// 验证主机是否存在且属于当前租户
+		if err := h.validateHosts(claims.CurrentTenantID, req.Hosts); err != nil {
+			response.BadRequest(c, err.Error())
+			return
+		}
+
+		// 验证 variables 中的 ansible 参数
+		if err := h.validateVariables(req.TaskType, req.Variables); err != nil {
+			response.BadRequest(c, err.Error())
+			return
+		}
+
+		// 构建任务参数
+		params := h.buildTaskParams(req.Hosts, req.Variables)
+		paramsData, err := json.Marshal(params)
+		if err != nil {
+			response.BadRequest(c, "参数序列化失败")
+			return
+		}
+
+		// 创建任务
+		task := &models.Task{
+			TenantID:    claims.CurrentTenantID,
+			TaskType:    req.TaskType,
+			Name:        req.Name,
+			Priority:    req.Priority,
+			Params:      paramsData,
+			Timeout:     req.Timeout,
+			Description: req.Description,
+			CreatedBy:   claims.UserID,
+			Username:    claims.Username,
+			Source:      "api",
+		}
+
+		if err := h.taskService.CreateTask(task); err != nil {
+			response.ServerError(c, err.Error())
+			return
+		}
+		response.Success(c, task)
+
+	default:
+		response.BadRequest(c, "不支持的任务类型")
 		return
 	}
-
-	// 验证 variables 中的 ansible 参数
-	if err := h.validateVariables(req.TaskType, req.Variables); err != nil {
-		response.BadRequest(c, err.Error())
-		return
-	}
-
-	// 构建任务参数
-	params := h.buildTaskParams(req.Hosts, req.Variables)
-	paramsData, err := json.Marshal(params)
-	if err != nil {
-		response.BadRequest(c, "参数序列化失败")
-		return
-	}
-
-	// 创建任务
-	task := &models.Task{
-		TenantID:    claims.CurrentTenantID,
-		TaskType:    req.TaskType,
-		Name:        req.Name,
-		Priority:    req.Priority,
-		Params:      paramsData,
-		Timeout:     req.Timeout,
-		Description: req.Description,
-		CreatedBy:   claims.UserID,
-		Username:    claims.Username,  // 从JWT中获取用户名
-		Source:      "api",            // API创建的任务
-	}
-
-	if err := h.taskService.CreateTask(task); err != nil {
-		response.ServerError(c, err.Error())
-		return
-	}
-
-	response.Success(c, task)
 }
 
 // GetByID 获取任务详情

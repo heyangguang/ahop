@@ -11,23 +11,19 @@ const (
 	TaskTypePing    = "ping"    // 主机探活（网络ping）
 	TaskTypeCollect = "collect" // 信息采集（Ansible setup）
 
-	// TaskTypeTemplate 未来的任务类型
-	TaskTypeTemplate = "template" // 任务模板（TODO: 未来实现）
-)
-
-// 执行器类型常量
-const (
-	ExecutorTypeAnsible = "ansible" // Ansible执行器
-	ExecutorTypeShell   = "shell"   // Shell执行器（SSH）
+	// TaskTypeTemplate 任务模板类型
+	TaskTypeTemplate = "template" // 任务模板执行
 )
 
 // TaskParams 任务参数结构
 type TaskParams struct {
 	// 基础参数
-	Hosts []TaskHost `json:"hosts" binding:"required"`
+	// 对于 ping/collect 任务：Hosts 是 TaskHost 结构体数组
+	// 对于 template 任务：Hosts 是主机ID数组（[]uint），Worker会解析为整数
+	Hosts []interface{} `json:"hosts,omitempty"`
 
-	// 任务模板参数（未来使用）
-	TemplateID int                    `json:"template_id,omitempty"`
+	// 任务模板参数（template任务使用）
+	TemplateID uint                   `json:"template_id,omitempty"`
 	Variables  map[string]interface{} `json:"variables,omitempty"`
 
 	// Ansible执行选项
@@ -186,4 +182,25 @@ func (j *JSON) UnmarshalJSON(data []byte) error {
 	}
 	*j = data
 	return nil
+}
+
+// TaskExecutionResult 任务执行结果（用于模板任务）
+type TaskExecutionResult struct {
+	HostID       uint       `json:"host_id"`
+	HostName     string     `json:"host_name"`
+	Status       string     `json:"status"` // success/failed/skipped
+	StartedAt    *time.Time `json:"started_at,omitempty"`
+	FinishedAt   *time.Time `json:"finished_at,omitempty"`
+	ExitCode     int        `json:"exit_code"`
+	Output       string     `json:"output,omitempty"`
+	ErrorMessage string     `json:"error_message,omitempty"`
+}
+
+// TaskTemplateResult 模板任务执行结果
+type TaskTemplateResult struct {
+	TotalHosts   int                   `json:"total_hosts"`
+	SuccessHosts int                   `json:"success_hosts"`
+	FailedHosts  int                   `json:"failed_hosts"`
+	SkippedHosts int                   `json:"skipped_hosts"`
+	Executions   []TaskExecutionResult `json:"executions"`
 }
