@@ -5,6 +5,7 @@ import (
 	"ahop/pkg/response"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -78,11 +79,17 @@ func (h *WorkerAuthHandler) Authenticate(c *gin.Context) {
 		return
 	}
 
-	// 4. 记录认证日志
+	// 4. 检查Worker ID唯一性
+	if err := h.workerAuthService.RegisterWorkerConnection(req.WorkerID, req.AccessKey, c.ClientIP()); err != nil {
+		response.Conflict(c, err.Error())
+		return
+	}
+
+	// 5. 记录认证日志
 	clientIP := c.ClientIP()
 	h.workerAuthService.LogWorkerAuth(req.WorkerID, req.AccessKey, "success", clientIP)
 
-	// 5. 返回数据库和Redis配置
+	// 6. 返回数据库和Redis配置
 	response.Success(c, map[string]interface{}{
 		"database_config": auth.GetDatabaseConfig(),
 		"redis_config":    auth.GetRedisConfig(),
@@ -148,7 +155,133 @@ func (h *WorkerAuthHandler) ListWorkerAuths(c *gin.Context) {
 	})
 }
 
-// UpdateWorkerAuthStatus 更新Worker授权状态（管理员接口）
+// Heartbeat Worker心跳接口
+func (h *WorkerAuthHandler) Heartbeat(c *gin.Context) {
+	var req struct {
+		WorkerID  string `json:"worker_id" binding:"required"`
+		AccessKey string `json:"-"`
+		Timestamp int64  `json:"-"`
+		Signature string `json:"-"`
+	}
+	
+	// 解析请求体
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "请求参数错误: "+err.Error())
+		return
+	}
+	
+	// 从头部获取认证信息
+	req.AccessKey = c.GetHeader("X-Access-Key")
+	timestampStr := c.GetHeader("X-Timestamp")
+	req.Signature = c.GetHeader("X-Signature")
+	
+	if req.AccessKey == "" || timestampStr == "" || req.Signature == "" {
+		response.Unauthorized(c, "缺少认证信息")
+		return
+	}
+	
+	// 解析时间戳
+	timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+	if err != nil {
+		response.Unauthorized(c, "无效的时间戳")
+		return
+	}
+	req.Timestamp = timestamp
+	
+	// 1. 验证AccessKey
+	auth, err := h.workerAuthService.ValidateAccessKey(req.AccessKey)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
+	}
+	
+	// 2. 验证时间戳（防重放攻击）
+	if !h.workerAuthService.IsValidTimestamp(req.Timestamp) {
+		response.Unauthorized(c, "请求已过期")
+		return
+	}
+	
+	// 3. 验证签名
+	if !h.workerAuthService.VerifySignature(req.AccessKey, "/api/v1/worker/heartbeat", req.Timestamp, req.Signature, auth.SecretKey) {
+		response.Unauthorized(c, "签名验证失败")
+		return
+	}
+	
+	// 4. 更新心跳
+	if err := h.workerAuthService.UpdateWorkerHeartbeat(req.WorkerID); err != nil {
+		response.ServerError(c, "更新心跳失败: "+err.Error())
+		return
+	}
+	
+	response.Success(c, gin.H{
+		"worker_id": req.WorkerID,
+		"timestamp": time.Now().Unix(),
+	})
+}
+
+// DisconnectRequest Worker断开连接请求
+type DisconnectRequest struct {
+	WorkerID string `json:"worker_id" binding:"required"`
+}
+
+// Disconnect Worker主动断开连接
+func (h *WorkerAuthHandler) Disconnect(c *gin.Context) {
+	var req DisconnectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "请求参数错误: "+err.Error())
+		return
+	}
+
+	// 从头部获取认证信息
+	accessKey := c.GetHeader("X-Access-Key")
+	timestampStr := c.GetHeader("X-Timestamp")
+	signature := c.GetHeader("X-Signature")
+	
+	if accessKey == "" || timestampStr == "" || signature == "" {
+		response.Unauthorized(c, "缺少认证信息")
+		return
+	}
+	
+	// 解析时间戳
+	timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+	if err != nil {
+		response.Unauthorized(c, "无效的时间戳")
+		return
+	}
+	
+	// 1. 验证AccessKey
+	auth, err := h.workerAuthService.ValidateAccessKey(accessKey)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
+	}
+	
+	// 2. 验证时间戳（防重放攻击）
+	if !h.workerAuthService.IsValidTimestamp(timestamp) {
+		response.Unauthorized(c, "请求已过期")
+		return
+	}
+	
+	// 3. 验证签名
+	if !h.workerAuthService.VerifySignature(accessKey, req.WorkerID, timestamp, signature, auth.SecretKey) {
+		response.Unauthorized(c, "签名验证失败")
+		return
+	}
+
+	// 4. 断开Worker连接
+	if err := h.workerAuthService.DisconnectWorker(req.WorkerID); err != nil {
+		response.ServerError(c, "断开连接失败: "+err.Error())
+		return
+	}
+
+	// 5. 记录断开日志
+	clientIP := c.ClientIP()
+	h.workerAuthService.LogWorkerAuth(req.WorkerID, accessKey, "disconnect", clientIP)
+
+	response.Success(c, "Worker已正常断开连接")
+}
+
+// UpdateWorkerAuthStatus 更新Worker栈权状态（管理员接口）
 func (h *WorkerAuthHandler) UpdateWorkerAuthStatus(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)

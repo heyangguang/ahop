@@ -248,3 +248,29 @@ func (q *RedisQueue) getTaskKey(taskID string) string {
 func (q *RedisQueue) GetClient() *redis.Client {
 	return q.client
 }
+
+// PublishMessage 发布消息到指定频道
+func (q *RedisQueue) PublishMessage(channel string, message interface{}) error {
+	ctx := context.Background()
+	
+	// 序列化消息
+	data, err := json.Marshal(message)
+	if err != nil {
+		return fmt.Errorf("序列化消息失败: %v", err)
+	}
+	
+	// 发布消息
+	channelKey := fmt.Sprintf("%s:channel:%s", q.prefix, channel)
+	if err := q.client.Publish(ctx, channelKey, data).Err(); err != nil {
+		return fmt.Errorf("发布消息失败: %v", err)
+	}
+	
+	return nil
+}
+
+// SubscribeChannel 订阅指定频道
+func (q *RedisQueue) SubscribeChannel(channel string) *redis.PubSub {
+	ctx := context.Background()
+	channelKey := fmt.Sprintf("%s:channel:%s", q.prefix, channel)
+	return q.client.Subscribe(ctx, channelKey)
+}

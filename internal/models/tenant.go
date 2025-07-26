@@ -6,7 +6,7 @@ type Tenant struct {
 	Name      string `json:"name" gorm:"not null;size:100"`
 	Code      string `json:"code" gorm:"unique;not null;size:50;index"`
 	Status    string `json:"status" gorm:"default:'active';size:20"`
-	UserCount int    `json:"user_count" gorm:"-"` // 用户数量，不存储在数据库中
+	UserCount int    `json:"user_count,omitempty" gorm:"-"` // 用户数量，不存储在数据库中
 }
 
 // TableName 表名

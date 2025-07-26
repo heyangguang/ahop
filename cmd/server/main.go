@@ -3,6 +3,7 @@ package main
 import (
 	"ahop/internal/database"
 	"ahop/internal/router"
+	"ahop/internal/services"
 	"ahop/pkg/config"
 	"ahop/pkg/logger"
 	"errors"
@@ -61,6 +62,27 @@ func main() {
 
 	// 设置路由
 	r := router.SetupRouter()
+
+	// 启动Git同步调度器
+	gitSyncScheduler := services.NewGitSyncScheduler(database.GetDB(), database.GetRedisQueue())
+	services.SetGitSyncScheduler(gitSyncScheduler)
+	if err := gitSyncScheduler.Start(); err != nil {
+		appLogger.Errorf("Failed to start Git sync scheduler: %v", err)
+		// 不影响主服务启动
+	}
+	defer gitSyncScheduler.Stop()
+
+	// 启动Worker连接清理任务（每30秒执行一次）
+	workerAuthService := services.NewWorkerAuthService(database.GetDB())
+	cleanupTicker := time.NewTicker(30 * time.Second)
+	go func() {
+		for range cleanupTicker.C {
+			if err := workerAuthService.CleanupTimeoutConnections(); err != nil {
+				appLogger.Errorf("Failed to cleanup timeout connections: %v", err)
+			}
+		}
+	}()
+	defer cleanupTicker.Stop()
 
 	// 启动服务器
 	server := &http.Server{

@@ -243,6 +243,16 @@ func (s *CredentialService) Delete(id uint, tenantID uint) error {
 		return err
 	}
 	
+	// 检查是否有Git仓库引用此凭证
+	var repoCount int64
+	if err := s.db.Model(&models.GitRepository{}).Where("credential_id = ?", id).Count(&repoCount).Error; err != nil {
+		return fmt.Errorf("检查关联Git仓库失败: %v", err)
+	}
+	
+	if repoCount > 0 {
+		return fmt.Errorf("该凭证被 %d 个Git仓库引用，请先解除引用关系", repoCount)
+	}
+	
 	// 开始事务
 	tx := s.db.Begin()
 	
@@ -524,4 +534,60 @@ func (s *CredentialService) GetUsageLogs(credentialID, tenantID uint, page, page
 	err := query.Offset(offset).Limit(pageSize).Order("created_at DESC").Find(&logs).Error
 	
 	return logs, total, err
+}
+
+// DecryptCredential 解密凭证并返回map格式（供Worker使用）
+func (s *CredentialService) DecryptCredential(credentialID uint, tenantID uint) (map[string]string, error) {
+	// 获取凭证
+	var credential models.Credential
+	if err := s.db.Where("id = ? AND tenant_id = ?", credentialID, tenantID).First(&credential).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("凭证不存在")
+		}
+		return nil, err
+	}
+
+	// 检查凭证是否激活
+	if !credential.IsActive {
+		return nil, fmt.Errorf("凭证已禁用")
+	}
+
+	// 解密凭证字段
+	if err := s.decryptCredentialFields(&credential); err != nil {
+		return nil, fmt.Errorf("解密凭证失败: %v", err)
+	}
+
+	// 构建返回的map
+	result := map[string]string{
+		"type": string(credential.Type),
+		"name": credential.Name,
+	}
+
+	// 根据类型返回相应字段
+	switch credential.Type {
+	case models.CredentialTypePassword:
+		result["username"] = credential.Username
+		result["password"] = credential.Password
+	case models.CredentialTypeSSHKey:
+		result["username"] = credential.Username
+		result["private_key"] = credential.PrivateKey
+		if credential.Passphrase != "" {
+			result["passphrase"] = credential.Passphrase
+		}
+	case models.CredentialTypeAPIKey:
+		result["api_key"] = credential.APIKey
+	case models.CredentialTypeToken:
+		result["token"] = credential.Token
+	case models.CredentialTypeCertificate:
+		result["certificate"] = credential.Certificate
+		if credential.PrivateKey != "" {
+			result["private_key"] = credential.PrivateKey
+		}
+	}
+
+	// 记录使用（Worker使用，userID为0）
+	s.logUsage(credentialID, tenantID, 0, "git_sync", "worker", "", true, "")
+	s.updateUsageInfo(credentialID, 0)
+
+	return result, nil
 }

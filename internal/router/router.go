@@ -272,6 +272,10 @@ func registerRoutes(router *gin.Engine) {
 		{
 			// Worker认证接口（Worker使用AK/SK认证）
 			worker.POST("/auth", workerAuthHandler.Authenticate)
+			// Worker心跳接口（Worker使用AK/SK认证）
+			worker.PUT("/heartbeat", workerAuthHandler.Heartbeat)
+			// Worker主动断开连接接口（Worker使用AK/SK认证）
+			worker.POST("/disconnect", workerAuthHandler.Disconnect)
 		}
 
 		// 🔐 Worker授权管理路由（管理员权限）
@@ -331,6 +335,41 @@ func registerRoutes(router *gin.Engine) {
 
 			// 🔒 批量导入（需要主机导入权限）
 			networkScan.POST("/import", auth.RequireLogin(), auth.RequirePermission("network_scan:import"), networkScanHandler.ImportDiscoveredHosts)
+		}
+
+		// 🔐 Git仓库路由（添加权限保护）
+		gitRepoService := services.NewGitRepositoryService(database.GetDB())
+		gitRepoService.SetQueue(database.GetRedisQueue())
+		gitRepoHandler := handlers.NewGitRepositoryHandler(gitRepoService)
+		gitRepos := api.Group("/git-repositories")
+		{
+			// 🔒 基础CRUD（需要Git仓库管理权限）
+			gitRepos.POST("", auth.RequireLogin(), auth.RequirePermission("git_repository:create"), gitRepoHandler.Create)
+			gitRepos.GET("", auth.RequireLogin(), auth.RequirePermission("git_repository:list"), gitRepoHandler.List)
+			gitRepos.GET("/:id", auth.RequireLogin(), auth.RequirePermission("git_repository:read"), gitRepoHandler.GetByID)
+			gitRepos.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("git_repository:update"), gitRepoHandler.Update)
+			gitRepos.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("git_repository:delete"), gitRepoHandler.Delete)
+
+			// 🔒 同步相关（需要同步权限）
+			gitRepos.GET("/:id/sync-logs", auth.RequireLogin(), auth.RequirePermission("git_repository:sync_logs"), gitRepoHandler.GetSyncLogs)
+			gitRepos.POST("/:id/sync", auth.RequireLogin(), auth.RequirePermission("git_repository:sync"), gitRepoHandler.ManualSync)
+			gitRepos.POST("/:id/scan-templates", auth.RequireLogin(), auth.RequirePermission("git_repository:sync"), gitRepoHandler.ScanTemplates)
+		}
+
+
+		// 🔐 任务模板路由
+		taskTemplateHandler := handlers.NewTaskTemplateHandler(services.NewTaskTemplateService(database.GetDB()))
+		taskTemplates := api.Group("/task-templates")
+		{
+			// 🔒 基础CRUD（需要任务模板管理权限）
+			taskTemplates.POST("", auth.RequireLogin(), auth.RequirePermission("task_template:create"), taskTemplateHandler.Create)
+			taskTemplates.GET("", auth.RequireLogin(), auth.RequirePermission("task_template:list"), taskTemplateHandler.List)
+			taskTemplates.GET("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:read"), taskTemplateHandler.GetByID)
+			taskTemplates.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:update"), taskTemplateHandler.Update)
+			taskTemplates.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:delete"), taskTemplateHandler.Delete)
+			
+			// 🔐 Worker同步任务模板（无需认证，Worker使用AK/SK）
+			taskTemplates.POST("/sync", taskTemplateHandler.SyncFromWorker)
 		}
 
 	}

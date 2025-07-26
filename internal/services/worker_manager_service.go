@@ -76,8 +76,8 @@ func (s *WorkerManagerService) GetAllWorkers() ([]WorkerStatus, error) {
 			Worker: worker,
 		}
 
-		// 判断是否在线（3分钟内有心跳认为在线）
-		if now.Sub(worker.LastHeartbeat) <= 3*time.Minute {
+		// 判断是否在线（60秒内有心跳认为在线）
+		if now.Sub(worker.LastHeartbeat) <= 60*time.Second {
 			status.IsOnline = true
 			status.LastSeen = "刚刚"
 		} else {
@@ -120,7 +120,7 @@ func (s *WorkerManagerService) GetWorkerByID(workerID string) (*WorkerStatus, er
 
 	// 判断在线状态
 	now := time.Now()
-	if now.Sub(worker.LastHeartbeat) <= 3*time.Minute {
+	if now.Sub(worker.LastHeartbeat) <= 60*time.Second {
 		status.IsOnline = true
 		status.LastSeen = "刚刚"
 	} else {
@@ -154,7 +154,7 @@ func (s *WorkerManagerService) GetWorkerSummary() (*WorkerSummary, error) {
 
 	for _, worker := range workers {
 		// 统计在线/离线
-		if now.Sub(worker.LastHeartbeat) <= 3*time.Minute {
+		if now.Sub(worker.LastHeartbeat) <= 60*time.Second {
 			summary.OnlineWorkers++
 		} else {
 			summary.OfflineWorkers++
@@ -267,14 +267,14 @@ func (s *WorkerManagerService) GetWorkersByStatus(online bool) ([]models.Worker,
 	var workers []models.Worker
 
 	if online {
-		// 获取在线Worker（3分钟内有心跳）
+		// 获取在线Worker（60秒内有心跳）
 		threeMinutesAgo := time.Now().Add(-3 * time.Minute)
 		if err := s.db.Where("last_heartbeat > ?", threeMinutesAgo).
 			Order("last_heartbeat DESC").Find(&workers).Error; err != nil {
 			return nil, fmt.Errorf("查询在线Worker失败: %v", err)
 		}
 	} else {
-		// 获取离线Worker（3分钟内无心跳）
+		// 获取离线Worker（60秒内无心跳）
 		threeMinutesAgo := time.Now().Add(-3 * time.Minute)
 		if err := s.db.Where("last_heartbeat <= ?", threeMinutesAgo).
 			Order("last_heartbeat DESC").Find(&workers).Error; err != nil {

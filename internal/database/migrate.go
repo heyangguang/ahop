@@ -29,6 +29,10 @@ func Migrate() error {
 		&models.TaskLog{},
 		&models.Worker{},
 		&models.WorkerAuth{},
+		&models.GitRepository{},
+		&models.GitSyncLog{},
+		&models.TaskTemplate{},
+		&models.WorkerConnection{},
 	)
 
 	if err != nil {

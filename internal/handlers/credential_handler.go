@@ -390,7 +390,8 @@ func (h *CredentialHandler) Delete(c *gin.Context) {
 			response.NotFound(c, "凭证不存在")
 			return
 		}
-		response.ServerError(c, "删除凭证失败")
+		// 返回具体的错误信息
+		response.ServerError(c, errMsg)
 		return
 	}
 

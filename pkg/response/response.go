@@ -90,3 +90,8 @@ func NotFound(c *gin.Context, message string) {
 func ServerError(c *gin.Context, message string) {
 	Error(c, errors.CodeServerError, message)
 }
+
+// Conflict 冲突错误（409）
+func Conflict(c *gin.Context, message string) {
+	Error(c, 409, message)
+}

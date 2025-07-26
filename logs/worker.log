@@ -1,0 +1,22 @@
+{"level":"info","master_url":"http://localhost:8080","msg":"启动AHOP Worker","time":"2025-07-25 06:11:13","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-25 06:11:13","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://localhost:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-25 06:11:13","worker_id":"test-worker-001"}
+{"executors":2,"level":"info","msg":"已注册任务执行器","time":"2025-07-25 06:11:13"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-25 06:11:13","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-25 06:11:13"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-25 06:11:13"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-25 06:11:13","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-25 06:11:13"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-25 06:11:13","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":69,"task_id":"scan_1_69_1753394848","tenant_id":1,"time":"2025-07-25 06:11:13"}
+{"level":"info","msg":"扫描完成，结果已存入Redis","task_id":"scan_1_69_1753394848","template_count":1,"time":"2025-07-25 06:11:13"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-25 06:13:13"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-25 06:14:59"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-25 06:14:59"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-25 06:14:59"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-25 06:15:06","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-25 06:15:06","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-25 06:15:06"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-25 06:15:06"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-25 06:15:06"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-25 06:15:06"}

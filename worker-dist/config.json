@@ -16,5 +16,8 @@
     "max_age": 30,
     "compress": true,
     "format": "json"
+  },
+  "git": {
+    "repo_base_dir": "/data/ahop/repos"
   }
 }

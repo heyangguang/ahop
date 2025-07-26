@@ -1,0 +1,11 @@
+{"level":"info","master_url":"http://localhost:8080","msg":"启动AHOP Worker","time":"2025-07-26 12:19:49","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-26 12:19:49","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://localhost:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-26 12:19:49","worker_id":"test-worker-001"}
+{"executors":2,"level":"info","msg":"已注册任务执行器","time":"2025-07-26 12:19:49"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-26 12:19:49","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-26 12:19:49"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-26 12:19:49"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-26 12:19:49","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-26 12:19:49","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-26 12:19:49"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-26 12:21:49"}

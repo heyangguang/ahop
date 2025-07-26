@@ -150,6 +150,22 @@ func initializePermissions(db *gorm.DB) error {
 		{Code: "network_scan:view", Name: "查看扫描结果", Module: "network_scan", Action: "view", Description: "查看网络扫描状态和结果"},
 		{Code: "network_scan:cancel", Name: "取消网络扫描", Module: "network_scan", Action: "cancel", Description: "取消正在执行的扫描任务"},
 		{Code: "network_scan:import", Name: "导入扫描主机", Module: "network_scan", Action: "import", Description: "将扫描发现的主机导入系统"},
+
+		// Git仓库管理权限
+		{Code: "git_repository:list", Name: "查看Git仓库列表", Module: "git_repository", Action: "list", Description: "查看Git仓库列表"},
+		{Code: "git_repository:read", Name: "查看Git仓库详情", Module: "git_repository", Action: "read", Description: "查看Git仓库详情"},
+		{Code: "git_repository:create", Name: "创建Git仓库", Module: "git_repository", Action: "create", Description: "创建新的Git仓库"},
+		{Code: "git_repository:update", Name: "更新Git仓库", Module: "git_repository", Action: "update", Description: "更新Git仓库配置"},
+		{Code: "git_repository:delete", Name: "删除Git仓库", Module: "git_repository", Action: "delete", Description: "删除Git仓库"},
+		{Code: "git_repository:sync", Name: "同步Git仓库", Module: "git_repository", Action: "sync", Description: "手动触发Git仓库同步"},
+		{Code: "git_repository:sync_logs", Name: "查看同步日志", Module: "git_repository", Action: "sync_logs", Description: "查看Git仓库同步日志"},
+
+		// 任务模板管理权限
+		{Code: "task_template:list", Name: "查看任务模板列表", Module: "task_template", Action: "list", Description: "查看任务模板列表"},
+		{Code: "task_template:read", Name: "查看任务模板详情", Module: "task_template", Action: "read", Description: "查看任务模板详情"},
+		{Code: "task_template:create", Name: "创建任务模板", Module: "task_template", Action: "create", Description: "创建新的任务模板"},
+		{Code: "task_template:update", Name: "更新任务模板", Module: "task_template", Action: "update", Description: "更新任务模板配置"},
+		{Code: "task_template:delete", Name: "删除任务模板", Module: "task_template", Action: "delete", Description: "删除任务模板"},
 	}
 
 	// 批量创建权限

@@ -3,6 +3,7 @@ package worker
 import (
 	"ahop-worker/internal/executor"
 	"ahop-worker/internal/models"
+	"ahop-worker/internal/types"
 	"ahop-worker/pkg/auth"
 	"ahop-worker/pkg/config"
 	"ahop-worker/pkg/database"
@@ -30,9 +31,11 @@ type Worker struct {
 	log    *logrus.Logger
 
 	// 组件
-	queue     *queue.RedisQueue
-	db        *gorm.DB
-	executors map[string]executor.Executor
+	queue          *queue.RedisQueue
+	db             *gorm.DB
+	executors      map[string]executor.Executor
+	authClient     *auth.AuthClient
+	gitSyncExecutor *executor.GitSyncExecutor
 
 	// 状态管理
 	id           string
@@ -103,13 +106,14 @@ func NewWorker(cfg *config.Config, log *logrus.Logger) (*Worker, error) {
 	}
 
 	w := &Worker{
-		config:    cfg,
-		log:       log,
-		queue:     redisQueue,
-		db:        db,
-		executors: make(map[string]executor.Executor),
-		id:        workerID,  // 使用生成的唯一Worker ID
-		status:    "offline",
+		config:     cfg,
+		log:        log,
+		queue:      redisQueue,
+		db:         db,
+		executors:  make(map[string]executor.Executor),
+		id:         workerID,  // 使用生成的唯一Worker ID
+		status:     "offline",
+		authClient: authClient,
 	}
 
 	// 注册执行器
@@ -136,6 +140,15 @@ func (w *Worker) Start(ctx context.Context) error {
 
 	// 启动任务恢复服务
 	w.startTaskRecovery()
+
+	// 启动Git同步订阅服务
+	w.startGitSyncSubscriber()
+
+	// 启动Git扫描队列消费者
+	w.startGitScanConsumer()
+
+	// 启动Git仓库清理服务
+	w.startGitRepoCleanup()
 
 	// 启动任务消费者
 	for i := 0; i < w.config.Worker.Concurrency; i++ {
@@ -183,6 +196,15 @@ func (w *Worker) Stop(ctx context.Context) error {
 		w.log.Warn("停止超时，强制退出")
 	}
 
+	// 通知Master断开连接
+	if w.authClient != nil {
+		if err := w.authClient.DisconnectWorker(); err != nil {
+			w.log.WithError(err).Warn("通知Master断开连接失败")
+		} else {
+			w.log.Info("已通知Master断开连接")
+		}
+	}
+
 	w.mu.Lock()
 	w.status = "offline"
 	w.mu.Unlock()
@@ -217,6 +239,9 @@ func (w *Worker) registerExecutors() {
 	for _, taskType := range pingExecutor.GetSupportedTypes() {
 		w.executors[taskType] = pingExecutor
 	}
+
+	// 创建Git同步执行器（不作为普通任务执行器注册）
+	w.gitSyncExecutor = executor.NewGitSyncExecutor(w.db, w.authClient, w.config.Git.RepoBaseDir, w.log)
 
 	w.log.WithField("executors", len(w.executors)).Info("已注册任务执行器")
 }
@@ -340,6 +365,13 @@ func (w *Worker) sendHeartbeat() {
 
 	if err := w.db.Model(&models.Worker{}).Where("worker_id = ?", w.id).Updates(updates).Error; err != nil {
 		w.log.WithError(err).Error("发送心跳失败")
+	}
+	
+	// 通知Master更新心跳
+	if w.authClient != nil {
+		if err := w.authClient.SendHeartbeat(w.id); err != nil {
+			w.log.WithError(err).Warn("更新Master心跳失败")
+		}
 	}
 }
 
@@ -725,3 +757,160 @@ func (w *Worker) GetStatus() map[string]interface{} {
 		"goroutines":    runtime.NumGoroutine(),
 	}
 }
+
+// startGitSyncSubscriber 启动Git同步订阅服务
+func (w *Worker) startGitSyncSubscriber() {
+	w.wg.Add(1)
+	go func() {
+		defer w.wg.Done()
+
+		// 订阅Git同步通道（使用模式订阅）
+		pubsub := w.queue.GetClient().PSubscribe(w.ctx, "git:sync:*")
+		defer pubsub.Close()
+
+		ch := pubsub.Channel()
+		
+		w.log.Info("Git同步订阅服务已启动")
+
+		for {
+			select {
+			case <-w.ctx.Done():
+				w.log.Info("Git同步订阅服务收到退出信号")
+				return
+			case msg := <-ch:
+				if msg == nil {
+					continue
+				}
+
+				// 解析消息
+				var syncMsg types.GitSyncMessage
+				if err := json.Unmarshal([]byte(msg.Payload), &syncMsg); err != nil {
+					w.log.WithError(err).Error("解析Git同步消息失败")
+					continue
+				}
+
+				// 异步处理同步任务
+				go func(msg types.GitSyncMessage) {
+					if err := w.gitSyncExecutor.ProcessGitSyncMessage(&msg, w.id); err != nil {
+						w.log.WithError(err).WithFields(logrus.Fields{
+							"repository_id": msg.RepositoryID,
+							"tenant_id":     msg.TenantID,
+							"action":        msg.Action,
+						}).Error("处理Git同步任务失败")
+					}
+				}(syncMsg)
+			}
+		}
+	}()
+}
+
+
+// startGitScanConsumer 启动Git扫描队列消费者
+func (w *Worker) startGitScanConsumer() {
+	w.wg.Add(1)
+	go func() {
+		defer w.wg.Done()
+		
+		w.log.Info("Git扫描队列消费者已启动")
+		
+		for {
+			select {
+			case <-w.ctx.Done():
+				w.log.Info("Git扫描队列消费者收到退出信号")
+				return
+			default:
+				// 使用BRPOP阻塞等待扫描任务（抢占式）
+				result, err := w.queue.GetClient().BRPop(w.ctx, 5*time.Second, "git:scan:queue").Result()
+				if err != nil {
+					if err == context.Canceled || err == context.DeadlineExceeded {
+						return
+					}
+					// 超时是正常的，继续等待
+					continue
+				}
+				
+				if len(result) < 2 {
+					continue
+				}
+				
+				// result[0] 是队列名，result[1] 是消息内容
+				msgData := result[1]
+				
+				// 解析消息
+				var msg struct {
+					TaskID       string `json:"task_id"`
+					Action       string `json:"action"`
+					RepositoryID uint   `json:"repository_id"`
+					TenantID     uint   `json:"tenant_id"`
+					Repository   struct {
+						ID        uint   `json:"id"`
+						Name      string `json:"name"`
+						LocalPath string `json:"local_path"`
+					} `json:"repository"`
+				}
+				
+				if err := json.Unmarshal([]byte(msgData), &msg); err != nil {
+					w.log.WithError(err).Error("解析扫描消息失败")
+					continue
+				}
+				
+				// 处理扫描任务
+				w.log.WithFields(logrus.Fields{
+					"task_id":       msg.TaskID,
+					"repository_id": msg.RepositoryID,
+					"tenant_id":     msg.TenantID,
+					"action":        msg.Action,
+				}).Info("收到Git扫描任务")
+				
+				if msg.Action == "scan" && msg.TaskID != "" {
+					// 构建仓库路径
+					repoPath := fmt.Sprintf("%s/%s", w.config.Git.RepoBaseDir, msg.Repository.LocalPath)
+					
+					// 准备结果key
+					resultKey := fmt.Sprintf("scan:result:%s", msg.TaskID)
+					
+					// 执行增强扫描
+					w.log.Info("执行增强扫描（包含文件树）")
+					enhancedResult, err := w.gitSyncExecutor.ScanRepositoryEnhanced(
+						repoPath, 
+						msg.Repository.ID, 
+						msg.Repository.Name,
+					)
+					
+					if err != nil {
+						w.log.WithError(err).Error("增强扫描失败")
+						// 返回空结果
+						emptyResult, _ := json.Marshal(&executor.EnhancedScanResult{
+							Surveys: []executor.SurveyFile{},
+						})
+						w.queue.GetClient().Set(w.ctx, resultKey, string(emptyResult), 60*time.Second)
+					} else {
+						// 序列化结果
+						resultData, err := json.Marshal(enhancedResult)
+						if err != nil {
+							w.log.WithError(err).Error("序列化增强扫描结果失败")
+							emptyResult, _ := json.Marshal(&executor.EnhancedScanResult{
+								Surveys: []executor.SurveyFile{},
+							})
+							w.queue.GetClient().Set(w.ctx, resultKey, string(emptyResult), 60*time.Second)
+						} else {
+							w.queue.GetClient().Set(w.ctx, resultKey, string(resultData), 60*time.Second)
+							w.log.WithFields(logrus.Fields{
+								"task_id":      msg.TaskID,
+								"survey_count": len(enhancedResult.Surveys),
+								"total_files":  enhancedResult.Stats.TotalFiles,
+							}).Info("增强扫描完成，结果已存入Redis")
+						}
+					}
+				}
+			}
+		}
+	}()
+}
+
+// startGitRepoCleanup 启动Git仓库清理服务
+// 现在使用固定路径，不再需要清理旧副本
+func (w *Worker) startGitRepoCleanup() {
+	// 不再需要清理功能
+}
+

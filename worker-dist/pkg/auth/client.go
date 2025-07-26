@@ -1,12 +1,14 @@
 package auth
 
 import (
+	"ahop-worker/internal/types"
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -17,6 +19,7 @@ type AuthClient struct {
 	masterURL string
 	accessKey string
 	secretKey string
+	workerID  string
 	client    *http.Client
 }
 
@@ -74,6 +77,9 @@ type AuthResult struct {
 
 // Authenticate 向Master认证获取配置
 func (c *AuthClient) Authenticate(workerID string) (*AuthResult, error) {
+	// 保存workerID
+	c.workerID = workerID
+	
 	// 1. 构造认证请求
 	timestamp := time.Now().Unix()
 	req := AuthRequest{
@@ -249,3 +255,160 @@ func GenerateWorkerID() string {
 	// 使用主机名+时间戳纳秒确保唯一性
 	return fmt.Sprintf("worker-%s-%d", hostname, time.Now().UnixNano())
 }
+
+// DisconnectWorker 通知Master断开Worker连接
+func (c *AuthClient) DisconnectWorker() error {
+	// 构造请求
+	url := fmt.Sprintf("%s/api/v1/worker/disconnect", c.masterURL)
+	requestData := map[string]string{
+		"worker_id": c.workerID,
+	}
+	
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		return fmt.Errorf("序列化请求数据失败: %v", err)
+	}
+	
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %v", err)
+	}
+	
+	// 添加认证头
+	timestamp := time.Now().Unix()
+	signature := c.calculateSignature(c.accessKey, c.workerID, timestamp)
+	req.Header.Set("X-Access-Key", c.accessKey)
+	req.Header.Set("X-Timestamp", fmt.Sprintf("%d", timestamp))
+	req.Header.Set("X-Signature", signature)
+	req.Header.Set("Content-Type", "application/json")
+	
+	// 执行请求
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+	
+	// 检查响应
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP %d", resp.StatusCode)
+	}
+	
+	return nil
+}
+
+// GetDecryptedCredential 获取解密后的凭证信息
+func (c *AuthClient) GetDecryptedCredential(credentialID, tenantID uint) (*types.CredentialInfo, error) {
+	// 构造请求URL
+	url := fmt.Sprintf("%s/api/v1/worker/credentials/%d/decrypt?tenant_id=%d", c.masterURL, credentialID, tenantID)
+	
+	// 创建请求
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %v", err)
+	}
+	
+	// 添加认证头
+	timestamp := time.Now().Unix()
+	signature := c.calculateSignature(c.accessKey, fmt.Sprintf("%d", credentialID), timestamp)
+	req.Header.Set("X-Access-Key", c.accessKey)
+	req.Header.Set("X-Timestamp", fmt.Sprintf("%d", timestamp))
+	req.Header.Set("X-Signature", signature)
+	req.Header.Set("Content-Type", "application/json")
+	
+	// 执行请求
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+	
+	// 解析响应
+	// 首先检查HTTP状态码
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("凭证不存在 (ID: %d)", credentialID)
+	}
+	
+	var response struct {
+		Code    int                   `json:"code"`
+		Message string                `json:"message"`
+		Data    types.CredentialInfo  `json:"data"`
+	}
+	
+	// 读取响应体
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("读取响应失败: %v", err)
+	}
+	
+	// 如果状态码不是200，可能返回的是错误信息而不是标准格式
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("获取凭证失败: HTTP %d, 响应: %s", resp.StatusCode, string(body))
+	}
+	
+	// 解析响应
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %v, 原始响应: %s", err, string(body))
+	}
+	
+	if response.Code != 200 {
+		return nil, fmt.Errorf("获取凭证失败: %s (Code %d)", response.Message, response.Code)
+	}
+	
+	return &response.Data, nil
+}
+
+
+// Request 发送通用API请求到Master
+func (c *AuthClient) Request(method, endpoint string, body []byte) (*http.Response, error) {
+	// 构造完整URL
+	url := c.masterURL + endpoint
+	
+	// 创建请求
+	req, err := http.NewRequest(method, url, bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %v", err)
+	}
+	
+	// 添加认证头
+	timestamp := time.Now().Unix()
+	signature := c.calculateSignature(c.accessKey, endpoint, timestamp)
+	req.Header.Set("X-Access-Key", c.accessKey)
+	req.Header.Set("X-Timestamp", fmt.Sprintf("%d", timestamp))
+	req.Header.Set("X-Signature", signature)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "AHOP-Worker/1.0")
+	
+	// 执行请求
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("请求失败: %v", err)
+	}
+	
+	return resp, nil
+}
+
+// SendHeartbeat 发送心跳到Master
+func (c *AuthClient) SendHeartbeat(workerID string) error {
+	data := map[string]string{
+		"worker_id": workerID,
+	}
+	
+	body, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	
+	resp, err := c.Request("PUT", "/api/v1/worker/heartbeat", body)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("heartbeat failed: HTTP %d", resp.StatusCode)
+	}
+	
+	return nil
+}
+

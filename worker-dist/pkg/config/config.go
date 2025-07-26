@@ -47,6 +47,7 @@ type Config struct {
 	Worker WorkerConfig `json:"worker"`
 	Master MasterConfig `json:"master"`
 	Log    LogConfig    `json:"log"`
+	Git    GitConfig    `json:"git"`
 }
 
 // WorkerConfig Worker配置
@@ -91,6 +92,11 @@ type LogConfig struct {
 	MaxAge     int    `json:"max_age"`
 	Compress   bool   `json:"compress"`
 	Format     string `json:"format"`
+}
+
+// GitConfig Git仓库配置
+type GitConfig struct {
+	RepoBaseDir string `json:"repo_base_dir"` // Git仓库存储基础目录
 }
 
 // LoadConfig 加载配置
@@ -139,6 +145,9 @@ func defaultConfig() *Config {
 			Compress:   true,
 			Format:     "json",
 		},
+		Git: GitConfig{
+			RepoBaseDir: "/data/ahop/repos",
+		},
 	}
 }
 
@@ -149,12 +158,19 @@ func loadFromFile(cfg *Config, filename string) error {
 		return err
 	}
 
-	return json.Unmarshal(data, cfg)
+	if err := json.Unmarshal(data, cfg); err != nil {
+		return fmt.Errorf("JSON解析失败: %v", err)
+	}
+	
+	return nil
 }
 
 // loadFromEnv 从环境变量加载配置
 func loadFromEnv(cfg *Config) {
 	// Worker配置
+	if v := os.Getenv("WORKER_ID"); v != "" {
+		cfg.Worker.WorkerID = v
+	}
 	if v := os.Getenv("WORKER_ACCESS_KEY"); v != "" {
 		cfg.Worker.AccessKey = v
 	}
@@ -181,6 +197,11 @@ func loadFromEnv(cfg *Config) {
 	}
 	if v := os.Getenv("LOG_FILE_PATH"); v != "" {
 		cfg.Log.FilePath = v
+	}
+
+	// Git配置
+	if v := os.Getenv("GIT_REPO_BASE_DIR"); v != "" {
+		cfg.Git.RepoBaseDir = v
 	}
 }
 

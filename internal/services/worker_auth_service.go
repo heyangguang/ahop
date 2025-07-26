@@ -17,6 +17,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	// WorkerHeartbeatTimeout Worker心跳超时时间
+	WorkerHeartbeatTimeout = 60 * time.Second
+)
+
 // WorkerAuthService Worker认证服务
 type WorkerAuthService struct {
 	db *gorm.DB
@@ -172,4 +177,94 @@ func (s *WorkerAuthService) LogWorkerAuth(workerID, accessKey, result, ipAddress
 		"timestamp":  time.Now(),
 		"action":     "worker_auth",
 	}).Info("Worker认证记录")
+}
+
+// RegisterWorkerConnection 注册Worker连接，确保Worker ID唯一性
+func (s *WorkerAuthService) RegisterWorkerConnection(workerID, accessKey, ipAddress string) error {
+	// 开启事务
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// 1. 查看是否有活跃的同名Worker
+		var existingConn models.WorkerConnection
+		err := tx.Where("worker_id = ? AND status = ?", workerID, "active").
+			First(&existingConn).Error
+		
+		if err == nil {
+			// 如果存在活跃连接，检查心跳时间
+			if time.Since(existingConn.LastHeartbeat) > WorkerHeartbeatTimeout {
+				// 心跳超时，标记为断开
+				if err := tx.Model(&existingConn).Update("status", "disconnected").Error; err != nil {
+					return err
+				}
+			} else {
+				// 心跳正常，拒绝新连接
+				return fmt.Errorf("Worker ID '%s' 已经被其他实例使用（IP: %s）", workerID, existingConn.IPAddress)
+			}
+		}
+		
+		// 2. 创建或更新连接记录
+		now := time.Now()
+		newConn := models.WorkerConnection{
+			WorkerID:      workerID,
+			IPAddress:     ipAddress,
+			ConnectedAt:   now,
+			LastHeartbeat: now,
+			Status:        "active",
+			AccessKey:     accessKey,
+		}
+		
+		// 使用Upsert（存在则更新，不存在则创建）
+		if err := tx.Where("worker_id = ?", workerID).FirstOrCreate(&newConn).Error; err != nil {
+			return err
+		}
+		
+		// 更新连接信息
+		if err := tx.Model(&newConn).Updates(map[string]interface{}{
+			"ip_address":     ipAddress,
+			"connected_at":   now,
+			"last_heartbeat": now,
+			"status":         "active",
+			"access_key":     accessKey,
+		}).Error; err != nil {
+			return err
+		}
+		
+		return nil
+	})
+}
+
+// UpdateWorkerHeartbeat 更新Worker心跳
+func (s *WorkerAuthService) UpdateWorkerHeartbeat(workerID string) error {
+	return s.db.Model(&models.WorkerConnection{}).
+		Where("worker_id = ? AND status = ?", workerID, "active").
+		Update("last_heartbeat", time.Now()).Error
+}
+
+// DisconnectWorker 断开Worker连接
+func (s *WorkerAuthService) DisconnectWorker(workerID string) error {
+	return s.db.Model(&models.WorkerConnection{}).
+		Where("worker_id = ?", workerID).
+		Update("status", "disconnected").Error
+}
+
+// CleanupTimeoutConnections 清理超时的Worker连接
+func (s *WorkerAuthService) CleanupTimeoutConnections() error {
+	cutoffTime := time.Now().Add(-WorkerHeartbeatTimeout)
+	
+	// 将超时的活跃连接标记为断开
+	result := s.db.Model(&models.WorkerConnection{}).
+		Where("status = ? AND last_heartbeat < ?", "active", cutoffTime).
+		Update("status", "disconnected")
+	
+	if result.Error != nil {
+		return result.Error
+	}
+	
+	if result.RowsAffected > 0 {
+		logger.GetLogger().WithFields(logrus.Fields{
+			"count": result.RowsAffected,
+			"timeout": WorkerHeartbeatTimeout,
+		}).Info("清理了超时的Worker连接")
+	}
+	
+	return nil
 }
