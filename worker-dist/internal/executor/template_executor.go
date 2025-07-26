@@ -483,18 +483,72 @@ func (e *TemplateExecutor) executeSSHScript(hostInfo *types.HostInfo, script str
 		command = fmt.Sprintf("sudo bash -c %q", script)
 	}
 
-	// 分别捕获stdout和stderr
-	var stdoutBuf, stderrBuf bytes.Buffer
-	session.Stdout = &stdoutBuf
-	session.Stderr = &stderrBuf
+	// 创建管道以实时读取输出
+	stdoutPipe, pipeErr := session.StdoutPipe()
+	if pipeErr != nil {
+		err = fmt.Errorf("创建stdout管道失败: %v", pipeErr)
+		return
+	}
+	
+	stderrPipe, pipeErr := session.StderrPipe()
+	if pipeErr != nil {
+		err = fmt.Errorf("创建stderr管道失败: %v", pipeErr)
+		return
+	}
 
+	// 用于保存完整输出
+	var stdoutBuf, stderrBuf bytes.Buffer
+	
 	// 发送开始执行信息
 	if realtimeLogger != nil {
 		realtimeLogger.LogOutput("template", "开始执行脚本...", hostInfo.Hostname)
 	}
 
-	// 执行脚本
-	runErr := session.Run(command)
+	// 启动命令（非阻塞）
+	if err = session.Start(command); err != nil {
+		err = fmt.Errorf("启动命令失败: %v", err)
+		return
+	}
+	
+	// 并发读取stdout和stderr
+	var wg sync.WaitGroup
+	wg.Add(2)
+	
+	// 读取stdout
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stdoutPipe)
+		for scanner.Scan() {
+			line := scanner.Text()
+			stdoutBuf.WriteString(line + "\n")
+			
+			// 实时发送到Redis
+			if realtimeLogger != nil && strings.TrimSpace(line) != "" {
+				realtimeLogger.LogOutput("template", line, hostInfo.Hostname)
+			}
+		}
+	}()
+	
+	// 读取stderr
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stderrPipe)
+		for scanner.Scan() {
+			line := scanner.Text()
+			stderrBuf.WriteString(line + "\n")
+			
+			// 实时发送错误到Redis
+			if realtimeLogger != nil && strings.TrimSpace(line) != "" {
+				realtimeLogger.LogError("template", line, hostInfo.Hostname)
+			}
+		}
+	}()
+	
+	// 等待命令完成
+	runErr := session.Wait()
+	
+	// 等待所有输出读取完成
+	wg.Wait()
 	
 	stdout = stdoutBuf.String()
 	stderr = stderrBuf.String()
@@ -510,27 +564,8 @@ func (e *TemplateExecutor) executeSSHScript(hostInfo *types.HostInfo, script str
 		err = runErr
 	}
 
-	// 发送输出到实时日志
+	// 发送执行结果（保留结果通知）
 	if realtimeLogger != nil {
-		// 发送stdout
-		if stdout != "" {
-			lines := strings.Split(stdout, "\n")
-			for _, line := range lines {
-				if strings.TrimSpace(line) != "" {
-					realtimeLogger.LogOutput("template", line, hostInfo.Hostname)
-				}
-			}
-		}
-		// 发送stderr
-		if stderr != "" {
-			lines := strings.Split(stderr, "\n")
-			for _, line := range lines {
-				if strings.TrimSpace(line) != "" {
-					realtimeLogger.LogError("template", line, hostInfo.Hostname)
-				}
-			}
-		}
-		// 发送执行结果
 		if err != nil {
 			realtimeLogger.LogError("template", fmt.Sprintf("脚本执行失败 (退出码: %d)", exitCode), hostInfo.Hostname)
 		} else {
@@ -730,18 +765,72 @@ func (e *TemplateExecutor) executeSSHScriptWithArgs(hostInfo *types.HostInfo, sc
 		command = fmt.Sprintf("sudo bash -c %q", command)
 	}
 
-	// 分别捕获stdout和stderr
-	var stdoutBuf, stderrBuf bytes.Buffer
-	session.Stdout = &stdoutBuf
-	session.Stderr = &stderrBuf
+	// 创建管道以实时读取输出
+	stdoutPipe, pipeErr := session.StdoutPipe()
+	if pipeErr != nil {
+		err = fmt.Errorf("创建stdout管道失败: %v", pipeErr)
+		return
+	}
+	
+	stderrPipe, pipeErr := session.StderrPipe()
+	if pipeErr != nil {
+		err = fmt.Errorf("创建stderr管道失败: %v", pipeErr)
+		return
+	}
 
+	// 用于保存完整输出
+	var stdoutBuf, stderrBuf bytes.Buffer
+	
 	// 发送开始执行信息
 	if realtimeLogger != nil {
 		realtimeLogger.LogOutput("template", fmt.Sprintf("执行脚本: %s", command), hostInfo.Hostname)
 	}
 
-	// 执行脚本
-	runErr := session.Run(command)
+	// 启动命令（非阻塞）
+	if err = session.Start(command); err != nil {
+		err = fmt.Errorf("启动命令失败: %v", err)
+		return
+	}
+	
+	// 并发读取stdout和stderr
+	var wg sync.WaitGroup
+	wg.Add(2)
+	
+	// 读取stdout
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stdoutPipe)
+		for scanner.Scan() {
+			line := scanner.Text()
+			stdoutBuf.WriteString(line + "\n")
+			
+			// 实时发送到Redis
+			if realtimeLogger != nil && strings.TrimSpace(line) != "" {
+				realtimeLogger.LogOutput("template", line, hostInfo.Hostname)
+			}
+		}
+	}()
+	
+	// 读取stderr
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stderrPipe)
+		for scanner.Scan() {
+			line := scanner.Text()
+			stderrBuf.WriteString(line + "\n")
+			
+			// 实时发送错误到Redis
+			if realtimeLogger != nil && strings.TrimSpace(line) != "" {
+				realtimeLogger.LogError("template", line, hostInfo.Hostname)
+			}
+		}
+	}()
+	
+	// 等待命令完成
+	runErr := session.Wait()
+	
+	// 等待所有输出读取完成
+	wg.Wait()
 	
 	// 清理临时文件
 	cleanupSession, _ := client.NewSession()
@@ -764,27 +853,8 @@ func (e *TemplateExecutor) executeSSHScriptWithArgs(hostInfo *types.HostInfo, sc
 		err = runErr
 	}
 
-	// 发送输出到实时日志
+	// 发送执行结果（保留结果通知）
 	if realtimeLogger != nil {
-		// 发送stdout
-		if stdout != "" {
-			lines := strings.Split(stdout, "\n")
-			for _, line := range lines {
-				if strings.TrimSpace(line) != "" {
-					realtimeLogger.LogOutput("template", line, hostInfo.Hostname)
-				}
-			}
-		}
-		// 发送stderr
-		if stderr != "" {
-			lines := strings.Split(stderr, "\n")
-			for _, line := range lines {
-				if strings.TrimSpace(line) != "" {
-					realtimeLogger.LogError("template", line, hostInfo.Hostname)
-				}
-			}
-		}
-		// 发送执行结果
 		if err != nil {
 			realtimeLogger.LogError("template", fmt.Sprintf("脚本执行失败 (退出码: %d)", exitCode), hostInfo.Hostname)
 		} else {

@@ -1,0 +1,12 @@
+{
+  "name": "Shell脚本实时日志测试",
+  "code": "test_shell_realtime",
+  "description": "测试Shell脚本实时日志输出功能",
+  "script_type": "shell",
+  "entry_file": "test_shell_realtime.sh",
+  "repository_id": 1,
+  "execution_type": "ssh",
+  "require_sudo": false,
+  "timeout": 120,
+  "parameters": []
+}

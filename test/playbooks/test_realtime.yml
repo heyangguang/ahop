@@ -1,0 +1,32 @@
+---
+# 测试实时日志输出的 Playbook
+
+- name: Test Realtime Logging
+  hosts: all
+  become: no
+  vars:
+    message: "{{ message | default('Testing realtime logs') }}"
+    
+  tasks:
+    - name: Task 1 - Display start message
+      debug:
+        msg: "Starting realtime log test: {{ message }}"
+    
+    - name: Task 2 - Simulate some work
+      shell: |
+        echo "Processing step 1..."
+        sleep 2
+        echo "Processing step 2..."
+        sleep 2
+        echo "Processing step 3..."
+        sleep 2
+        echo "Task completed!"
+      register: result
+    
+    - name: Task 3 - Show output
+      debug:
+        var: result.stdout_lines
+    
+    - name: Task 4 - Final message
+      debug:
+        msg: "Test completed at {{ ansible_date_time.iso8601 }}"

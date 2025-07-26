@@ -1,0 +1,21 @@
+{
+  "name": "实时日志测试模板",
+  "code": "test_realtime",
+  "description": "测试Ansible实时日志输出功能",
+  "script_type": "ansible",
+  "entry_file": "test/playbooks/test_realtime.yml",
+  "repository_id": 1,
+  "execution_type": "ansible",
+  "require_sudo": false,
+  "timeout": 120,
+  "parameters": [
+    {
+      "variable": "message",
+      "type": "text",
+      "question_name": "测试消息",
+      "question_description": "显示的测试消息",
+      "required": false,
+      "default": "Testing realtime logs from AHOP"
+    }
+  ]
+}
