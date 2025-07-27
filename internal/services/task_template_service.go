@@ -485,3 +485,101 @@ type TemplateCopyMessage struct {
 	EntryFile     string                  `json:"entry_file"`     // 相对于模板目录的入口文件
 	IncludedFiles []models.IncludedFile   `json:"included_files"` // 包含的文件列表
 }
+
+// ValidateTemplateVariables 验证任务创建时的变量是否符合模板参数定义
+func (s *TaskTemplateService) ValidateTemplateVariables(template *models.TaskTemplate, variables map[string]interface{}) error {
+	// 构建参数映射，使用 name 字段作为 key
+	paramMap := make(map[string]models.TemplateParameter)
+	for _, param := range template.Parameters {
+		paramMap[param.Name] = param
+	}
+	
+	// 检查必填参数
+	for _, param := range template.Parameters {
+		if param.Required {
+			if _, exists := variables[param.Name]; !exists {
+				return fmt.Errorf("缺少必填参数: %s (%s)", param.Name, param.Label)
+			}
+		}
+	}
+	
+	// 验证提供的参数
+	for varName, varValue := range variables {
+		param, exists := paramMap[varName]
+		if !exists {
+			// 忽略未定义的参数，允许额外参数
+			continue
+		}
+		
+		// 类型验证
+		if err := s.validateParameterValue(param, varValue); err != nil {
+			return fmt.Errorf("参数 %s 验证失败: %v", varName, err)
+		}
+	}
+	
+	return nil
+}
+
+// validateParameterValue 验证单个参数值
+func (s *TaskTemplateService) validateParameterValue(param models.TemplateParameter, value interface{}) error {
+	switch param.Type {
+	case "number":
+		// 验证数字类型
+		var numValue float64
+		switch v := value.(type) {
+		case float64:
+			numValue = v
+		case int:
+			numValue = float64(v)
+		case string:
+			// 尝试解析字符串
+			fmt.Sscanf(v, "%f", &numValue)
+		default:
+			return fmt.Errorf("期望数字类型，得到 %T", value)
+		}
+		
+		// 验证范围
+		if param.Validation != nil {
+			if param.Validation.Min != nil && int(numValue) < *param.Validation.Min {
+				return fmt.Errorf("值必须大于等于 %d", *param.Validation.Min)
+			}
+			if param.Validation.Max != nil && int(numValue) > *param.Validation.Max {
+				return fmt.Errorf("值必须小于等于 %d", *param.Validation.Max)
+			}
+		}
+		
+	case "select":
+		// 验证单选
+		strValue := fmt.Sprintf("%v", value)
+		if len(param.Options) > 0 {
+			found := false
+			for _, opt := range param.Options {
+				if opt == strValue {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("值必须是以下选项之一: %v", param.Options)
+			}
+		}
+		
+	case "multiselect":
+		// 验证多选
+		// TODO: 实现多选验证
+		
+	case "text", "textarea", "password":
+		// 验证字符串长度
+		strValue := fmt.Sprintf("%v", value)
+		if param.Validation != nil {
+			if param.Validation.Min != nil && len(strValue) < *param.Validation.Min {
+				return fmt.Errorf("长度必须大于等于 %d", *param.Validation.Min)
+			}
+			if param.Validation.Max != nil && len(strValue) > *param.Validation.Max {
+				return fmt.Errorf("长度必须小于等于 %d", *param.Validation.Max)
+			}
+		}
+	}
+	
+	return nil
+}

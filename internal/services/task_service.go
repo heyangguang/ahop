@@ -159,6 +159,12 @@ func (s *TaskService) CreateTemplateTask(task *models.Task, templateID uint, var
 		return err
 	}
 
+	// 验证参数是否符合模板定义
+	templateService := NewTaskTemplateService(s.db)
+	if err := templateService.ValidateTemplateVariables(&template, variables); err != nil {
+		return fmt.Errorf("参数验证失败: %v", err)
+	}
+
 	// 验证主机是否存在且属于当前租户
 	var hosts []models.Host
 	if err := s.db.Where("id IN ? AND tenant_id = ?", hostIDs, task.TenantID).Find(&hosts).Error; err != nil {
