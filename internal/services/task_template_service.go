@@ -3,6 +3,7 @@ package services
 import (
 	"ahop/internal/models"
 	"ahop/pkg/logger"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -24,7 +25,7 @@ func NewTaskTemplateService(db *gorm.DB) *TaskTemplateService {
 
 // Create 创建任务模板
 func (s *TaskTemplateService) Create(tenantID uint, req CreateTaskTemplateRequest, operatorID uint) (*models.TaskTemplate, error) {
-	// 验证仓库是否存在
+	// 通过临时的RepositoryID查询Git仓库信息
 	var repo models.GitRepository
 	if err := s.db.Where("id = ? AND tenant_id = ?", req.RepositoryID, tenantID).First(&repo).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -40,11 +41,25 @@ func (s *TaskTemplateService) Create(tenantID uint, req CreateTaskTemplateReques
 		return nil, fmt.Errorf("模板编码已存在")
 	}
 
+	// 构建Git来源信息
+	sourceGitInfo := map[string]interface{}{
+		"repository_id":   repo.ID,
+		"repository_name": repo.Name,
+		"repository_url":  repo.URL,
+		"branch":          repo.Branch,
+		"original_path":   req.OriginalPath,
+		"created_at":      time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	sourceGitInfoJSON, err := json.Marshal(sourceGitInfo)
+	if err != nil {
+		return nil, fmt.Errorf("序列化Git信息失败: %v", err)
+	}
 
 	// 转换参数格式
 	parameters := s.convertSurveyToTemplateParameters(req.Parameters)
 
-	// 创建模板
+	// 创建模板（不再设置RepositoryID）
 	template := &models.TaskTemplate{
 		TenantID:      tenantID,
 		Name:          req.Name,
@@ -52,7 +67,7 @@ func (s *TaskTemplateService) Create(tenantID uint, req CreateTaskTemplateReques
 		ScriptType:    req.ScriptType,
 		EntryFile:     req.EntryFile,
 		IncludedFiles: models.IncludedFiles(req.IncludedFiles),
-		RepositoryID:  req.RepositoryID,
+		SourceGitInfo: models.JSON(sourceGitInfoJSON),
 		Description:   req.Description,
 		Parameters:    parameters,
 		Timeout:       req.Timeout,
@@ -68,9 +83,24 @@ func (s *TaskTemplateService) Create(tenantID uint, req CreateTaskTemplateReques
 	}
 
 	// 预加载关联数据
-	if err := s.db.Preload("Repository").Preload("Tenant").First(template, template.ID).Error; err != nil {
+	if err := s.db.Preload("Tenant").First(template, template.ID).Error; err != nil {
 		return nil, err
 	}
+
+	// 通知Worker复制文件到独立目录
+	copyMsg := TemplateCopyMessage{
+		Action:       "copy",
+		TemplateID:   template.ID,
+		TenantID:     tenantID,
+		TemplateCode: template.Code,
+		RepositoryID: repo.ID,
+		SourcePath:   req.OriginalPath,
+		EntryFile:    req.EntryFile,
+		IncludedFiles: req.IncludedFiles,
+	}
+
+	// TODO: 发送消息到Worker队列
+	logger.GetLogger().Infof("需要通知Worker复制模板文件: %+v", copyMsg)
 
 	logger.GetLogger().Infof("任务模板 %s (ID: %d) 创建成功", template.Name, template.ID)
 	return template, nil
@@ -96,17 +126,6 @@ func (s *TaskTemplateService) Update(tenantID uint, templateID uint, req UpdateT
 		}
 	}
 
-	// 如果更新了仓库ID，验证仓库是否存在
-	if req.RepositoryID != 0 && req.RepositoryID != template.RepositoryID {
-		var repo models.GitRepository
-		if err := s.db.Where("id = ? AND tenant_id = ?", req.RepositoryID, tenantID).First(&repo).Error; err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return nil, fmt.Errorf("仓库不存在")
-			}
-			return nil, err
-		}
-	}
-
 	// 更新字段
 	updates := map[string]interface{}{
 		"updated_by": operatorID,
@@ -126,9 +145,6 @@ func (s *TaskTemplateService) Update(tenantID uint, templateID uint, req UpdateT
 	}
 	if req.IncludedFiles != nil {
 		updates["included_files"] = models.IncludedFiles(req.IncludedFiles)
-	}
-	if req.RepositoryID != 0 {
-		updates["repository_id"] = req.RepositoryID
 	}
 	if req.Description != "" {
 		updates["description"] = req.Description
@@ -153,7 +169,7 @@ func (s *TaskTemplateService) Update(tenantID uint, templateID uint, req UpdateT
 	}
 
 	// 重新加载完整数据
-	if err := s.db.Preload("Repository").Preload("Tenant").First(&template, template.ID).Error; err != nil {
+	if err := s.db.Preload("Tenant").First(&template, template.ID).Error; err != nil {
 		return nil, err
 	}
 
@@ -172,7 +188,34 @@ func (s *TaskTemplateService) Delete(tenantID uint, templateID uint) error {
 		return err
 	}
 
-	// TODO: 检查是否有正在使用的任务
+	// 检查是否有正在使用的任务
+	var taskCount int64
+	if err := s.db.Model(&models.Task{}).
+		Where("tenant_id = ? AND task_type = ? AND (params->>'template_id')::integer = ?", 
+			tenantID, models.TaskTypeTemplate, templateID).
+		Count(&taskCount).Error; err != nil {
+		logger.GetLogger().Errorf("检查任务模板使用情况失败: %v", err)
+		return fmt.Errorf("检查任务模板使用情况失败")
+	}
+	
+	if taskCount > 0 {
+		// 检查是否有正在运行的任务
+		var runningCount int64
+		if err := s.db.Model(&models.Task{}).
+			Where("tenant_id = ? AND task_type = ? AND (params->>'template_id')::integer = ? AND status IN ?", 
+				tenantID, models.TaskTypeTemplate, templateID, 
+				[]string{"pending", "queued", "locked", "running"}).
+			Count(&runningCount).Error; err != nil {
+			logger.GetLogger().Errorf("检查运行中的任务失败: %v", err)
+			return fmt.Errorf("检查运行中的任务失败")
+		}
+		
+		if runningCount > 0 {
+			return fmt.Errorf("任务模板正在被 %d 个运行中的任务使用，无法删除", runningCount)
+		}
+		
+		logger.GetLogger().Warnf("任务模板 %s (ID: %d) 有 %d 个历史任务记录", template.Name, template.ID, taskCount)
+	}
 
 	// 删除模板
 	if err := s.db.Delete(&template).Error; err != nil {
@@ -187,7 +230,7 @@ func (s *TaskTemplateService) Delete(tenantID uint, templateID uint) error {
 // GetByID 根据ID获取任务模板
 func (s *TaskTemplateService) GetByID(tenantID uint, templateID uint) (*models.TaskTemplate, error) {
 	var template models.TaskTemplate
-	if err := s.db.Preload("Repository").Preload("Tenant").
+	if err := s.db.Preload("Tenant").
 		Where("id = ? AND tenant_id = ?", templateID, tenantID).
 		First(&template).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -204,9 +247,6 @@ func (s *TaskTemplateService) List(tenantID uint, req ListTaskTemplateRequest) (
 	query := s.db.Model(&models.TaskTemplate{}).Where("tenant_id = ?", tenantID)
 
 	// 添加过滤条件
-	if req.RepositoryID != 0 {
-		query = query.Where("repository_id = ?", req.RepositoryID)
-	}
 	if req.ScriptType != "" {
 		query = query.Where("script_type = ?", req.ScriptType)
 	}
@@ -224,8 +264,7 @@ func (s *TaskTemplateService) List(tenantID uint, req ListTaskTemplateRequest) (
 	// 获取分页数据
 	var templates []models.TaskTemplate
 	offset := (req.Page - 1) * req.PageSize
-	if err := query.Preload("Repository").
-		Order("created_at DESC").
+	if err := query.Order("created_at DESC").
 		Offset(offset).
 		Limit(req.PageSize).
 		Find(&templates).Error; err != nil {
@@ -278,104 +317,6 @@ func (s *TaskTemplateService) getDefaultExecutionType(scriptType ScriptType) str
 	}
 }
 
-// SyncFromWorker 处理Worker上报的任务模板
-func (s *TaskTemplateService) SyncFromWorker(repositoryID uint, templates []TemplateInfo, workerID string) error {
-	// 验证仓库是否存在
-	var repo models.GitRepository
-	if err := s.db.First(&repo, repositoryID).Error; err != nil {
-		return fmt.Errorf("仓库不存在")
-	}
-	
-	// 开始事务
-	tx := s.db.Begin()
-	
-	// 获取该仓库的所有现有模板
-	oldTemplates := make(map[string]*models.TaskTemplate)
-	var existingTemplates []models.TaskTemplate
-	if err := tx.Where("repository_id = ? AND tenant_id = ?", repositoryID, repo.TenantID).Find(&existingTemplates).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	
-	for i := range existingTemplates {
-		key := existingTemplates[i].EntryFile
-		oldTemplates[key] = &existingTemplates[i]
-	}
-	
-	// 处理上报的模板
-	now := time.Now()
-	for _, templateInfo := range templates {
-		// 转换参数格式
-		params := make(models.TemplateParameters, len(templateInfo.Parameters))
-		for i, p := range templateInfo.Parameters {
-			params[i] = models.TemplateParameter{
-				Name:         p.Name,
-				Type:         p.Type,
-				Label:        p.Name, // 使用Name作为默认Label
-				Description:  p.Description,
-				Required:     p.Required,
-				DefaultValue: p.DefaultValue,
-				Options:      p.Options,
-			}
-		}
-		
-		if existing, exists := oldTemplates[templateInfo.Path]; exists {
-			// 更新现有模板
-			existing.Name = templateInfo.Name
-			existing.ScriptType = templateInfo.ScriptType
-			existing.Description = templateInfo.Description
-			existing.Parameters = params
-			existing.UpdatedBy = 0 // 系统更新
-			existing.UpdatedAt = now
-			
-			if err := tx.Save(existing).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-			
-			// 从待删除列表中移除
-			delete(oldTemplates, templateInfo.Path)
-		} else {
-			// 创建新模板
-			template := &models.TaskTemplate{
-				TenantID:      repo.TenantID,
-				Name:          templateInfo.Name,
-				Code:          templateInfo.Code,
-				ScriptType:    templateInfo.ScriptType,
-				EntryFile:     templateInfo.Path,
-				RepositoryID:  repositoryID,
-				Description:   templateInfo.Description,
-				Parameters:    params,
-				Timeout:       300, // 默认5分钟
-				ExecutionType: s.getExecutionTypeFromString(templateInfo.ScriptType),
-				CreatedBy:     0, // 系统创建
-				UpdatedBy:     0,
-			}
-			
-			if err := tx.Create(template).Error; err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	}
-	
-	// 删除不再存在的模板
-	for _, template := range oldTemplates {
-		if err := tx.Delete(template).Error; err != nil {
-			tx.Rollback()
-			return err
-		}
-		logger.GetLogger().Debugf("删除不存在的模板: %s", template.Name)
-	}
-	
-	// 提交事务
-	if err := tx.Commit().Error; err != nil {
-		return err
-	}
-	
-	logger.GetLogger().Infof("成功处理 %d 个任务模板 (仓库ID: %d, Worker: %s)", len(templates), repositoryID, workerID)
-	return nil
-}
 
 // getExecutionTypeFromString 从字符串获取执行类型
 func (s *TaskTemplateService) getExecutionTypeFromString(scriptType string) string {
@@ -387,14 +328,6 @@ func (s *TaskTemplateService) getExecutionTypeFromString(scriptType string) stri
 	}
 }
 
-// GetByEntryFile 根据入口文件路径获取模板
-func (s *TaskTemplateService) GetByEntryFile(tenantID uint, repositoryID uint, entryFile string) (*models.TaskTemplate, error) {
-	var template models.TaskTemplate
-	err := s.db.Where("tenant_id = ? AND repository_id = ? AND entry_file = ?", tenantID, repositoryID, entryFile).
-		Preload("Repository").
-		First(&template).Error
-	return &template, err
-}
 
 // CreateTaskTemplateRequest 创建任务模板请求
 type CreateTaskTemplateRequest struct {
@@ -403,7 +336,8 @@ type CreateTaskTemplateRequest struct {
 	ScriptType    string                     `json:"script_type" binding:"required,oneof=shell ansible"`
 	EntryFile     string                     `json:"entry_file" binding:"required"`        // 主执行文件路径
 	IncludedFiles []models.IncludedFile      `json:"included_files"`                       // 包含的文件列表
-	RepositoryID  uint                       `json:"repository_id" binding:"required"`
+	RepositoryID  uint                       `json:"repository_id" binding:"required"`     // 临时使用，用于查找Git仓库
+	OriginalPath  string                     `json:"original_path" binding:"required"`     // Git仓库中的原始路径
 	Description   string                     `json:"description"`
 	Parameters    []SurveyParameter          `json:"parameters"`                           // 使用扫描器返回的格式
 	Timeout       int                        `json:"timeout"`
@@ -418,7 +352,6 @@ type UpdateTaskTemplateRequest struct {
 	ScriptType    string                     `json:"script_type" binding:"omitempty,oneof=shell ansible"`
 	EntryFile     string                     `json:"entry_file"`
 	IncludedFiles []models.IncludedFile      `json:"included_files"`
-	RepositoryID  uint                       `json:"repository_id"`
 	Description   string                     `json:"description"`
 	Parameters    []SurveyParameter          `json:"parameters"`
 	Timeout       int                        `json:"timeout"`
@@ -430,7 +363,6 @@ type UpdateTaskTemplateRequest struct {
 type ListTaskTemplateRequest struct {
 	Page         int    `form:"page,default=1"`
 	PageSize     int    `form:"page_size,default=10"`
-	RepositoryID uint   `form:"repository_id"`
 	ScriptType   string `form:"script_type"`
 	Search       string `form:"search"`
 }
@@ -504,4 +436,16 @@ func (s *TaskTemplateService) mapSurveyTypeToTemplateType(surveyType string) str
 		return templateType
 	}
 	return "string"
+}
+
+// TemplateCopyMessage Worker模板文件复制消息
+type TemplateCopyMessage struct {
+	Action        string                  `json:"action"` // copy/delete
+	TemplateID    uint                    `json:"template_id"`
+	TenantID      uint                    `json:"tenant_id"`
+	TemplateCode  string                  `json:"template_code"`
+	RepositoryID  uint                    `json:"repository_id"`
+	SourcePath    string                  `json:"source_path"`    // Git仓库中的原始路径
+	EntryFile     string                  `json:"entry_file"`     // 相对于模板目录的入口文件
+	IncludedFiles []models.IncludedFile   `json:"included_files"` // 包含的文件列表
 }

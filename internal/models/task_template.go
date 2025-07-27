@@ -17,7 +17,9 @@ type TaskTemplate struct {
 	ScriptType     string         `gorm:"size:20;not null" json:"script_type"`      // shell/ansible
 	EntryFile      string         `gorm:"size:500;not null" json:"entry_file"`      // 主执行文件路径
 	IncludedFiles  IncludedFiles  `gorm:"type:jsonb" json:"included_files"`         // 包含的文件列表
-	RepositoryID   uint           `gorm:"not null;index" json:"repository_id"`
+	
+	// Git来源信息（快照，不是外键）
+	SourceGitInfo  JSON           `gorm:"type:jsonb" json:"source_git_info"`        // Git仓库来源信息
 	
 	// 模板配置
 	Description string              `gorm:"type:text" json:"description"`
@@ -35,7 +37,6 @@ type TaskTemplate struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	
 	// 关联
-	Repository GitRepository `gorm:"foreignKey:RepositoryID" json:"repository,omitempty"`
 	Tenant     Tenant        `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
 }
 
