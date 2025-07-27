@@ -648,7 +648,29 @@ func (s *TaskTemplateService) validateParameterValue(param models.TemplateParame
 		
 	case "multiselect":
 		// 验证多选
-		// TODO: 实现多选验证
+		if param.Type == "multiselect" && value != nil {
+			// 多选值应该是字符串数组
+			selectedValues, ok := value.([]interface{})
+			if !ok {
+				return fmt.Errorf("参数 %s 应该是多选数组", param.Name)
+			}
+			
+			// 验证每个选中的值都在选项中
+			optionMap := make(map[string]bool)
+			for _, opt := range param.Options {
+				optionMap[opt] = true
+			}
+			
+			for _, v := range selectedValues {
+				strValue, ok := v.(string)
+				if !ok {
+					return fmt.Errorf("参数 %s 的多选值必须是字符串", param.Name)
+				}
+				if !optionMap[strValue] {
+					return fmt.Errorf("参数 %s 的值 %s 不在可选项中", param.Name, strValue)
+				}
+			}
+		}
 		
 	case "text", "textarea", "password":
 		// 验证字符串长度

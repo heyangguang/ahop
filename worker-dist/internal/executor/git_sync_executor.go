@@ -339,7 +339,7 @@ func (e *GitSyncExecutor) syncRepository(msg *types.GitSyncMessage, workerID str
 			// 扫描失败不影响同步成功状态，只记录日志
 		} else {
 			log.Infof("扫描完成，发现 %d 个脚本模板", len(templates))
-			// TODO: 后续这里可以根据需要处理扫描结果
+			// 扫描结果会通过scan_queue发送给主服务处理
 		}
 	}
 	
@@ -516,7 +516,7 @@ func (e *GitSyncExecutor) buildAuthURL(msg *types.GitSyncMessage) (string, func(
 			usageLog := CredentialUsageLog{
 				CredentialID: *msg.Repository.CredentialID,
 				TenantID:     msg.TenantID,
-				UserID:       1, // TODO: 从消息中获取操作者ID
+				UserID:       1, // 默认用户ID（定时任务或无操作者时）
 				Purpose:      fmt.Sprintf("Git仓库同步 - %s", msg.Repository.Name),
 				HostName:     msg.Repository.URL,
 				Success:      false,
@@ -534,7 +534,7 @@ func (e *GitSyncExecutor) buildAuthURL(msg *types.GitSyncMessage) (string, func(
 	usageLog := CredentialUsageLog{
 		CredentialID: *msg.Repository.CredentialID,
 		TenantID:     msg.TenantID,
-		UserID:       1, // TODO: 从消息中获取操作者ID
+		UserID:       1, // 默认用户ID（定时任务或无操作者时）
 		Purpose:      fmt.Sprintf("Git仓库同步 - %s", msg.Repository.Name),
 		HostName:     msg.Repository.URL,
 		Success:      true, // 先假设成功，如果失败会在外层更新

@@ -138,8 +138,50 @@ func (e *TemplateCopyExecutor) copyTemplateFiles(ctx context.Context, msg *Templ
 			}
 			
 		case "pattern":
-			// TODO: 实现模式匹配复制
-			e.log.Warnf("模式匹配复制尚未实现: %s", includedFile.Pattern)
+			// 实现模式匹配复制
+			matches, err := filepath.Glob(filepath.Join(sourcePath, includedFile.Pattern))
+			if err != nil {
+				e.log.WithError(err).Warnf("模式匹配失败: %s", includedFile.Pattern)
+				continue
+			}
+			
+			for _, matchedFile := range matches {
+				// 计算相对路径
+				relPath, err := filepath.Rel(sourcePath, matchedFile)
+				if err != nil {
+					e.log.WithError(err).Warnf("计算相对路径失败: %s", matchedFile)
+					continue
+				}
+				
+				// 构建目标路径
+				dst := filepath.Join(targetPath, relPath)
+				
+				// 获取文件信息
+				fileInfo, err := os.Stat(matchedFile)
+				if err != nil {
+					e.log.WithError(err).Warnf("获取文件信息失败: %s", matchedFile)
+					continue
+				}
+				
+				if fileInfo.IsDir() {
+					// 复制目录
+					if err := e.copyDirectory(matchedFile, dst); err != nil {
+						e.log.WithError(err).Warnf("复制目录失败: %s", matchedFile)
+					}
+				} else {
+					// 确保目标目录存在
+					dstDir := filepath.Dir(dst)
+					if err := os.MkdirAll(dstDir, 0755); err != nil {
+						e.log.WithError(err).Warnf("创建目录失败: %s", dstDir)
+						continue
+					}
+					
+					// 复制文件
+					if err := e.copyFile(matchedFile, dst); err != nil {
+						e.log.WithError(err).Warnf("复制文件失败: %s", matchedFile)
+					}
+				}
+			}
 		}
 	}
 
