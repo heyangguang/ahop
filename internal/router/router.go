@@ -338,9 +338,7 @@ func registerRoutes(router *gin.Engine) {
 		}
 
 		// 🔐 Git仓库路由（添加权限保护）
-		gitRepoService := services.NewGitRepositoryService(database.GetDB())
-		gitRepoService.SetQueue(database.GetRedisQueue())
-		gitRepoHandler := handlers.NewGitRepositoryHandler(gitRepoService)
+		gitRepoHandler := handlers.NewGitRepositoryHandler(services.NewGitRepositoryService(database.GetDB()))
 		gitRepos := api.Group("/git-repositories")
 		{
 			// 🔒 基础CRUD（需要Git仓库管理权限）
@@ -405,7 +403,7 @@ func registerRoutes(router *gin.Engine) {
 		
 
 		// 🔐 工单管理路由
-		ticketHandler := handlers.NewTicketHandler(services.NewTicketService(database.GetDB()))
+		ticketHandler := handlers.NewTicketHandler(services.NewTicketService())
 		tickets := api.Group("/tickets")
 		{
 			// 🔒 基础查看（需要工单查看权限）
@@ -413,8 +411,8 @@ func registerRoutes(router *gin.Engine) {
 			tickets.GET("/:id", auth.RequireLogin(), auth.RequirePermission("ticket:read"), ticketHandler.GetByID)
 			tickets.GET("/stats", auth.RequireLogin(), auth.RequirePermission("ticket:list"), ticketHandler.GetStats)
 			
-			// 🔒 工单操作（需要特殊权限）
-			// tickets.POST("/:id/comment", auth.RequireLogin(), auth.RequirePermission("ticket:update"), ticketHandler.AddComment)
+			// 🔒 工单回写测试（需要更新权限）
+			tickets.POST("/:id/test-writeback", auth.RequireLogin(), auth.RequirePermission("ticket:update"), ticketHandler.TestWriteback)
 		}
 
 	}

@@ -466,6 +466,83 @@ def get_tickets():
         "timestamp": datetime.now().isoformat()
     })
 
+@app.route('/tickets/<ticket_id>', methods=['PUT'])
+def update_ticket(ticket_id):
+    """更新工单（状态、评论等）- 测试模式，接受任何工单ID"""
+    data = request.get_json()
+    
+    print(f"\n{'='*60}")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 收到工单更新请求")
+    print(f"工单ID: {ticket_id}")
+    print(f"请求数据: {json.dumps(data, indent=2, ensure_ascii=False)}")
+    print(f"{'='*60}\n")
+    
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Missing request body"
+        }), 400
+    
+    # 查找工单（如果存在则更新，不存在也不报错）
+    ticket = None
+    for t in TICKET_POOL:
+        if t['id'] == ticket_id:
+            ticket = t
+            break
+    
+    updated_fields = []
+    
+    # 更新状态
+    if 'status' in data:
+        if ticket:
+            ticket['status'] = data['status']
+        updated_fields.append('status')
+        print(f"✓ 更新状态: {data['status']}")
+    
+    # 添加评论
+    if 'comment' in data:
+        if ticket:
+            if 'comments' not in ticket:
+                ticket['comments'] = []
+            ticket['comments'].append({
+                'content': data['comment'],
+                'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'author': 'AHOP System'
+            })
+        updated_fields.append('comment')
+        print(f"✓ 添加评论: {data['comment'][:50]}...")
+    
+    # 更新自定义字段
+    if 'custom_fields' in data:
+        if ticket:
+            if 'custom_fields' not in ticket:
+                ticket['custom_fields'] = {}
+            ticket['custom_fields'].update(data['custom_fields'])
+        updated_fields.extend(data['custom_fields'].keys())
+        print(f"✓ 更新自定义字段: {list(data['custom_fields'].keys())}")
+    
+    # 更新修改时间
+    updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if ticket:
+        ticket['updated_at'] = updated_at
+    
+    # 总是返回成功（测试模式）
+    response_data = {
+        "success": True,
+        "message": "Ticket updated successfully (test mode)",
+        "data": {
+            "external_id": ticket_id,
+            "updated_fields": updated_fields,
+            "updated_at": updated_at,
+            "ticket_exists": ticket is not None
+        }
+    }
+    
+    print(f"\n响应数据: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
+    print(f"{'='*60}\n")
+    
+    return jsonify(response_data)
+
 @app.route('/tickets/<ticket_id>/comment', methods=['POST'])
 def add_comment(ticket_id):
     """添加工单评论"""
@@ -544,6 +621,7 @@ if __name__ == '__main__':
     print("  GET  /tickets - 获取工单列表")
     print("  GET  /tickets?minutes=60&status=open&priority=high")
     print("  GET  /stats - 查看统计信息")
+    print("  PUT  /tickets/{id} - 更新工单（状态、评论、自定义字段）")
     print("  POST /tickets/{id}/comment - 添加评论")
     print("  GET  /health - 健康检查")
     

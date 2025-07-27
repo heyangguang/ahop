@@ -1,0 +1,107 @@
+### 工单回写功能测试
+### 使用说明：
+### 1. 确保 realistic_mock_ticket_plugin.py 正在运行 (端口 5002)
+### 2. 确保 AHOP 服务正在运行 (端口 8080)
+### 3. 使用 VS Code REST Client 插件或其他 HTTP 客户端执行
+
+@baseUrl = http://localhost:8080/api/v1
+@token = 
+
+### 1. 登录获取 Token
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin@123"
+}
+
+###
+@token = {{login.response.body.data.token}}
+
+### 2. 创建工单插件
+# @name createPlugin
+POST {{baseUrl}}/ticket-plugins
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "测试工单系统",
+  "code": "test_ticket_system",
+  "description": "用于测试工单回写功能",
+  "base_url": "http://localhost:5002",
+  "auth_type": "none",
+  "sync_enabled": true,
+  "sync_interval": 30,
+  "sync_window": 60
+}
+
+###
+@pluginId = {{createPlugin.response.body.data.id}}
+
+### 3. 手动同步工单
+POST {{baseUrl}}/ticket-plugins/{{pluginId}}/sync
+Authorization: Bearer {{token}}
+
+### 4. 获取工单列表
+# @name getTickets
+GET {{baseUrl}}/tickets?plugin_id={{pluginId}}
+Authorization: Bearer {{token}}
+
+###
+@ticketId = {{getTickets.response.body.data.0.id}}
+@externalId = {{getTickets.response.body.data.0.external_id}}
+
+### 5. 测试回写 - 只更新状态
+POST {{baseUrl}}/tickets/{{ticketId}}/test-writeback
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "in_progress"
+}
+
+### 6. 测试回写 - 只添加评论
+POST {{baseUrl}}/tickets/{{ticketId}}/test-writeback
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "comment": "正在执行自动修复任务，预计5分钟内完成..."
+}
+
+### 7. 测试回写 - 同时更新状态和评论
+POST {{baseUrl}}/tickets/{{ticketId}}/test-writeback
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "resolved",
+  "comment": "自动修复任务已完成：\n1. 重启了服务\n2. 清理了日志文件\n3. 调整了内存配置\n\n问题已解决，请验证。"
+}
+
+### 8. 测试回写 - 包含自定义字段
+POST {{baseUrl}}/tickets/{{ticketId}}/test-writeback
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "closed",
+  "comment": "验证通过，工单关闭。",
+  "custom_fields": {
+    "resolution": "已自动修复",
+    "auto_fixed": true,
+    "fixed_by": "AHOP自愈平台",
+    "fixed_at": "2024-01-20T10:30:00Z",
+    "root_cause": "内存泄漏导致服务异常",
+    "solution": "重启服务并调整JVM参数"
+  }
+}
+
+### 9. 验证更新结果 - 查询插件API
+GET http://localhost:5002/tickets?id={{externalId}}
+
+### 10. 查看 AHOP 中的工单详情
+GET {{baseUrl}}/tickets/{{ticketId}}
+Authorization: Bearer {{token}}

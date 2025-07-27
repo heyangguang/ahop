@@ -1,22 +1,33 @@
 package services
 
 import (
+	"ahop/internal/database"
 	"ahop/internal/models"
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 // TicketService 工单服务
 type TicketService struct {
-	db *gorm.DB
+	db               *gorm.DB
+	pluginService    *TicketPluginService
+	encryptionKey    []byte
 }
 
 // NewTicketService 创建工单服务
-func NewTicketService(db *gorm.DB) *TicketService {
+func NewTicketService() *TicketService {
 	return &TicketService{
-		db: db,
+		db:            database.GetDB(),
+		pluginService: NewTicketPluginService(database.GetDB()),
+		encryptionKey: []byte(os.Getenv("CREDENTIAL_ENCRYPTION_KEY")),
 	}
 }
 
@@ -163,21 +174,93 @@ func (s *TicketService) GetTicketStats(tenantID uint) (*TicketStats, error) {
 	return stats, nil
 }
 
-// UpdateTicketComment 更新工单评论（回写到插件）
-func (s *TicketService) UpdateTicketComment(tenantID uint, ticketID uint, comment string) error {
+// UpdateExternalTicket 更新外部工单系统
+func (s *TicketService) UpdateExternalTicket(ticketID uint, updates map[string]interface{}) error {
 	// 获取工单信息
 	var ticket models.Ticket
-	if err := s.db.Preload("Plugin").Where("id = ? AND tenant_id = ?", ticketID, tenantID).First(&ticket).Error; err != nil {
+	if err := s.db.Preload("Plugin").Where("id = ?", ticketID).First(&ticket).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("工单不存在")
 		}
 		return err
 	}
 
-	// TODO: 调用插件接口更新工单
-	// 这里需要调用插件的更新接口，将评论回写到原始工单系统
+	// 检查插件是否存在
+	if ticket.Plugin == nil {
+		return errors.New("工单插件信息不存在")
+	}
+
+	// 构建请求URL
+	url := fmt.Sprintf("%s/tickets/%s", ticket.Plugin.BaseURL, ticket.ExternalID)
+
+	// 构建请求体
+	requestBody, err := json.Marshal(updates)
+	if err != nil {
+		return fmt.Errorf("序列化请求失败: %v", err)
+	}
+
+	// 创建HTTP请求
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(requestBody))
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %v", err)
+	}
+
+	// 设置请求头
+	req.Header.Set("Content-Type", "application/json")
+
+	// 添加认证
+	if ticket.Plugin.AuthType != "none" && ticket.Plugin.AuthToken != "" {
+		token, err := s.pluginService.decrypt(ticket.Plugin.AuthToken)
+		if err != nil {
+			return fmt.Errorf("解密认证令牌失败: %v", err)
+		}
+
+		switch ticket.Plugin.AuthType {
+		case "bearer":
+			req.Header.Set("Authorization", "Bearer "+token)
+		case "apikey":
+			req.Header.Set("X-API-Key", token)
+		}
+	}
+
+	// 发送请求
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// 读取响应
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("读取响应失败: %v", err)
+	}
+
+	// 检查响应状态
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("插件返回错误: HTTP %d - %s", resp.StatusCode, string(body))
+	}
+
+	return nil
+}
+
+// UpdateTicketComment 更新工单评论（回写到插件）
+func (s *TicketService) UpdateTicketComment(tenantID uint, ticketID uint, comment string) error {
+	// 先验证工单是否存在且属于该租户
+	var ticket models.Ticket
+	if err := s.db.Where("id = ? AND tenant_id = ?", ticketID, tenantID).First(&ticket).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("工单不存在")
+		}
+		return err
+	}
 	
-	return fmt.Errorf("工单评论更新功能尚未实现")
+	// 调用通用的更新方法
+	updates := map[string]interface{}{
+		"comment": comment,
+	}
+	return s.UpdateExternalTicket(ticketID, updates)
 }
 
 // 过滤条件

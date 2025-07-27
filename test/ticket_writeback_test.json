@@ -1,0 +1,146 @@
+{
+  "test_name": "工单回写功能测试",
+  "base_url": "http://localhost:8080/api/v1",
+  "steps": [
+    {
+      "step": "1. 登录获取Token",
+      "method": "POST",
+      "url": "/auth/login",
+      "body": {
+        "username": "admin",
+        "password": "Admin@123"
+      },
+      "save_response": {
+        "token": "$.data.token"
+      }
+    },
+    {
+      "step": "2. 创建工单插件（如果不存在）",
+      "method": "POST",
+      "url": "/ticket-plugins",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      },
+      "body": {
+        "name": "测试工单系统",
+        "code": "test_ticket_system",
+        "description": "用于测试工单回写功能",
+        "base_url": "http://localhost:5002",
+        "auth_type": "none",
+        "sync_enabled": true,
+        "sync_interval": 30,
+        "sync_window": 60
+      },
+      "save_response": {
+        "plugin_id": "$.data.id"
+      },
+      "ignore_error": true
+    },
+    {
+      "step": "3. 获取插件列表（如果创建失败）",
+      "method": "GET",
+      "url": "/ticket-plugins",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      },
+      "condition": "plugin_id == null",
+      "save_response": {
+        "plugin_id": "$.data[?(@.code=='test_ticket_system')].id"
+      }
+    },
+    {
+      "step": "4. 手动同步工单",
+      "method": "POST",
+      "url": "/ticket-plugins/{{plugin_id}}/sync",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      }
+    },
+    {
+      "step": "5. 获取工单列表",
+      "method": "GET",
+      "url": "/tickets?plugin_id={{plugin_id}}",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      },
+      "save_response": {
+        "ticket_id": "$.data[0].id",
+        "external_id": "$.data[0].external_id"
+      }
+    },
+    {
+      "step": "6. 测试1 - 只更新状态",
+      "method": "POST",
+      "url": "/tickets/{{ticket_id}}/test-writeback",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      },
+      "body": {
+        "status": "in_progress"
+      },
+      "expected_response": {
+        "code": 200,
+        "data.external_id": "{{external_id}}"
+      }
+    },
+    {
+      "step": "7. 测试2 - 只添加评论",
+      "method": "POST",
+      "url": "/tickets/{{ticket_id}}/test-writeback",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      },
+      "body": {
+        "comment": "正在执行自动修复任务..."
+      },
+      "expected_response": {
+        "code": 200
+      }
+    },
+    {
+      "step": "8. 测试3 - 同时更新状态和评论",
+      "method": "POST",
+      "url": "/tickets/{{ticket_id}}/test-writeback",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      },
+      "body": {
+        "status": "resolved",
+        "comment": "问题已自动修复完成，请验证。"
+      },
+      "expected_response": {
+        "code": 200
+      }
+    },
+    {
+      "step": "9. 测试4 - 更新自定义字段",
+      "method": "POST",
+      "url": "/tickets/{{ticket_id}}/test-writeback",
+      "headers": {
+        "Authorization": "Bearer {{token}}"
+      },
+      "body": {
+        "status": "closed",
+        "comment": "任务执行成功，问题已解决。",
+        "custom_fields": {
+          "resolution": "已自动修复",
+          "auto_fixed": true,
+          "fixed_at": "2024-01-20T10:30:00Z"
+        }
+      },
+      "expected_response": {
+        "code": 200,
+        "data.updates.status": "closed"
+      }
+    },
+    {
+      "step": "10. 验证更新结果（直接查询插件）",
+      "method": "GET",
+      "url": "http://localhost:5002/tickets?id={{external_id}}",
+      "headers": {},
+      "expected_response": {
+        "data[0].status": "closed"
+      }
+    }
+  ]
+}

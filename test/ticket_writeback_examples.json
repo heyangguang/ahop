@@ -1,0 +1,43 @@
+{
+  "api_endpoint": "POST /api/v1/tickets/{ticket_id}/test-writeback",
+  "description": "工单回写测试接口，用于更新外部工单系统",
+  "request_examples": {
+    "1_只更新状态": {
+      "status": "in_progress"
+    },
+    "2_只添加评论": {
+      "comment": "正在执行自动修复任务..."
+    },
+    "3_更新状态和评论": {
+      "status": "resolved",
+      "comment": "问题已自动修复完成，请验证。"
+    },
+    "4_完整更新示例": {
+      "status": "closed",
+      "comment": "任务执行成功，问题已解决。\n执行步骤：\n1. 重启服务\n2. 清理缓存\n3. 更新配置",
+      "custom_fields": {
+        "resolution": "已自动修复",
+        "auto_fixed": true,
+        "fixed_at": "2024-01-20T10:30:00Z",
+        "root_cause": "内存不足",
+        "solution": "增加内存配置并重启服务"
+      }
+    }
+  },
+  "response_example": {
+    "code": 200,
+    "msg": "工单回写成功",
+    "data": {
+      "ticket_id": 123,
+      "external_id": "TICKET-001",
+      "plugin_name": "测试工单系统",
+      "updates": {
+        "status": "closed",
+        "comment": "任务执行成功，问题已解决。",
+        "custom_fields": {
+          "resolution": "已自动修复"
+        }
+      }
+    }
+  }
+}

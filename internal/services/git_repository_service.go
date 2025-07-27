@@ -1,6 +1,7 @@
 package services
 
 import (
+	"ahop/internal/database"
 	"ahop/internal/models"
 	"ahop/pkg/logger"
 	"ahop/pkg/queue"
@@ -38,15 +39,11 @@ type GitRepositoryService struct {
 func NewGitRepositoryService(db *gorm.DB) *GitRepositoryService {
 	return &GitRepositoryService{
 		db:                db,
-		queue:             nil, // 暂时设为nil，等待注入
+		queue:             database.GetRedisQueue(),
 		credentialService: NewCredentialService(db),
 	}
 }
 
-// SetQueue 设置Redis队列
-func (s *GitRepositoryService) SetQueue(q *queue.RedisQueue) {
-	s.queue = q
-}
 
 // Create 创建Git仓库
 func (s *GitRepositoryService) Create(tenantID uint, req *CreateGitRepositoryRequest) (*models.GitRepository, error) {

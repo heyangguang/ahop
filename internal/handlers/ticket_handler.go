@@ -5,6 +5,7 @@ import (
 	"ahop/pkg/jwt"
 	"ahop/pkg/pagination"
 	"ahop/pkg/response"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -95,8 +96,9 @@ func (h *TicketHandler) GetStats(c *gin.Context) {
 	response.Success(c, stats)
 }
 
-// AddComment 添加工单评论
-func (h *TicketHandler) AddComment(c *gin.Context) {
+
+// TestWriteback 测试工单回写功能
+func (h *TicketHandler) TestWriteback(c *gin.Context) {
 	// 获取工单ID
 	ticketID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -106,7 +108,9 @@ func (h *TicketHandler) AddComment(c *gin.Context) {
 
 	// 解析请求体
 	var req struct {
-		Comment string `json:"comment" binding:"required"`
+		Status       string                 `json:"status"`
+		Comment      string                 `json:"comment"`
+		CustomFields map[string]interface{} `json:"custom_fields"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, "参数错误")
@@ -116,15 +120,39 @@ func (h *TicketHandler) AddComment(c *gin.Context) {
 	// 获取用户信息
 	claims := c.MustGet("claims").(*jwt.JWTClaims)
 
-	// 更新评论
-	if err := h.ticketService.UpdateTicketComment(claims.CurrentTenantID, uint(ticketID), req.Comment); err != nil {
+	// 先验证工单是否存在且属于当前租户
+	ticket, err := h.ticketService.GetTicket(claims.CurrentTenantID, uint(ticketID))
+	if err != nil {
 		if err.Error() == "工单不存在" {
 			response.NotFound(c, err.Error())
 			return
 		}
-		response.ServerError(c, err.Error())
+		response.ServerError(c, "获取工单失败")
 		return
 	}
 
-	response.SuccessWithMessage(c, "评论添加成功", nil)
+	// 构建更新数据
+	updates := make(map[string]interface{})
+	if req.Status != "" {
+		updates["status"] = req.Status
+	}
+	if req.Comment != "" {
+		updates["comment"] = req.Comment
+	}
+	if len(req.CustomFields) > 0 {
+		updates["custom_fields"] = req.CustomFields
+	}
+
+	// 调用回写服务
+	if err := h.ticketService.UpdateExternalTicket(uint(ticketID), updates); err != nil {
+		response.ServerError(c, fmt.Sprintf("工单回写失败: %v", err))
+		return
+	}
+
+	response.SuccessWithMessage(c, "工单回写成功", gin.H{
+		"ticket_id": ticket.ID,
+		"external_id": ticket.ExternalID,
+		"plugin_name": ticket.Plugin.Name,
+		"updates": updates,
+	})
 }
