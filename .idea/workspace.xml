@@ -8,13 +8,17 @@
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/task_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/task_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/models/task.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/task.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/task_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/task_service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/seed.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/seed.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/credential_security_analysis.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/event_analysis.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/task-system-redesign.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/test.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/worker_git_sync_architecture.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/database/migrate.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/database/migrate.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/router/router.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/app.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/internal/models/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/models/models.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/internal/worker/worker.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/worker/worker.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/logs/worker.log" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/logs/worker.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/worker" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/worker" afterDir="false" />
     </list>
@@ -45,37 +49,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "Go Build.go build *.go.executor": "Run",
-    "Go Build.go build ahop.executor": "Run",
-    "Go Build.go build ahop/cmd/server.executor": "Run",
-    "Go Build.go build main.go.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.GoLinterPluginOnboarding": "true",
-    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "SHELLCHECK.PATH": "I do mind",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/opt/ahop/cmd/server",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.configurations.included.in.services": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build *.go.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build ahop.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build ahop/cmd/server.executor&quot;: &quot;Run&quot;,
+    &quot;Go Build.go build main.go.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/opt/ahop/cmd/server&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
     <layout>
       <window_info id="Merge Requests" />
@@ -92,15 +96,15 @@
       <window_info anchor="bottom" id="Version Control" order="0" weight="0.49955437" />
       <window_info anchor="bottom" id="Problems" order="1" />
       <window_info anchor="bottom" id="Problems View" order="2" weight="0.5676758" />
-      <window_info anchor="bottom" id="Services" order="3" weight="0.5676758" />
-      <window_info anchor="bottom" id="TODO" order="4" weight="0.5605521" />
-      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="5" sideWeight="0.50650054" visible="true" weight="0.5605521" />
-      <window_info anchor="bottom" id="Run" order="6" weight="0.5605521" />
-      <window_info anchor="bottom" id="Database Changes" order="7" weight="0.5676758" />
+      <window_info anchor="bottom" id="Services" order="3" weight="0.54096174" />
+      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="4" sideWeight="0.51808906" visible="true" weight="0.4765013" />
+      <window_info anchor="bottom" id="TODO" order="5" weight="0.6128049" />
+      <window_info anchor="bottom" id="Run" order="6" weight="0.4765013" />
+      <window_info anchor="bottom" id="Database Changes" order="7" weight="0.67987806" />
       <window_info anchor="bottom" id="Find" order="8" weight="0.4550321" />
       <window_info anchor="right" id="Notifications" order="0" weight="0.22140865" />
       <window_info anchor="right" id="AIAssistant" order="1" weight="0.22140865" />
-      <window_info active="true" anchor="right" id="Database" order="2" sideWeight="0.471831" visible="true" weight="0.22001395" />
+      <window_info anchor="right" id="Database" order="2" sideWeight="0.48191094" weight="0.26255232" />
       <window_info anchor="right" id="Gradle" order="3" weight="0.25" />
       <window_info anchor="right" id="Maven" order="4" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="5" sideWeight="0.48591548" side_tool="true" weight="0.3300866" />

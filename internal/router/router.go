@@ -372,6 +372,51 @@ func registerRoutes(router *gin.Engine) {
 			taskTemplates.POST("/sync", taskTemplateHandler.SyncFromWorker)
 		}
 
+		// 🔐 工单插件路由
+		ticketPluginHandler := handlers.NewTicketPluginHandler(services.NewTicketPluginService(database.GetDB()))
+		fieldMappingHandler := handlers.NewFieldMappingHandler(services.NewFieldMappingService(database.GetDB()))
+		syncRuleHandler := handlers.NewSyncRuleHandler(services.NewSyncRuleService(database.GetDB()))
+		ticketPlugins := api.Group("/ticket-plugins")
+		{
+			// 🔒 基础CRUD（需要工单插件管理权限）
+			ticketPlugins.POST("", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:create"), ticketPluginHandler.Create)
+			ticketPlugins.GET("", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:list"), ticketPluginHandler.List)
+			ticketPlugins.GET("/:id", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), ticketPluginHandler.GetByID)
+			ticketPlugins.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), ticketPluginHandler.Update)
+			ticketPlugins.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:delete"), ticketPluginHandler.Delete)
+			
+			// 🔒 插件操作（需要相应权限）
+			ticketPlugins.POST("/:id/test", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), ticketPluginHandler.TestConnection)
+			ticketPlugins.POST("/:id/enable", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), ticketPluginHandler.Enable)
+			ticketPlugins.POST("/:id/disable", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), ticketPluginHandler.Disable)
+			ticketPlugins.POST("/:id/sync", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:sync"), ticketPluginHandler.ManualSync)
+			ticketPlugins.GET("/:id/sync-logs", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), ticketPluginHandler.GetSyncLogs)
+			ticketPlugins.POST("/:id/test-sync", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), ticketPluginHandler.TestSync)
+			
+			// 🔒 字段映射管理
+			ticketPlugins.GET("/:id/field-mappings", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), fieldMappingHandler.GetByPlugin)
+			ticketPlugins.POST("/:id/field-mappings", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), fieldMappingHandler.UpdateMappings)
+			
+			// 🔒 同步规则管理
+			ticketPlugins.GET("/:id/sync-rules", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), syncRuleHandler.GetByPlugin)
+			ticketPlugins.POST("/:id/sync-rules", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), syncRuleHandler.UpdateRules)
+		}
+		
+		
+
+		// 🔐 工单管理路由
+		ticketHandler := handlers.NewTicketHandler(services.NewTicketService(database.GetDB()))
+		tickets := api.Group("/tickets")
+		{
+			// 🔒 基础查看（需要工单查看权限）
+			tickets.GET("", auth.RequireLogin(), auth.RequirePermission("ticket:list"), ticketHandler.List)
+			tickets.GET("/:id", auth.RequireLogin(), auth.RequirePermission("ticket:read"), ticketHandler.GetByID)
+			tickets.GET("/stats", auth.RequireLogin(), auth.RequirePermission("ticket:list"), ticketHandler.GetStats)
+			
+			// 🔒 工单操作（需要特殊权限）
+			// tickets.POST("/:id/comment", auth.RequireLogin(), auth.RequirePermission("ticket:update"), ticketHandler.AddComment)
+		}
+
 	}
 }
 

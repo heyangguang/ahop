@@ -166,6 +166,18 @@ func initializePermissions(db *gorm.DB) error {
 		{Code: "task_template:create", Name: "创建任务模板", Module: "task_template", Action: "create", Description: "创建新的任务模板"},
 		{Code: "task_template:update", Name: "更新任务模板", Module: "task_template", Action: "update", Description: "更新任务模板配置"},
 		{Code: "task_template:delete", Name: "删除任务模板", Module: "task_template", Action: "delete", Description: "删除任务模板"},
+		
+		// 工单插件管理权限
+		{Code: "ticket_plugin:list", Name: "查看工单插件列表", Module: "ticket_plugin", Action: "list", Description: "查看工单插件列表"},
+		{Code: "ticket_plugin:read", Name: "查看工单插件详情", Module: "ticket_plugin", Action: "read", Description: "查看工单插件详情"},
+		{Code: "ticket_plugin:create", Name: "创建工单插件", Module: "ticket_plugin", Action: "create", Description: "创建工单插件配置"},
+		{Code: "ticket_plugin:update", Name: "更新工单插件", Module: "ticket_plugin", Action: "update", Description: "更新工单插件配置"},
+		{Code: "ticket_plugin:delete", Name: "删除工单插件", Module: "ticket_plugin", Action: "delete", Description: "删除工单插件"},
+		{Code: "ticket_plugin:sync", Name: "同步工单", Module: "ticket_plugin", Action: "sync", Description: "手动触发工单同步"},
+		
+		// 工单管理权限
+		{Code: "ticket:list", Name: "查看工单列表", Module: "ticket", Action: "list", Description: "查看同步的工单列表"},
+		{Code: "ticket:read", Name: "查看工单详情", Module: "ticket", Action: "read", Description: "查看工单详细信息"},
 	}
 
 	// 批量创建权限

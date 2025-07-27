@@ -71,6 +71,17 @@ func main() {
 		// 不影响主服务启动
 	}
 	defer gitSyncScheduler.Stop()
+	
+	// 启动工单同步调度器
+	ticketSyncScheduler := services.NewTicketSyncScheduler(database.GetDB())
+	if err := ticketSyncScheduler.Start(); err != nil {
+		appLogger.Errorf("Failed to start ticket sync scheduler: %v", err)
+		// 不影响主服务启动
+	}
+	defer ticketSyncScheduler.Stop()
+	
+	// 设置全局调度器实例，供服务使用
+	services.SetGlobalTicketSyncScheduler(ticketSyncScheduler)
 
 	// 启动Worker连接清理任务（每30秒执行一次）
 	workerAuthService := services.NewWorkerAuthService(database.GetDB())

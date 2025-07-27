@@ -33,6 +33,12 @@ func Migrate() error {
 		&models.GitSyncLog{},
 		&models.TaskTemplate{},
 		&models.WorkerConnection{},
+		// 工单系统集成
+		&models.TicketPlugin{},
+		&models.FieldMapping{},
+		&models.SyncRule{},
+		&models.Ticket{},
+		&models.TicketSyncLog{},
 	)
 
 	if err != nil {
