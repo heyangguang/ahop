@@ -409,6 +409,12 @@ func (w *Worker) updateWorkerStatus() {
 func (w *Worker) templateCopyConsumer() {
 	defer w.wg.Done()
 	
+	// 订阅模板复制通道（使用模式订阅）
+	pubsub := w.queue.GetClient().PSubscribe(w.ctx, "template:copy:*")
+	defer pubsub.Close()
+	
+	ch := pubsub.Channel()
+	
 	log := w.log.WithFields(logrus.Fields{
 		"worker_id": w.id,
 		"consumer":  "template_copy",
@@ -421,11 +427,22 @@ func (w *Worker) templateCopyConsumer() {
 		case <-w.ctx.Done():
 			log.Info("模板复制消费者收到退出信号")
 			return
-		default:
-			// 从模板复制队列获取消息
-			// TODO: 需要在RedisQueue中添加模板复制队列的支持
-			// 目前先使用一个简单的实现
-			time.Sleep(5 * time.Second) // 暂时等待，避免忙等待
+		case msg := <-ch:
+			if msg == nil {
+				continue
+			}
+			
+			// 处理消息
+			log.WithFields(logrus.Fields{
+				"channel": msg.Channel,
+				"pattern": msg.Pattern,
+			}).Debug("收到模板复制消息")
+			
+			if err := w.templateCopyExecutor.HandleTemplateCopy(w.ctx, []byte(msg.Payload)); err != nil {
+				log.WithError(err).Errorf("处理模板复制消息失败: channel=%s", msg.Channel)
+			} else {
+				log.Infof("成功处理模板复制消息: channel=%s", msg.Channel)
+			}
 		}
 	}
 }

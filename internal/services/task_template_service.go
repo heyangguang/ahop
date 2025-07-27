@@ -1,8 +1,11 @@
 package services
 
 import (
+	"ahop/internal/database"
 	"ahop/internal/models"
 	"ahop/pkg/logger"
+	"ahop/pkg/queue"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -13,13 +16,15 @@ import (
 
 // TaskTemplateService 任务模板服务
 type TaskTemplateService struct {
-	db *gorm.DB
+	db    *gorm.DB
+	queue *queue.RedisQueue
 }
 
 // NewTaskTemplateService 创建任务模板服务
 func NewTaskTemplateService(db *gorm.DB) *TaskTemplateService {
 	return &TaskTemplateService{
-		db: db,
+		db:    db,
+		queue: database.GetRedisQueue(),
 	}
 }
 
@@ -99,8 +104,24 @@ func (s *TaskTemplateService) Create(tenantID uint, req CreateTaskTemplateReques
 		IncludedFiles: req.IncludedFiles,
 	}
 
-	// TODO: 发送消息到Worker队列
-	logger.GetLogger().Infof("需要通知Worker复制模板文件: %+v", copyMsg)
+	// 发布到Redis订阅通道（使用模板ID作为频道标识）
+	channel := fmt.Sprintf("template:copy:%d", template.ID)
+	msgBytes, err := json.Marshal(copyMsg)
+	if err != nil {
+		return nil, fmt.Errorf("序列化消息失败: %v", err)
+	}
+
+	ctx := context.Background()
+	if s.queue != nil {
+		if err := s.queue.GetClient().Publish(ctx, channel, msgBytes).Err(); err != nil {
+			logger.GetLogger().Errorf("发布模板复制通知失败: %v", err)
+			// 不影响创建操作，Worker会在执行时处理
+		} else {
+			logger.GetLogger().Infof("已通知Worker复制模板文件: channel=%s", channel)
+		}
+	} else {
+		logger.GetLogger().Warn("Redis队列未初始化，跳过Worker通知")
+	}
 
 	logger.GetLogger().Infof("任务模板 %s (ID: %d) 创建成功", template.Name, template.ID)
 	return template, nil
