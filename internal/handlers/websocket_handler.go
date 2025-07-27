@@ -3,12 +3,14 @@ package handlers
 import (
 	"ahop/internal/database"
 	"ahop/internal/services"
+	"ahop/pkg/config"
 	"ahop/pkg/jwt"
 	"ahop/pkg/logger"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,11 +32,38 @@ type WebSocketHandler struct {
 
 // NewWebSocketHandler 创建WebSocket处理器
 func NewWebSocketHandler(userService *services.UserService, taskService *services.TaskService) *WebSocketHandler {
+	// 获取CORS配置
+	cfg := config.GetConfig()
+	allowedOrigins := cfg.CORS.AllowOrigins
+	
 	return &WebSocketHandler{
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
-				// TODO: 生产环境应该检查Origin
-				return true
+				// 检查Origin是否在允许列表中
+				origin := r.Header.Get("Origin")
+				
+				// 如果允许所有源
+				for _, allowed := range allowedOrigins {
+					if allowed == "*" {
+						return true
+					}
+				}
+				
+				// 如果Origin为空（同源请求），允许
+				if origin == "" {
+					return true
+				}
+				
+				// 检查Origin是否在允许列表中
+				for _, allowed := range allowedOrigins {
+					if matchOrigin(origin, allowed) {
+						return true
+					}
+				}
+				
+				// 记录被拒绝的Origin
+				logger.GetLogger().Warnf("WebSocket连接被拒绝，非法Origin: %s", origin)
+				return false
 			},
 			ReadBufferSize:  1024 * 32,  // 增加到32KB
 			WriteBufferSize: 1024 * 32,  // 增加到32KB
@@ -363,4 +392,43 @@ func (h *WebSocketHandler) NetworkScanResults(c *gin.Context) {
 			}
 		}
 	}
+}
+
+// matchOrigin 检查origin是否匹配allowed模式
+// 支持精确匹配和通配符匹配（如 *.example.com）
+func matchOrigin(origin, allowed string) bool {
+	// 精确匹配
+	if origin == allowed {
+		return true
+	}
+	
+	// 检查是否是通配符模式
+	if strings.HasPrefix(allowed, "*.") {
+		// 获取域名部分（去掉 *.）
+		domain := allowed[2:]
+		
+		// 处理origin中的协议部分
+		// 例如：http://sub.example.com -> sub.example.com
+		originHost := origin
+		if idx := strings.Index(origin, "://"); idx != -1 {
+			originHost = origin[idx+3:]
+		}
+		
+		// 去掉端口号（如果有）
+		if idx := strings.Index(originHost, ":"); idx != -1 {
+			originHost = originHost[:idx]
+		}
+		
+		// 检查是否匹配
+		if originHost == domain {
+			return true
+		}
+		
+		// 检查是否是子域名
+		if strings.HasSuffix(originHost, "."+domain) {
+			return true
+		}
+	}
+	
+	return false
 }
