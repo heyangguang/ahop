@@ -430,6 +430,21 @@ type SurveyFile struct {
 	Name        string                  `json:"name"`        // survey名称
 	Description string                  `json:"description"` // survey描述
 	Parameters  []ScanTemplateParameter `json:"parameters"`  // 参数列表
+	
+	// 模板元信息（自动生成）
+	Code          string                 `json:"code"`          // 建议的模板代码
+	ScriptType    string                 `json:"script_type"`   // 脚本类型 shell/ansible
+	ExecutionType string                 `json:"execution_type"` // 执行类型 ssh/ansible（智能推断）
+	EntryFile     string                 `json:"entry_file"`    // 入口文件
+	OriginalPath  string                 `json:"original_path"`  // 原始路径（相对于仓库根目录）
+	IncludedFiles []IncludedFile        `json:"included_files"` // 包含的文件列表
+	RepositoryID  uint                   `json:"repository_id"` // 仓库ID（智能推断）
+}
+
+// IncludedFile 包含的文件
+type IncludedFile struct {
+	Path string `json:"path"` // 文件路径
+	Type string `json:"type"` // file/directory/pattern
 }
 
 // ScanResult 扫描结果（增强版）
@@ -459,17 +474,19 @@ type ScanResult struct {
 
 // ScanTemplateParameter 扫描结果中的模板参数
 type ScanTemplateParameter struct {
-	Name        string   `json:"name"`
-	Type        string   `json:"type"`
-	Description string   `json:"description"`
-	Required    bool     `json:"required"`
-	Default     string   `json:"default,omitempty"`
-	Options     []string `json:"options,omitempty"`
-	MinValue    *string  `json:"min_value,omitempty"`
-	MaxValue    *string  `json:"max_value,omitempty"`
-	MinLength   *int     `json:"min_length,omitempty"`
-	MaxLength   *int     `json:"max_length,omitempty"`
-	Source      string   `json:"source,omitempty"`
+	Name        string                     `json:"name"`
+	Type        string                     `json:"type"`
+	Label       string                     `json:"label,omitempty"`        // 智能推断的显示标签
+	Description string                     `json:"description"`
+	Required    bool                       `json:"required"`
+	Default     string                     `json:"default,omitempty"`
+	Options     []string                   `json:"options,omitempty"`
+	MinValue    *string                    `json:"min_value,omitempty"`
+	MaxValue    *string                    `json:"max_value,omitempty"`
+	MinLength   *int                       `json:"min_length,omitempty"`
+	MaxLength   *int                       `json:"max_length,omitempty"`
+	Validation  *models.ValidationRules    `json:"validation,omitempty"`    // 智能推断的验证规则
+	Source      string                     `json:"source,omitempty"`
 }
 
 // ScanTemplates 扫描仓库中的模板（通过Redis返回结果）

@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -92,16 +93,33 @@ func (s *TaskTemplateService) Create(tenantID uint, req CreateTaskTemplateReques
 		return nil, err
 	}
 
+	// 转换 IncludedFiles 格式以匹配 Worker 端期望的结构
+	workerIncludedFiles := make([]WorkerIncludedFile, len(req.IncludedFiles))
+	for i, file := range req.IncludedFiles {
+		// 将 file_type 映射为 Worker 期望的 type
+		fileType := "file" // 默认为文件类型
+		if file.FileType == "directory" {
+			fileType = "directory"
+		} else if file.FileType == "pattern" {
+			fileType = "pattern"
+		}
+		
+		workerIncludedFiles[i] = WorkerIncludedFile{
+			Path: file.Path,
+			Type: fileType,
+		}
+	}
+
 	// 通知Worker复制文件到独立目录
 	copyMsg := TemplateCopyMessage{
-		Action:       "copy",
-		TemplateID:   template.ID,
-		TenantID:     tenantID,
-		TemplateCode: template.Code,
-		RepositoryID: repo.ID,
-		SourcePath:   req.OriginalPath,
-		EntryFile:    req.EntryFile,
-		IncludedFiles: req.IncludedFiles,
+		Action:        "copy",
+		TemplateID:    template.ID,
+		TenantID:      tenantID,
+		TemplateCode:  template.Code,
+		RepositoryID:  repo.ID,
+		SourcePath:    req.OriginalPath,
+		EntryFile:     req.EntryFile,
+		IncludedFiles: workerIncludedFiles,
 	}
 
 	// 发布到Redis订阅通道（使用模板ID作为频道标识）
@@ -242,6 +260,23 @@ func (s *TaskTemplateService) Delete(tenantID uint, templateID uint) error {
 	if err := s.db.Delete(&template).Error; err != nil {
 		logger.GetLogger().Errorf("删除任务模板失败: %v", err)
 		return fmt.Errorf("删除任务模板失败")
+	}
+
+	// 通知所有 Worker 删除模板目录
+	deleteMsg := TemplateCopyMessage{
+		Action:       "delete",
+		TemplateID:   templateID,
+		TenantID:     tenantID,
+		TemplateCode: template.Code,
+	}
+	
+	// 发送删除消息到队列（使用同一个队列 template_copy）
+	if err := s.queue.PublishMessage("template_copy", deleteMsg); err != nil {
+		logger.GetLogger().Errorf("发送模板删除消息失败: %v", err)
+		// 不影响删除操作，只记录错误
+	} else {
+		logger.GetLogger().Infof("已发送模板删除消息: tenant=%d, template=%d, code=%s, action=delete", 
+			tenantID, templateID, template.Code)
 	}
 
 	logger.GetLogger().Infof("任务模板 %s (ID: %d) 已删除", template.Name, template.ID)
@@ -410,19 +445,21 @@ type TemplateParameter struct {
 	Options      []string    `json:"options,omitempty"`
 }
 
-// SurveyParameter 扫描器返回的参数格式
+// SurveyParameter 扫描器返回的参数格式（统一格式）
 type SurveyParameter struct {
-	Variable            string      `json:"variable"`
-	Type                string      `json:"type"`
-	QuestionName        string      `json:"question_name"`
-	QuestionDescription string      `json:"question_description"`
-	Required            bool        `json:"required"`
-	Default             interface{} `json:"default,omitempty"`
-	Choices             []string    `json:"choices,omitempty"`
-	Min                 *int        `json:"min,omitempty"`
-	Max                 *int        `json:"max,omitempty"`
-	MinLength           *int        `json:"min_length,omitempty"`
-	MaxLength           *int        `json:"max_length,omitempty"`
+	Name        string                   `json:"name"`
+	Type        string                   `json:"type"`
+	Label       string                   `json:"label"`
+	Description string                   `json:"description"`
+	Required    bool                     `json:"required"`
+	Default     interface{}              `json:"default,omitempty"`
+	Options     []string                 `json:"options,omitempty"`
+	MinValue    *string                  `json:"min_value,omitempty"`
+	MaxValue    *string                  `json:"max_value,omitempty"`
+	MinLength   *int                     `json:"min_length,omitempty"`
+	MaxLength   *int                     `json:"max_length,omitempty"`
+	Validation  *models.ValidationRules  `json:"validation,omitempty"`
+	Source      string                   `json:"source,omitempty"`
 }
 
 // convertSurveyToTemplateParameters 转换扫描器参数格式到模板参数格式
@@ -430,21 +467,40 @@ func (s *TaskTemplateService) convertSurveyToTemplateParameters(surveyParams []S
 	params := make([]models.TemplateParameter, len(surveyParams))
 	for i, sp := range surveyParams {
 		param := models.TemplateParameter{
-			Name:        sp.Variable,                          // variable -> name
-			Type:        s.normalizeParameterType(sp.Type),    // 类型标准化
-			Label:       sp.QuestionName,                      // question_name -> label
-			Description: sp.QuestionDescription,               // question_description -> description
+			Name:        sp.Name,
+			Type:        s.normalizeParameterType(sp.Type),
+			Label:       sp.Label,
+			Description: sp.Description,
 			Required:    sp.Required,
 			Default:     sp.Default,
-			Options:     sp.Choices,                           // choices -> options
-			Source:      "scanner",
+			Options:     sp.Options,
+			Source:      sp.Source,
+		}
+		
+		// 如果 Source 为空，默认为 "scanner"
+		if param.Source == "" {
+			param.Source = "scanner"
 		}
 		
 		// 设置验证规则
-		if sp.Min != nil || sp.Max != nil {
-			param.Validation = &models.ValidationRules{
-				Min: sp.Min,
-				Max: sp.Max,
+		if sp.Validation != nil {
+			// 直接使用传入的验证规则
+			param.Validation = sp.Validation
+		} else if sp.MinValue != nil || sp.MaxValue != nil {
+			// 从 min_value/max_value 转换
+			validation := &models.ValidationRules{}
+			if sp.MinValue != nil {
+				if val, err := strconv.Atoi(*sp.MinValue); err == nil {
+					validation.Min = &val
+				}
+			}
+			if sp.MaxValue != nil {
+				if val, err := strconv.Atoi(*sp.MaxValue); err == nil {
+					validation.Max = &val
+				}
+			}
+			if validation.Min != nil || validation.Max != nil {
+				param.Validation = validation
 			}
 		}
 		
@@ -476,14 +532,21 @@ func (s *TaskTemplateService) normalizeParameterType(scannerType string) string 
 
 // TemplateCopyMessage Worker模板文件复制消息
 type TemplateCopyMessage struct {
-	Action        string                  `json:"action"` // copy/delete
-	TemplateID    uint                    `json:"template_id"`
-	TenantID      uint                    `json:"tenant_id"`
-	TemplateCode  string                  `json:"template_code"`
-	RepositoryID  uint                    `json:"repository_id"`
-	SourcePath    string                  `json:"source_path"`    // Git仓库中的原始路径
-	EntryFile     string                  `json:"entry_file"`     // 相对于模板目录的入口文件
-	IncludedFiles []models.IncludedFile   `json:"included_files"` // 包含的文件列表
+	Action        string                      `json:"action"` // copy/delete
+	TemplateID    uint                        `json:"template_id"`
+	TenantID      uint                        `json:"tenant_id"`
+	TemplateCode  string                      `json:"template_code"`
+	RepositoryID  uint                        `json:"repository_id"`
+	SourcePath    string                      `json:"source_path"`    // Git仓库中的原始路径
+	EntryFile     string                      `json:"entry_file"`     // 相对于模板目录的入口文件
+	IncludedFiles []WorkerIncludedFile        `json:"included_files"` // 包含的文件列表
+}
+
+// WorkerIncludedFile Worker端期望的文件格式
+type WorkerIncludedFile struct {
+	Path    string `json:"path"`             // 文件路径
+	Type    string `json:"type"`             // file/directory/pattern
+	Pattern string `json:"pattern,omitempty"` // 当type为pattern时的模式
 }
 
 // ValidateTemplateVariables 验证任务创建时的变量是否符合模板参数定义
@@ -498,7 +561,14 @@ func (s *TaskTemplateService) ValidateTemplateVariables(template *models.TaskTem
 	for _, param := range template.Parameters {
 		if param.Required {
 			if _, exists := variables[param.Name]; !exists {
-				return fmt.Errorf("缺少必填参数: %s (%s)", param.Name, param.Label)
+				// 改进错误提示
+				paramDesc := param.Name
+				if param.Label != "" {
+					paramDesc = fmt.Sprintf("%s (%s)", param.Name, param.Label)
+				} else if param.Description != "" {
+					paramDesc = fmt.Sprintf("%s (%s)", param.Name, param.Description)
+				}
+				return fmt.Errorf("缺少必填参数: %s", paramDesc)
 			}
 		}
 	}

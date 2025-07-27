@@ -3,7 +3,7 @@
   <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>219155</IntrospectionStateNumber>
+      <IntrospectionStateNumber>219825</IntrospectionStateNumber>
       <ServerVersion>17.5</ServerVersion>
       <StartupTime>1752605730</StartupTime>
       <TimeZones>true ACDT
@@ -1417,7 +1417,7 @@ true posixrules
 13219||10|C|G
 13219||-9223372036854775808|U|G
 13219||10|U|G</Grants>
-      <IntrospectionStateNumber>219155</IntrospectionStateNumber>
+      <IntrospectionStateNumber>219825</IntrospectionStateNumber>
       <ObjectId>30684</ObjectId>
       <OwnerName>postgres</OwnerName>
     </database>
@@ -5345,11 +5345,11 @@ true posixrules
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>219155</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>219155</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>219155</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>219825</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>219825</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>219825</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-07-27.09:51:44</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-07-27.16:31:16</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>532</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
@@ -27936,28 +27936,28 @@ true posixrules
     </sequence>
     <sequence id="5834" parent="268" name="task_logs_id_seq">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>31843</ObjectId>
+      <ObjectId>34412</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="5835" parent="268" name="task_templates_id_seq">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>31933</ObjectId>
+      <ObjectId>34429</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <OwnerName>postgres</OwnerName>
     </sequence>
     <sequence id="5836" parent="268" name="tasks_id_seq">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>31824</ObjectId>
+      <ObjectId>34393</ObjectId>
       <SequenceIdentity>1</SequenceIdentity>
       <StartValue>1</StartValue>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <OwnerName>postgres</OwnerName>
     </sequence>
@@ -28156,22 +28156,22 @@ true posixrules
     </table>
     <table id="5862" parent="268" name="task_logs">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>31844</ObjectId>
-      <StateNumber>213652</StateNumber>
+      <ObjectId>34413</ObjectId>
+      <StateNumber>219816</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="5863" parent="268" name="task_templates">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>31934</ObjectId>
-      <StateNumber>213669</StateNumber>
+      <ObjectId>34430</ObjectId>
+      <StateNumber>219820</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="5864" parent="268" name="tasks">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>31825</ObjectId>
-      <StateNumber>213652</StateNumber>
+      <ObjectId>34394</ObjectId>
+      <StateNumber>219816</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
@@ -28185,14 +28185,14 @@ true posixrules
     <table id="5866" parent="268" name="ticket_plugins">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>34298</ObjectId>
-      <StateNumber>219127</StateNumber>
+      <StateNumber>219184</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="5867" parent="268" name="ticket_sync_logs">
       <DetailsLevel>2</DetailsLevel>
       <ObjectId>34374</ObjectId>
-      <StateNumber>219141</StateNumber>
+      <StateNumber>219292</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
@@ -68942,75 +68942,75 @@ pg_catalog</CollationParentNames>
       <DefaultExpression>nextval(&apos;task_logs_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>bigint|0s</StoredType>
-      <SequenceId>31843</SequenceId>
+      <SequenceId>34412</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="18321" parent="5862" name="task_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>varchar(36)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18322" parent="5862" name="timestamp">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
     <column id="18323" parent="5862" name="level">
       <Position>4</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18324" parent="5862" name="source">
       <Position>5</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18325" parent="5862" name="host_name">
       <Position>6</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18326" parent="5862" name="message">
       <Position>7</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
     <column id="18327" parent="5862" name="data">
       <Position>8</Position>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <StoredType>jsonb|0s</StoredType>
       <TypeId>3802</TypeId>
     </column>
     <foreign-key id="18328" parent="5862" name="fk_tasks_logs">
       <ColNames>task_id</ColNames>
-      <ObjectId>31852</ObjectId>
-      <StateNumber>213652</StateNumber>
+      <ObjectId>34421</ObjectId>
+      <StateNumber>219816</StateNumber>
       <RefKeyColPositions>5</RefKeyColPositions>
-      <RefTableId>31825</RefTableId>
+      <RefTableId>34394</RefTableId>
     </foreign-key>
     <index id="18329" parent="5862" name="task_logs_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>31850</ObjectId>
+      <ObjectId>34419</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>213652</StateNumber>
+      <StateNumber>219816</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <index id="18330" parent="5862" name="idx_task_logs_task_id">
       <ColNames>task_id</ColNames>
-      <ObjectId>31859</ObjectId>
-      <StateNumber>213655</StateNumber>
+      <ObjectId>34428</ObjectId>
+      <StateNumber>219819</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
@@ -69018,14 +69018,14 @@ pg_catalog</CollationParentNames>
     </index>
     <index id="18331" parent="5862" name="idx_task_logs_timestamp">
       <ColNames>timestamp</ColNames>
-      <ObjectId>31858</ObjectId>
-      <StateNumber>213654</StateNumber>
+      <ObjectId>34427</ObjectId>
+      <StateNumber>219818</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
     <index id="18332" parent="5862" name="idx_task_logs_host_name">
       <ColNames>host_name</ColNames>
-      <ObjectId>31857</ObjectId>
-      <StateNumber>213653</StateNumber>
+      <ObjectId>34426</ObjectId>
+      <StateNumber>219817</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
@@ -69033,403 +69033,389 @@ pg_catalog</CollationParentNames>
     </index>
     <key id="18333" parent="5862" name="task_logs_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>31851</ObjectId>
+      <ObjectId>34420</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>213652</StateNumber>
-      <UnderlyingIndexId>31850</UnderlyingIndexId>
+      <StateNumber>219816</StateNumber>
+      <UnderlyingIndexId>34419</UnderlyingIndexId>
     </key>
     <column id="18334" parent="5863" name="id">
       <DefaultExpression>nextval(&apos;task_templates_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>bigint|0s</StoredType>
-      <SequenceId>31933</SequenceId>
+      <SequenceId>34429</SequenceId>
       <TypeId>20</TypeId>
     </column>
     <column id="18335" parent="5863" name="tenant_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
     <column id="18336" parent="5863" name="name">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18337" parent="5863" name="code">
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18338" parent="5863" name="script_type">
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18339" parent="5863" name="entry_file">
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18340" parent="5863" name="included_files">
       <Position>7</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>jsonb|0s</StoredType>
       <TypeId>3802</TypeId>
     </column>
-    <column id="18341" parent="5863" name="repository_id">
-      <NotNull>1</NotNull>
+    <column id="18341" parent="5863" name="source_git_info">
       <Position>8</Position>
-      <StateNumber>213669</StateNumber>
-      <StoredType>bigint|0s</StoredType>
-      <TypeId>20</TypeId>
+      <StateNumber>219820</StateNumber>
+      <StoredType>jsonb|0s</StoredType>
+      <TypeId>3802</TypeId>
     </column>
     <column id="18342" parent="5863" name="description">
       <Position>9</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
     <column id="18343" parent="5863" name="parameters">
       <Position>10</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>jsonb|0s</StoredType>
       <TypeId>3802</TypeId>
     </column>
     <column id="18344" parent="5863" name="timeout">
       <DefaultExpression>300</DefaultExpression>
       <Position>11</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
     <column id="18345" parent="5863" name="execution_type">
       <DefaultExpression>&apos;ssh&apos;::character varying</DefaultExpression>
       <Position>12</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
     <column id="18346" parent="5863" name="require_sudo">
       <DefaultExpression>false</DefaultExpression>
       <Position>13</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
     <column id="18347" parent="5863" name="created_by">
       <NotNull>1</NotNull>
       <Position>14</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
     <column id="18348" parent="5863" name="updated_by">
       <NotNull>1</NotNull>
       <Position>15</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
     <column id="18349" parent="5863" name="created_at">
       <Position>16</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
     <column id="18350" parent="5863" name="updated_at">
       <Position>17</Position>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
     <foreign-key id="18351" parent="5863" name="fk_task_templates_tenant">
       <ColNames>tenant_id</ColNames>
-      <ObjectId>31950</ObjectId>
-      <StateNumber>213669</StateNumber>
+      <ObjectId>34441</ObjectId>
+      <StateNumber>219820</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>31578</RefTableId>
     </foreign-key>
-    <foreign-key id="18352" parent="5863" name="fk_task_templates_repository">
-      <ColNames>repository_id</ColNames>
-      <ObjectId>31945</ObjectId>
-      <StateNumber>213669</StateNumber>
-      <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>31890</RefTableId>
-    </foreign-key>
-    <index id="18353" parent="5863" name="task_templates_pkey">
+    <index id="18352" parent="5863" name="task_templates_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>31943</ObjectId>
+      <ObjectId>34439</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>213669</StateNumber>
+      <StateNumber>219820</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18354" parent="5863" name="idx_task_templates_tenant_id">
+    <index id="18353" parent="5863" name="idx_task_templates_tenant_id">
       <ColNames>tenant_id</ColNames>
-      <ObjectId>31956</ObjectId>
-      <StateNumber>213671</StateNumber>
+      <ObjectId>34446</ObjectId>
+      <StateNumber>219821</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18355" parent="5863" name="idx_task_templates_repository_id">
-      <ColNames>repository_id</ColNames>
-      <ObjectId>31955</ObjectId>
-      <StateNumber>213670</StateNumber>
-      <AccessMethodId>403</AccessMethodId>
-    </index>
-    <key id="18356" parent="5863" name="task_templates_pkey">
+    <key id="18354" parent="5863" name="task_templates_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>31944</ObjectId>
+      <ObjectId>34440</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>213669</StateNumber>
-      <UnderlyingIndexId>31943</UnderlyingIndexId>
+      <StateNumber>219820</StateNumber>
+      <UnderlyingIndexId>34439</UnderlyingIndexId>
     </key>
-    <column id="18357" parent="5864" name="id">
+    <column id="18355" parent="5864" name="id">
       <DefaultExpression>nextval(&apos;tasks_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
-      <SequenceId>31824</SequenceId>
+      <SequenceId>34393</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18358" parent="5864" name="created_at">
+    <column id="18356" parent="5864" name="created_at">
       <Position>2</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18359" parent="5864" name="updated_at">
+    <column id="18357" parent="5864" name="updated_at">
       <Position>3</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18360" parent="5864" name="tenant_id">
+    <column id="18358" parent="5864" name="tenant_id">
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18361" parent="5864" name="task_id">
+    <column id="18359" parent="5864" name="task_id">
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(36)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18362" parent="5864" name="task_type">
+    <column id="18360" parent="5864" name="task_type">
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18363" parent="5864" name="name">
+    <column id="18361" parent="5864" name="name">
       <NotNull>1</NotNull>
       <Position>7</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(200)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18364" parent="5864" name="description">
+    <column id="18362" parent="5864" name="description">
       <Position>8</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18365" parent="5864" name="priority">
+    <column id="18363" parent="5864" name="priority">
       <DefaultExpression>5</DefaultExpression>
       <Position>9</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18366" parent="5864" name="params">
+    <column id="18364" parent="5864" name="params">
       <Position>10</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>jsonb|0s</StoredType>
       <TypeId>3802</TypeId>
     </column>
-    <column id="18367" parent="5864" name="max_retries">
+    <column id="18365" parent="5864" name="max_retries">
       <DefaultExpression>0</DefaultExpression>
       <Position>11</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18368" parent="5864" name="retry_count">
+    <column id="18366" parent="5864" name="retry_count">
       <DefaultExpression>0</DefaultExpression>
       <Position>12</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18369" parent="5864" name="timeout">
+    <column id="18367" parent="5864" name="timeout">
       <DefaultExpression>3600</DefaultExpression>
       <Position>13</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18370" parent="5864" name="status">
+    <column id="18368" parent="5864" name="status">
       <DefaultExpression>&apos;pending&apos;::character varying</DefaultExpression>
       <Position>14</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18371" parent="5864" name="progress">
+    <column id="18369" parent="5864" name="progress">
       <Position>15</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18372" parent="5864" name="worker_id">
+    <column id="18370" parent="5864" name="worker_id">
       <Position>16</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18373" parent="5864" name="result">
+    <column id="18371" parent="5864" name="result">
       <Position>17</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>jsonb|0s</StoredType>
       <TypeId>3802</TypeId>
     </column>
-    <column id="18374" parent="5864" name="error">
+    <column id="18372" parent="5864" name="error">
       <Position>18</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18375" parent="5864" name="queued_at">
+    <column id="18373" parent="5864" name="queued_at">
       <Position>19</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18376" parent="5864" name="locked_at">
+    <column id="18374" parent="5864" name="locked_at">
       <Position>20</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18377" parent="5864" name="started_at">
+    <column id="18375" parent="5864" name="started_at">
       <Position>21</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18378" parent="5864" name="finished_at">
+    <column id="18376" parent="5864" name="finished_at">
       <Position>22</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18379" parent="5864" name="created_by">
+    <column id="18377" parent="5864" name="created_by">
       <Position>23</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18380" parent="5864" name="username">
+    <column id="18378" parent="5864" name="username">
       <Position>24</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18381" parent="5864" name="tenant_name">
+    <column id="18379" parent="5864" name="tenant_name">
       <Position>25</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18382" parent="5864" name="source">
+    <column id="18380" parent="5864" name="source">
       <Position>26</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18383" parent="5864" name="cancelled_by">
+    <column id="18381" parent="5864" name="cancelled_by">
       <Position>27</Position>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <index id="18384" parent="5864" name="tasks_pkey">
+    <index id="18382" parent="5864" name="tasks_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>31836</ObjectId>
+      <ObjectId>34405</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>213646</StateNumber>
+      <StateNumber>219810</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18385" parent="5864" name="idx_tasks_task_id">
+    <index id="18383" parent="5864" name="idx_tasks_task_id">
       <ColNames>task_id</ColNames>
-      <ObjectId>31841</ObjectId>
-      <StateNumber>213650</StateNumber>
+      <ObjectId>34410</ObjectId>
+      <StateNumber>219814</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18386" parent="5864" name="idx_tasks_tenant_id">
+    <index id="18384" parent="5864" name="idx_tasks_tenant_id">
       <ColNames>tenant_id</ColNames>
-      <ObjectId>31842</ObjectId>
-      <StateNumber>213651</StateNumber>
+      <ObjectId>34411</ObjectId>
+      <StateNumber>219815</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18387" parent="5864" name="idx_tasks_task_type">
+    <index id="18385" parent="5864" name="idx_tasks_task_type">
       <ColNames>task_type</ColNames>
-      <ObjectId>31840</ObjectId>
-      <StateNumber>213649</StateNumber>
+      <ObjectId>34409</ObjectId>
+      <StateNumber>219813</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18388" parent="5864" name="idx_tasks_status">
+    <index id="18386" parent="5864" name="idx_tasks_status">
       <ColNames>status</ColNames>
-      <ObjectId>31839</ObjectId>
-      <StateNumber>213648</StateNumber>
+      <ObjectId>34408</ObjectId>
+      <StateNumber>219812</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18389" parent="5864" name="idx_tasks_worker_id">
+    <index id="18387" parent="5864" name="idx_tasks_worker_id">
       <ColNames>worker_id</ColNames>
-      <ObjectId>31838</ObjectId>
-      <StateNumber>213647</StateNumber>
+      <ObjectId>34407</ObjectId>
+      <StateNumber>219811</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="18390" parent="5864" name="tasks_pkey">
+    <key id="18388" parent="5864" name="tasks_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>31837</ObjectId>
+      <ObjectId>34406</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>213646</StateNumber>
-      <UnderlyingIndexId>31836</UnderlyingIndexId>
+      <StateNumber>219810</StateNumber>
+      <UnderlyingIndexId>34405</UnderlyingIndexId>
     </key>
-    <column id="18391" parent="5865" name="id">
+    <column id="18389" parent="5865" name="id">
       <DefaultExpression>nextval(&apos;tenants_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -69438,40 +69424,40 @@ pg_catalog</CollationParentNames>
       <SequenceId>31577</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18392" parent="5865" name="created_at">
+    <column id="18390" parent="5865" name="created_at">
       <Position>2</Position>
       <StateNumber>213606</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18393" parent="5865" name="updated_at">
+    <column id="18391" parent="5865" name="updated_at">
       <Position>3</Position>
       <StateNumber>213606</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18394" parent="5865" name="name">
+    <column id="18392" parent="5865" name="name">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>213606</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18395" parent="5865" name="code">
+    <column id="18393" parent="5865" name="code">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>213606</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18396" parent="5865" name="status">
+    <column id="18394" parent="5865" name="status">
       <DefaultExpression>&apos;active&apos;::character varying</DefaultExpression>
       <Position>6</Position>
       <StateNumber>213606</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="18397" parent="5865" name="tenants_pkey">
+    <index id="18395" parent="5865" name="tenants_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31583</ObjectId>
@@ -69480,7 +69466,7 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18398" parent="5865" name="uni_tenants_code">
+    <index id="18396" parent="5865" name="uni_tenants_code">
       <ColNames>code</ColNames>
       <ObjectId>31585</ObjectId>
       <StateNumber>213606</StateNumber>
@@ -69490,7 +69476,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18399" parent="5865" name="idx_tenants_code">
+    <index id="18397" parent="5865" name="idx_tenants_code">
       <ColNames>code</ColNames>
       <ObjectId>31587</ObjectId>
       <StateNumber>213607</StateNumber>
@@ -69499,19 +69485,19 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="18400" parent="5865" name="tenants_pkey">
+    <key id="18398" parent="5865" name="tenants_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31584</ObjectId>
       <Primary>1</Primary>
       <StateNumber>213606</StateNumber>
       <UnderlyingIndexId>31583</UnderlyingIndexId>
     </key>
-    <key id="18401" parent="5865" name="uni_tenants_code">
+    <key id="18399" parent="5865" name="uni_tenants_code">
       <ObjectId>31586</ObjectId>
       <StateNumber>213606</StateNumber>
       <UnderlyingIndexId>31585</UnderlyingIndexId>
     </key>
-    <column id="18402" parent="5866" name="id">
+    <column id="18400" parent="5866" name="id">
       <DefaultExpression>nextval(&apos;ticket_plugins_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -69520,106 +69506,113 @@ pg_catalog</CollationParentNames>
       <SequenceId>34297</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18403" parent="5866" name="tenant_id">
+    <column id="18401" parent="5866" name="tenant_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18404" parent="5866" name="name">
+    <column id="18402" parent="5866" name="name">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18405" parent="5866" name="code">
+    <column id="18403" parent="5866" name="code">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18406" parent="5866" name="description">
+    <column id="18404" parent="5866" name="description">
       <Position>5</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18407" parent="5866" name="base_url">
+    <column id="18405" parent="5866" name="base_url">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18408" parent="5866" name="auth_type">
+    <column id="18406" parent="5866" name="auth_type">
       <DefaultExpression>&apos;none&apos;::character varying</DefaultExpression>
       <Position>7</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18409" parent="5866" name="auth_token">
+    <column id="18407" parent="5866" name="auth_token">
       <Position>8</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18410" parent="5866" name="sync_enabled">
+    <column id="18408" parent="5866" name="sync_enabled">
       <DefaultExpression>true</DefaultExpression>
       <Position>9</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="18411" parent="5866" name="sync_interval">
+    <column id="18409" parent="5866" name="sync_interval">
       <DefaultExpression>5</DefaultExpression>
       <Position>10</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18412" parent="5866" name="last_sync_at">
+    <column id="18410" parent="5866" name="last_sync_at">
       <Position>11</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18413" parent="5866" name="status">
+    <column id="18411" parent="5866" name="status">
       <DefaultExpression>&apos;active&apos;::character varying</DefaultExpression>
       <Position>12</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18414" parent="5866" name="error_message">
+    <column id="18412" parent="5866" name="error_message">
       <Position>13</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18415" parent="5866" name="created_at">
+    <column id="18413" parent="5866" name="created_at">
       <Position>14</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18416" parent="5866" name="updated_at">
+    <column id="18414" parent="5866" name="updated_at">
       <Position>15</Position>
       <StateNumber>219127</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="18417" parent="5866" name="fk_ticket_plugins_tenant">
+    <column id="18415" parent="5866" name="sync_window">
+      <DefaultExpression>60</DefaultExpression>
+      <Position>16</Position>
+      <StateNumber>219184</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <TypeId>20</TypeId>
+    </column>
+    <foreign-key id="18416" parent="5866" name="fk_ticket_plugins_tenant">
       <ColNames>tenant_id</ColNames>
       <ObjectId>34310</ObjectId>
       <StateNumber>219127</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>31578</RefTableId>
     </foreign-key>
-    <index id="18418" parent="5866" name="ticket_plugins_pkey">
+    <index id="18417" parent="5866" name="ticket_plugins_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>34308</ObjectId>
@@ -69628,20 +69621,20 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18419" parent="5866" name="idx_ticket_plugins_tenant_id">
+    <index id="18418" parent="5866" name="idx_ticket_plugins_tenant_id">
       <ColNames>tenant_id</ColNames>
       <ObjectId>34315</ObjectId>
       <StateNumber>219128</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="18420" parent="5866" name="ticket_plugins_pkey">
+    <key id="18419" parent="5866" name="ticket_plugins_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>34309</ObjectId>
       <Primary>1</Primary>
       <StateNumber>219127</StateNumber>
       <UnderlyingIndexId>34308</UnderlyingIndexId>
     </key>
-    <column id="18421" parent="5867" name="id">
+    <column id="18420" parent="5867" name="id">
       <DefaultExpression>nextval(&apos;ticket_sync_logs_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -69650,101 +69643,113 @@ pg_catalog</CollationParentNames>
       <SequenceId>34373</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18422" parent="5867" name="plugin_id">
+    <column id="18421" parent="5867" name="plugin_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18423" parent="5867" name="tenant_id">
+    <column id="18422" parent="5867" name="tenant_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18424" parent="5867" name="start_time">
+    <column id="18423" parent="5867" name="start_time">
       <Position>4</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18425" parent="5867" name="end_time">
+    <column id="18424" parent="5867" name="end_time">
       <Position>5</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18426" parent="5867" name="duration">
+    <column id="18425" parent="5867" name="duration">
       <Position>6</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18427" parent="5867" name="status">
+    <column id="18426" parent="5867" name="status">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18428" parent="5867" name="total_fetched">
+    <column id="18427" parent="5867" name="total_fetched">
       <Position>8</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18429" parent="5867" name="total_filtered">
+    <column id="18428" parent="5867" name="total_filtered">
       <Position>9</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18430" parent="5867" name="total_created">
+    <column id="18429" parent="5867" name="total_created">
       <Position>10</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18431" parent="5867" name="total_updated">
+    <column id="18430" parent="5867" name="total_updated">
       <Position>11</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18432" parent="5867" name="total_failed">
+    <column id="18431" parent="5867" name="total_failed">
       <Position>12</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18433" parent="5867" name="error_message">
+    <column id="18432" parent="5867" name="error_message">
       <Position>13</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18434" parent="5867" name="error_details">
+    <column id="18433" parent="5867" name="error_details">
       <Position>14</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>jsonb|0s</StoredType>
       <TypeId>3802</TypeId>
     </column>
-    <column id="18435" parent="5867" name="created_at">
+    <column id="18434" parent="5867" name="created_at">
       <Position>15</Position>
       <StateNumber>219141</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="18436" parent="5867" name="fk_ticket_sync_logs_plugin">
+    <column id="18435" parent="5867" name="total_filtered_out">
+      <Position>16</Position>
+      <StateNumber>219291</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <TypeId>20</TypeId>
+    </column>
+    <column id="18436" parent="5867" name="total_processed">
+      <Position>17</Position>
+      <StateNumber>219292</StateNumber>
+      <StoredType>bigint|0s</StoredType>
+      <TypeId>20</TypeId>
+    </column>
+    <foreign-key id="18437" parent="5867" name="fk_ticket_sync_logs_plugin">
       <ColNames>plugin_id</ColNames>
       <ObjectId>34382</ObjectId>
       <StateNumber>219141</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>34298</RefTableId>
     </foreign-key>
-    <index id="18437" parent="5867" name="ticket_sync_logs_pkey">
+    <index id="18438" parent="5867" name="ticket_sync_logs_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>34380</ObjectId>
@@ -69753,26 +69758,26 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18438" parent="5867" name="idx_ticket_sync_logs_plugin_id">
+    <index id="18439" parent="5867" name="idx_ticket_sync_logs_plugin_id">
       <ColNames>plugin_id</ColNames>
       <ObjectId>34388</ObjectId>
       <StateNumber>219143</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18439" parent="5867" name="idx_ticket_sync_logs_tenant_id">
+    <index id="18440" parent="5867" name="idx_ticket_sync_logs_tenant_id">
       <ColNames>tenant_id</ColNames>
       <ObjectId>34387</ObjectId>
       <StateNumber>219142</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="18440" parent="5867" name="ticket_sync_logs_pkey">
+    <key id="18441" parent="5867" name="ticket_sync_logs_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>34381</ObjectId>
       <Primary>1</Primary>
       <StateNumber>219141</StateNumber>
       <UnderlyingIndexId>34380</UnderlyingIndexId>
     </key>
-    <column id="18441" parent="5868" name="id">
+    <column id="18442" parent="5868" name="id">
       <DefaultExpression>nextval(&apos;tickets_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -69781,140 +69786,140 @@ pg_catalog</CollationParentNames>
       <SequenceId>34347</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18442" parent="5868" name="tenant_id">
+    <column id="18443" parent="5868" name="tenant_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18443" parent="5868" name="plugin_id">
+    <column id="18444" parent="5868" name="plugin_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18444" parent="5868" name="external_id">
+    <column id="18445" parent="5868" name="external_id">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18445" parent="5868" name="title">
+    <column id="18446" parent="5868" name="title">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18446" parent="5868" name="description">
+    <column id="18447" parent="5868" name="description">
       <Position>6</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18447" parent="5868" name="status">
+    <column id="18448" parent="5868" name="status">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18448" parent="5868" name="priority">
+    <column id="18449" parent="5868" name="priority">
       <Position>8</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18449" parent="5868" name="type">
+    <column id="18450" parent="5868" name="type">
       <Position>9</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18450" parent="5868" name="reporter">
+    <column id="18451" parent="5868" name="reporter">
       <Position>10</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18451" parent="5868" name="assignee">
+    <column id="18452" parent="5868" name="assignee">
       <Position>11</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18452" parent="5868" name="category">
+    <column id="18453" parent="5868" name="category">
       <Position>12</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18453" parent="5868" name="service">
+    <column id="18454" parent="5868" name="service">
       <Position>13</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18454" parent="5868" name="external_created_at">
+    <column id="18455" parent="5868" name="external_created_at">
       <Position>14</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18455" parent="5868" name="external_updated_at">
+    <column id="18456" parent="5868" name="external_updated_at">
       <Position>15</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18456" parent="5868" name="tags">
+    <column id="18457" parent="5868" name="tags">
       <Position>16</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18457" parent="5868" name="custom_data">
+    <column id="18458" parent="5868" name="custom_data">
       <Position>17</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>jsonb|0s</StoredType>
       <TypeId>3802</TypeId>
     </column>
-    <column id="18458" parent="5868" name="synced_at">
+    <column id="18459" parent="5868" name="synced_at">
       <Position>18</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18459" parent="5868" name="created_at">
+    <column id="18460" parent="5868" name="created_at">
       <Position>19</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18460" parent="5868" name="updated_at">
+    <column id="18461" parent="5868" name="updated_at">
       <Position>20</Position>
       <StateNumber>219133</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="18461" parent="5868" name="fk_tickets_tenant">
+    <foreign-key id="18462" parent="5868" name="fk_tickets_tenant">
       <ColNames>tenant_id</ColNames>
       <ObjectId>34356</ObjectId>
       <StateNumber>219133</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>31578</RefTableId>
     </foreign-key>
-    <foreign-key id="18462" parent="5868" name="fk_tickets_plugin">
+    <foreign-key id="18463" parent="5868" name="fk_tickets_plugin">
       <ColNames>plugin_id</ColNames>
       <ObjectId>34361</ObjectId>
       <StateNumber>219133</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>34298</RefTableId>
     </foreign-key>
-    <index id="18463" parent="5868" name="tickets_pkey">
+    <index id="18464" parent="5868" name="tickets_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>34354</ObjectId>
@@ -69923,7 +69928,7 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18464" parent="5868" name="idx_plugin_external">
+    <index id="18465" parent="5868" name="idx_plugin_external">
       <ColNames>external_id</ColNames>
       <ObjectId>34370</ObjectId>
       <StateNumber>219138</StateNumber>
@@ -69933,19 +69938,19 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18465" parent="5868" name="idx_tickets_tenant_id">
+    <index id="18466" parent="5868" name="idx_tickets_tenant_id">
       <ColNames>tenant_id</ColNames>
       <ObjectId>34372</ObjectId>
       <StateNumber>219140</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18466" parent="5868" name="idx_tickets_plugin_id">
+    <index id="18467" parent="5868" name="idx_tickets_plugin_id">
       <ColNames>plugin_id</ColNames>
       <ObjectId>34371</ObjectId>
       <StateNumber>219139</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18467" parent="5868" name="idx_tickets_status">
+    <index id="18468" parent="5868" name="idx_tickets_status">
       <ColNames>status</ColNames>
       <ObjectId>34369</ObjectId>
       <StateNumber>219137</StateNumber>
@@ -69954,7 +69959,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18468" parent="5868" name="idx_tickets_priority">
+    <index id="18469" parent="5868" name="idx_tickets_priority">
       <ColNames>priority</ColNames>
       <ObjectId>34368</ObjectId>
       <StateNumber>219136</StateNumber>
@@ -69963,7 +69968,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18469" parent="5868" name="idx_tickets_category">
+    <index id="18470" parent="5868" name="idx_tickets_category">
       <ColNames>category</ColNames>
       <ObjectId>34367</ObjectId>
       <StateNumber>219135</StateNumber>
@@ -69972,7 +69977,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18470" parent="5868" name="idx_tickets_service">
+    <index id="18471" parent="5868" name="idx_tickets_service">
       <ColNames>service</ColNames>
       <ObjectId>34366</ObjectId>
       <StateNumber>219134</StateNumber>
@@ -69981,14 +69986,14 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="18471" parent="5868" name="tickets_pkey">
+    <key id="18472" parent="5868" name="tickets_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>34355</ObjectId>
       <Primary>1</Primary>
       <StateNumber>219133</StateNumber>
       <UnderlyingIndexId>34354</UnderlyingIndexId>
     </key>
-    <column id="18472" parent="5869" name="id">
+    <column id="18473" parent="5869" name="id">
       <DefaultExpression>nextval(&apos;user_roles_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -69997,33 +70002,33 @@ pg_catalog</CollationParentNames>
       <SequenceId>31612</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18473" parent="5869" name="user_id">
+    <column id="18474" parent="5869" name="user_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>213612</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18474" parent="5869" name="role_id">
+    <column id="18475" parent="5869" name="role_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>213612</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18475" parent="5869" name="created_at">
+    <column id="18476" parent="5869" name="created_at">
       <Position>4</Position>
       <StateNumber>213612</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18476" parent="5869" name="created_by">
+    <column id="18477" parent="5869" name="created_by">
       <Position>5</Position>
       <StateNumber>213612</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <index id="18477" parent="5869" name="user_roles_pkey">
+    <index id="18478" parent="5869" name="user_roles_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31617</ObjectId>
@@ -70032,26 +70037,26 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18478" parent="5869" name="idx_user_roles_user_id">
+    <index id="18479" parent="5869" name="idx_user_roles_user_id">
       <ColNames>user_id</ColNames>
       <ObjectId>31620</ObjectId>
       <StateNumber>213614</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18479" parent="5869" name="idx_user_roles_role_id">
+    <index id="18480" parent="5869" name="idx_user_roles_role_id">
       <ColNames>role_id</ColNames>
       <ObjectId>31619</ObjectId>
       <StateNumber>213613</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="18480" parent="5869" name="user_roles_pkey">
+    <key id="18481" parent="5869" name="user_roles_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31618</ObjectId>
       <Primary>1</Primary>
       <StateNumber>213612</StateNumber>
       <UnderlyingIndexId>31617</UnderlyingIndexId>
     </key>
-    <column id="18481" parent="5870" name="id">
+    <column id="18482" parent="5870" name="id">
       <DefaultExpression>nextval(&apos;users_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -70060,100 +70065,100 @@ pg_catalog</CollationParentNames>
       <SequenceId>31588</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18482" parent="5870" name="created_at">
+    <column id="18483" parent="5870" name="created_at">
       <Position>2</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18483" parent="5870" name="updated_at">
+    <column id="18484" parent="5870" name="updated_at">
       <Position>3</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18484" parent="5870" name="tenant_id">
+    <column id="18485" parent="5870" name="tenant_id">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18485" parent="5870" name="username">
+    <column id="18486" parent="5870" name="username">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18486" parent="5870" name="email">
+    <column id="18487" parent="5870" name="email">
       <NotNull>1</NotNull>
       <Position>6</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18487" parent="5870" name="password_hash">
+    <column id="18488" parent="5870" name="password_hash">
       <NotNull>1</NotNull>
       <Position>7</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18488" parent="5870" name="name">
+    <column id="18489" parent="5870" name="name">
       <NotNull>1</NotNull>
       <Position>8</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18489" parent="5870" name="phone">
+    <column id="18490" parent="5870" name="phone">
       <Position>9</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18490" parent="5870" name="avatar">
+    <column id="18491" parent="5870" name="avatar">
       <Position>10</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18491" parent="5870" name="status">
+    <column id="18492" parent="5870" name="status">
       <DefaultExpression>&apos;active&apos;::character varying</DefaultExpression>
       <Position>11</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18492" parent="5870" name="is_platform_admin">
+    <column id="18493" parent="5870" name="is_platform_admin">
       <DefaultExpression>false</DefaultExpression>
       <Position>12</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="18493" parent="5870" name="is_tenant_admin">
+    <column id="18494" parent="5870" name="is_tenant_admin">
       <DefaultExpression>false</DefaultExpression>
       <Position>13</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="18494" parent="5870" name="last_login_at">
+    <column id="18495" parent="5870" name="last_login_at">
       <Position>14</Position>
       <StateNumber>213608</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <foreign-key id="18495" parent="5870" name="fk_users_tenant">
+    <foreign-key id="18496" parent="5870" name="fk_users_tenant">
       <ColNames>tenant_id</ColNames>
       <ObjectId>31604</ObjectId>
       <StateNumber>213608</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>31578</RefTableId>
     </foreign-key>
-    <index id="18496" parent="5870" name="users_pkey">
+    <index id="18497" parent="5870" name="users_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31598</ObjectId>
@@ -70162,7 +70167,7 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18497" parent="5870" name="uni_users_username">
+    <index id="18498" parent="5870" name="uni_users_username">
       <ColNames>username</ColNames>
       <ObjectId>31600</ObjectId>
       <StateNumber>213608</StateNumber>
@@ -70172,7 +70177,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18498" parent="5870" name="uni_users_email">
+    <index id="18499" parent="5870" name="uni_users_email">
       <ColNames>email</ColNames>
       <ObjectId>31602</ObjectId>
       <StateNumber>213608</StateNumber>
@@ -70182,13 +70187,13 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18499" parent="5870" name="idx_users_tenant_id">
+    <index id="18500" parent="5870" name="idx_users_tenant_id">
       <ColNames>tenant_id</ColNames>
       <ObjectId>31611</ObjectId>
       <StateNumber>213611</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18500" parent="5870" name="idx_users_username">
+    <index id="18501" parent="5870" name="idx_users_username">
       <ColNames>username</ColNames>
       <ObjectId>31610</ObjectId>
       <StateNumber>213610</StateNumber>
@@ -70197,7 +70202,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="18501" parent="5870" name="idx_users_email">
+    <index id="18502" parent="5870" name="idx_users_email">
       <ColNames>email</ColNames>
       <ObjectId>31609</ObjectId>
       <StateNumber>213609</StateNumber>
@@ -70206,24 +70211,24 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="18502" parent="5870" name="users_pkey">
+    <key id="18503" parent="5870" name="users_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31599</ObjectId>
       <Primary>1</Primary>
       <StateNumber>213608</StateNumber>
       <UnderlyingIndexId>31598</UnderlyingIndexId>
     </key>
-    <key id="18503" parent="5870" name="uni_users_username">
+    <key id="18504" parent="5870" name="uni_users_username">
       <ObjectId>31601</ObjectId>
       <StateNumber>213608</StateNumber>
       <UnderlyingIndexId>31600</UnderlyingIndexId>
     </key>
-    <key id="18504" parent="5870" name="uni_users_email">
+    <key id="18505" parent="5870" name="uni_users_email">
       <ObjectId>31603</ObjectId>
       <StateNumber>213608</StateNumber>
       <UnderlyingIndexId>31602</UnderlyingIndexId>
     </key>
-    <column id="18505" parent="5871" name="id">
+    <column id="18506" parent="5871" name="id">
       <DefaultExpression>nextval(&apos;worker_auths_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -70232,120 +70237,120 @@ pg_catalog</CollationParentNames>
       <SequenceId>31870</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18506" parent="5871" name="access_key">
+    <column id="18507" parent="5871" name="access_key">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18507" parent="5871" name="secret_key">
+    <column id="18508" parent="5871" name="secret_key">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18508" parent="5871" name="environment">
+    <column id="18509" parent="5871" name="environment">
       <Position>4</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18509" parent="5871" name="description">
+    <column id="18510" parent="5871" name="description">
       <Position>5</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18510" parent="5871" name="status">
+    <column id="18511" parent="5871" name="status">
       <DefaultExpression>&apos;active&apos;::character varying</DefaultExpression>
       <Position>6</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18511" parent="5871" name="created_at">
+    <column id="18512" parent="5871" name="created_at">
       <Position>7</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18512" parent="5871" name="updated_at">
+    <column id="18513" parent="5871" name="updated_at">
       <Position>8</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18513" parent="5871" name="db_host">
+    <column id="18514" parent="5871" name="db_host">
       <DefaultExpression>&apos;localhost&apos;::character varying</DefaultExpression>
       <Position>9</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18514" parent="5871" name="db_port">
+    <column id="18515" parent="5871" name="db_port">
       <DefaultExpression>5432</DefaultExpression>
       <Position>10</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18515" parent="5871" name="db_user">
+    <column id="18516" parent="5871" name="db_user">
       <DefaultExpression>&apos;ahop_worker&apos;::character varying</DefaultExpression>
       <Position>11</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18516" parent="5871" name="db_password">
+    <column id="18517" parent="5871" name="db_password">
       <Position>12</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18517" parent="5871" name="db_name">
+    <column id="18518" parent="5871" name="db_name">
       <DefaultExpression>&apos;auto_healing_platform&apos;::character varying</DefaultExpression>
       <Position>13</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18518" parent="5871" name="redis_host">
+    <column id="18519" parent="5871" name="redis_host">
       <DefaultExpression>&apos;localhost&apos;::character varying</DefaultExpression>
       <Position>14</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18519" parent="5871" name="redis_port">
+    <column id="18520" parent="5871" name="redis_port">
       <DefaultExpression>6379</DefaultExpression>
       <Position>15</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18520" parent="5871" name="redis_password">
+    <column id="18521" parent="5871" name="redis_password">
       <Position>16</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18521" parent="5871" name="redis_db">
+    <column id="18522" parent="5871" name="redis_db">
       <DefaultExpression>0</DefaultExpression>
       <Position>17</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18522" parent="5871" name="redis_prefix">
+    <column id="18523" parent="5871" name="redis_prefix">
       <DefaultExpression>&apos;ahop:queue&apos;::character varying</DefaultExpression>
       <Position>18</Position>
       <StateNumber>213658</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="18523" parent="5871" name="worker_auths_pkey">
+    <index id="18524" parent="5871" name="worker_auths_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31886</ObjectId>
@@ -70354,7 +70359,7 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18524" parent="5871" name="idx_worker_auths_access_key">
+    <index id="18525" parent="5871" name="idx_worker_auths_access_key">
       <ColNames>access_key</ColNames>
       <ObjectId>31888</ObjectId>
       <StateNumber>213659</StateNumber>
@@ -70364,14 +70369,14 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="18525" parent="5871" name="worker_auths_pkey">
+    <key id="18526" parent="5871" name="worker_auths_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31887</ObjectId>
       <Primary>1</Primary>
       <StateNumber>213658</StateNumber>
       <UnderlyingIndexId>31886</UnderlyingIndexId>
     </key>
-    <column id="18526" parent="5872" name="id">
+    <column id="18527" parent="5872" name="id">
       <DefaultExpression>nextval(&apos;worker_connections_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -70380,65 +70385,65 @@ pg_catalog</CollationParentNames>
       <SequenceId>31957</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18527" parent="5872" name="worker_id">
+    <column id="18528" parent="5872" name="worker_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18528" parent="5872" name="ip_address">
+    <column id="18529" parent="5872" name="ip_address">
       <Position>3</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18529" parent="5872" name="connected_at">
+    <column id="18530" parent="5872" name="connected_at">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18530" parent="5872" name="last_heartbeat">
+    <column id="18531" parent="5872" name="last_heartbeat">
       <NotNull>1</NotNull>
       <Position>5</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18531" parent="5872" name="status">
+    <column id="18532" parent="5872" name="status">
       <DefaultExpression>&apos;active&apos;::character varying</DefaultExpression>
       <Position>6</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18532" parent="5872" name="access_key">
+    <column id="18533" parent="5872" name="access_key">
       <Position>7</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18533" parent="5872" name="metadata">
+    <column id="18534" parent="5872" name="metadata">
       <Position>8</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="18534" parent="5872" name="created_at">
+    <column id="18535" parent="5872" name="created_at">
       <Position>9</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18535" parent="5872" name="updated_at">
+    <column id="18536" parent="5872" name="updated_at">
       <Position>10</Position>
       <StateNumber>213672</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <index id="18536" parent="5872" name="worker_connections_pkey">
+    <index id="18537" parent="5872" name="worker_connections_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31965</ObjectId>
@@ -70447,7 +70452,7 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18537" parent="5872" name="idx_worker_connections_worker_id">
+    <index id="18538" parent="5872" name="idx_worker_connections_worker_id">
       <ColNames>worker_id</ColNames>
       <ObjectId>31967</ObjectId>
       <StateNumber>213673</StateNumber>
@@ -70457,14 +70462,14 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="18538" parent="5872" name="worker_connections_pkey">
+    <key id="18539" parent="5872" name="worker_connections_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31966</ObjectId>
       <Primary>1</Primary>
       <StateNumber>213672</StateNumber>
       <UnderlyingIndexId>31965</UnderlyingIndexId>
     </key>
-    <column id="18539" parent="5873" name="id">
+    <column id="18540" parent="5873" name="id">
       <DefaultExpression>nextval(&apos;workers_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
@@ -70473,104 +70478,104 @@ pg_catalog</CollationParentNames>
       <SequenceId>31860</SequenceId>
       <TypeId>20</TypeId>
     </column>
-    <column id="18540" parent="5873" name="worker_id">
+    <column id="18541" parent="5873" name="worker_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18541" parent="5873" name="worker_type">
+    <column id="18542" parent="5873" name="worker_type">
       <Position>3</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18542" parent="5873" name="hostname">
+    <column id="18543" parent="5873" name="hostname">
       <Position>4</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18543" parent="5873" name="ip_address">
+    <column id="18544" parent="5873" name="ip_address">
       <Position>5</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>varchar(45)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18544" parent="5873" name="concurrent">
+    <column id="18545" parent="5873" name="concurrent">
       <Position>6</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18545" parent="5873" name="task_types">
+    <column id="18546" parent="5873" name="task_types">
       <Position>7</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>varchar(500)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18546" parent="5873" name="version">
+    <column id="18547" parent="5873" name="version">
       <Position>8</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18547" parent="5873" name="status">
+    <column id="18548" parent="5873" name="status">
       <Position>9</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="18548" parent="5873" name="cpu_usage">
+    <column id="18549" parent="5873" name="cpu_usage">
       <Position>10</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>numeric|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="18549" parent="5873" name="memory_usage">
+    <column id="18550" parent="5873" name="memory_usage">
       <Position>11</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>numeric|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="18550" parent="5873" name="task_count">
+    <column id="18551" parent="5873" name="task_count">
       <Position>12</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18551" parent="5873" name="registered_at">
+    <column id="18552" parent="5873" name="registered_at">
       <Position>13</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18552" parent="5873" name="last_heartbeat">
+    <column id="18553" parent="5873" name="last_heartbeat">
       <Position>14</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>timestamp with time zone|0s</StoredType>
       <TypeId>1184</TypeId>
     </column>
-    <column id="18553" parent="5873" name="total_tasks">
+    <column id="18554" parent="5873" name="total_tasks">
       <Position>15</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18554" parent="5873" name="success_tasks">
+    <column id="18555" parent="5873" name="success_tasks">
       <Position>16</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <column id="18555" parent="5873" name="failed_tasks">
+    <column id="18556" parent="5873" name="failed_tasks">
       <Position>17</Position>
       <StateNumber>213656</StateNumber>
       <StoredType>bigint|0s</StoredType>
       <TypeId>20</TypeId>
     </column>
-    <index id="18556" parent="5873" name="workers_pkey">
+    <index id="18557" parent="5873" name="workers_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31867</ObjectId>
@@ -70579,7 +70584,7 @@ pg_catalog</CollationParentNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="18557" parent="5873" name="idx_workers_worker_id">
+    <index id="18558" parent="5873" name="idx_workers_worker_id">
       <ColNames>worker_id</ColNames>
       <ObjectId>31869</ObjectId>
       <StateNumber>213657</StateNumber>
@@ -70589,7 +70594,7 @@ pg_catalog</CollationParentNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="18558" parent="5873" name="workers_pkey">
+    <key id="18559" parent="5873" name="workers_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>31868</ObjectId>
       <Primary>1</Primary>

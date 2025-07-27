@@ -53,11 +53,16 @@ func (e *TemplateCopyExecutor) HandleTemplateCopy(ctx context.Context, message [
 		return fmt.Errorf("解析消息失败: %v", err)
 	}
 
+	// 打印原始消息内容用于调试
+	e.log.WithField("raw_message", string(message)).Debug("收到原始模板复制消息")
+
 	e.log.WithFields(logrus.Fields{
-		"action":       msg.Action,
-		"template_id":  msg.TemplateID,
-		"tenant_id":    msg.TenantID,
-		"template_code": msg.TemplateCode,
+		"action":          msg.Action,
+		"template_id":     msg.TemplateID,
+		"tenant_id":       msg.TenantID,
+		"template_code":    msg.TemplateCode,
+		"entry_file":      msg.EntryFile,
+		"included_files":  len(msg.IncludedFiles),
 	}).Info("处理模板文件操作")
 
 	switch msg.Action {
@@ -89,16 +94,28 @@ func (e *TemplateCopyExecutor) copyTemplateFiles(ctx context.Context, msg *Templ
 	entrySource := filepath.Join(sourcePath, msg.EntryFile)
 	entryTarget := filepath.Join(targetPath, msg.EntryFile)
 	
+	e.log.WithFields(logrus.Fields{
+		"entry_source": entrySource,
+		"entry_target": entryTarget,
+	}).Debug("复制入口文件")
+	
 	if err := e.copyFile(entrySource, entryTarget); err != nil {
 		return fmt.Errorf("复制入口文件失败: %v", err)
 	}
 
 	// 复制包含的文件
+	e.log.WithField("included_files_count", len(msg.IncludedFiles)).Info("开始复制包含的文件")
 	for _, includedFile := range msg.IncludedFiles {
 		switch includedFile.Type {
 		case "file":
 			src := filepath.Join(sourcePath, includedFile.Path)
 			dst := filepath.Join(targetPath, includedFile.Path)
+			
+			e.log.WithFields(logrus.Fields{
+				"file_path": includedFile.Path,
+				"src":       src,
+				"dst":       dst,
+			}).Debug("复制包含文件")
 			
 			// 确保目标文件的目录存在
 			dstDir := filepath.Dir(dst)

@@ -466,3 +466,807 @@ rker-001"}
 {"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:25:42"}
 {"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:27:42"}
 {"error":"请求失败: Put \"http://192.168.31.66:8080/api/v1/worker/heartbeat\": dial tcp 192.168.31.66:8080: connect: connection refused","level":"warning","msg":"更新Master心跳失败","time":"2025-07-28 00:29:13"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:29:42"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753633888","tenant_id":1,"time":"2025-07-28 00:31:28"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 00:31:28"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:31:28"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:31:28"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:31:28"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:31:28"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 00:31:28"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 00:31:28"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 00:31:28"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 00:31:28"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 00:31:28"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 00:31:28"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 00:31:28","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753633888","time":"2025-07-28 00:31:28","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:31:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:33:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:35:42"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 00:35:58"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 00:35:58"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 00:35:58","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 00:35:58"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 00:36:01","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 00:36:01","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 00:36:01"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 00:36:01"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 00:36:01"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 00:36:01"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 00:36:07","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 00:36:07","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 00:36:07","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 00:36:07"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 00:36:07","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 00:36:07"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 00:36:07","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 00:36:07"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 00:36:07","worker_id":"test-worker-001"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 00:36:07","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 00:36:07"}
+{"channel":"template:copy:1","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 00:36:14","worker_id":"test-worker-001"}
+{"action":"copy","level":"info","msg":"处理模板文件操作","template_code":"nginx_deploy","template_id":1,"tenant_id":1,"time":"2025-07-28 00:36:14"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/nginx_deploy","template_code":"nginx_deploy","template_id":1,"time":"2025-07-28 00:36:14"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:1","time":"2025-07-28 00:36:14","worker_id":"test-worker-001"}
+{"channel":"template:copy:2","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 00:36:42","worker_id":"test-worker-001"}
+{"action":"copy","level":"info","msg":"处理模板文件操作","template_code":"backup_database","template_id":2,"tenant_id":1,"time":"2025-07-28 00:36:42"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/backup_database","template_code":"backup_database","template_id":2,"time":"2025-07-28 00:36:42"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:2","time":"2025-07-28 00:36:42","worker_id":"test-worker-001"}
+{"channel":"template:copy:3","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 00:36:54","worker_id":"test-worker-001"}
+{"action":"copy","level":"info","msg":"处理模板文件操作","template_code":"system_info","template_id":3,"tenant_id":1,"time":"2025-07-28 00:36:54"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/system_info","template_code":"system_info","template_id":3,"time":"2025-07-28 00:36:54"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:3","time":"2025-07-28 00:36:54","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:38:07"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:40:07"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:42:07"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:44:07"}
+{"channel":"template:copy:4","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 00:44:42","worker_id":"test-worker-001"}
+{"action":"copy","level":"info","msg":"处理模板文件操作","template_code":"nginx_deploy1","template_id":4,"tenant_id":1,"time":"2025-07-28 00:44:42"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/nginx_deploy1","template_code":"nginx_deploy1","template_id":4,"time":"2025-07-28 00:44:42"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:4","time":"2025-07-28 00:44:42","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:46:07"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 00:47:42"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 00:47:42"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 00:47:42","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 00:47:42"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 00:47:45","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 00:47:45","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 00:47:45"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 00:47:45"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 00:47:45"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 00:47:45"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 00:47:50","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 00:47:50","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 00:47:50","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 00:47:50"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 00:47:50","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 00:47:50"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 00:47:50"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 00:47:50","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 00:47:50"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 00:47:50","worker_id":"test-worker-001"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 00:47:50","worker_id":"test-worker-001"}
+{"channel":"template:copy:5","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 00:48:48","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":5,\"tenant_id\":1,\"template_code\":\"nginx_deploy11\",\"repository_id\":1,\"source_path\":\".\",\"entry_file\":\"deploy_nginx.yml\",\"included_files\":[{\"path\":\"deploy_nginx.yml\",\"file_type\":\"ansible\"},{\"path\":\"survey.yml\",\"file_type\":\"survey\"},{\"path\":\"templates/nginx_site.conf.j2\",\"file_type\":\"template\"}]}","time":"2025-07-28 00:48:48"}
+{"action":"copy","entry_file":"deploy_nginx.yml","included_files":3,"level":"info","msg":"处理模板文件操作","template_code":"nginx_deploy11","template_id":5,"tenant_id":1,"time":"2025-07-28 00:48:48"}
+{"entry_source":"/data/ahop/repos/1/1/deploy_nginx.yml","entry_target":"/data/ahop/templates/1/nginx_deploy11/deploy_nginx.yml","level":"debug","msg":"复制入口文件","time":"2025-07-28 00:48:48"}
+{"included_files_count":3,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 00:48:48"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/nginx_deploy11","template_code":"nginx_deploy11","template_id":5,"time":"2025-07-28 00:48:48"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:5","time":"2025-07-28 00:48:48","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:49:50"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:51:50"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:53:50"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 00:53:50"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 00:53:50"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 00:53:50","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 00:53:50"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 00:53:54","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 00:53:54","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 00:53:54"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 00:53:54"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 00:53:54"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 00:53:54"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 00:53:57","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 00:53:57","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 00:53:57","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 00:53:57"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 00:53:57","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 00:53:57"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 00:53:57","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 00:53:57"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 00:53:57","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 00:53:57"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 00:53:57","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753635288","tenant_id":1,"time":"2025-07-28 00:54:48"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 00:54:48"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:54:48"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:54:48"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:54:48"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 00:54:48"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 00:54:48"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 00:54:48"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 00:54:48"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 00:54:48"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 00:54:48"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 00:54:48"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 00:54:48","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753635288","time":"2025-07-28 00:54:48","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:55:57"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:57:57"}
+{"channel":"template:copy:6","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 00:59:52","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":6,\"tenant_id\":1,\"template_code\":\"nginx_deploy\",\"repository_id\":1,\"source_path\":\".\",\"entry_file\":\"deploy_nginx.yml\",\"included_files\":[{\"path\":\"survey.yml\",\"type\":\"file\"},{\"path\":\"templates/nginx_site.conf.j2\",\"type\":\"file\"}]}","time":"2025-07-28 00:59:52"}
+{"action":"copy","entry_file":"deploy_nginx.yml","included_files":2,"level":"info","msg":"处理模板文件操作","template_code":"nginx_deploy","template_id":6,"tenant_id":1,"time":"2025-07-28 00:59:52"}
+{"entry_source":"/data/ahop/repos/1/1/deploy_nginx.yml","entry_target":"/data/ahop/templates/1/nginx_deploy/deploy_nginx.yml","level":"debug","msg":"复制入口文件","time":"2025-07-28 00:59:52"}
+{"included_files_count":2,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 00:59:52"}
+{"dst":"/data/ahop/templates/1/nginx_deploy/survey.yml","file_path":"survey.yml","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 00:59:52"}
+{"dst":"/data/ahop/templates/1/nginx_deploy/templates/nginx_site.conf.j2","file_path":"templates/nginx_site.conf.j2","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/templates/nginx_site.conf.j2","time":"2025-07-28 00:59:52"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/nginx_deploy","template_code":"nginx_deploy","template_id":6,"time":"2025-07-28 00:59:52"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:6","time":"2025-07-28 00:59:52","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:59:57"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:01:57"}
+{"channel":"template:copy:7","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 01:03:09","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":7,\"tenant_id\":1,\"template_code\":\"backup_database\",\"repository_id\":1,\"source_path\":\"scripts\",\"entry_file\":\"backup_database.sh\",\"included_files\":[]}","time":"2025-07-28 01:03:09"}
+{"action":"copy","entry_file":"backup_database.sh","included_files":0,"level":"info","msg":"处理模板文件操作","template_code":"backup_database","template_id":7,"tenant_id":1,"time":"2025-07-28 01:03:09"}
+{"entry_source":"/data/ahop/repos/1/1/scripts/backup_database.sh","entry_target":"/data/ahop/templates/1/backup_database/backup_database.sh","level":"debug","msg":"复制入口文件","time":"2025-07-28 01:03:09"}
+{"included_files_count":0,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 01:03:09"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/backup_database","template_code":"backup_database","template_id":7,"time":"2025-07-28 01:03:09"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:7","time":"2025-07-28 01:03:09","worker_id":"test-worker-001"}
+{"channel":"template:copy:8","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 01:03:11","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":8,\"tenant_id\":1,\"template_code\":\"system_info\",\"repository_id\":1,\"source_path\":\"scripts\",\"entry_file\":\"system_info.sh\",\"included_files\":[]}","time":"2025-07-28 01:03:11"}
+{"action":"copy","entry_file":"system_info.sh","included_files":0,"level":"info","msg":"处理模板文件操作","template_code":"system_info","template_id":8,"tenant_id":1,"time":"2025-07-28 01:03:11"}
+{"entry_source":"/data/ahop/repos/1/1/scripts/system_info.sh","entry_target":"/data/ahop/templates/1/system_info/system_info.sh","level":"debug","msg":"复制入口文件","time":"2025-07-28 01:03:11"}
+{"included_files_count":0,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 01:03:11"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/system_info","template_code":"system_info","template_id":8,"time":"2025-07-28 01:03:11"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:8","time":"2025-07-28 01:03:11","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:03:57"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:05:57"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:07:57"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753636115","tenant_id":1,"time":"2025-07-28 01:08:35"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:08:35"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:08:35"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:08:35"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:08:35"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:08:35"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:08:35"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:08:35"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:08:35"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:08:35"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:08:35"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:08:35"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:08:35","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753636115","time":"2025-07-28 01:08:35","total_files":7}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:09:28"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:09:28"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:09:28","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:09:28"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:09:37","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:09:37","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:09:37"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:09:37"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:09:37"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:09:37"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:09:39","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:09:39","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:09:39","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:09:39"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:09:39","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:09:39"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:09:39","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:09:39"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:09:39","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:09:39"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:09:39","worker_id":"test-worker-001"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:09:40"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:09:40"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:09:40"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:09:40","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:09:50","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:09:50","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:09:50"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:09:50"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:09:50"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:09:50"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:12:26","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:12:26","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:12:26","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:12:26"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:12:26","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:12:26"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:12:26","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:12:26","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:12:26"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:12:26"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:12:26","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753636352","tenant_id":1,"time":"2025-07-28 01:12:32"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:12:32"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:12:32"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:12:32"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:12:32"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:12:32"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:12:32"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:12:32"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:12:32"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:12:32"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:12:32"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:12:32"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:12:32","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753636352","time":"2025-07-28 01:12:32","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:14:26"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:16:26"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:17:03"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:17:03"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:17:03","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:17:03"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:17:09","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:17:09","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:17:09"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:17:09"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:17:09"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:17:09"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:17:12","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:17:12","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:17:12","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:17:12"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:17:12"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:17:12","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:17:12"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:17:12","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:17:12"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:17:12","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:17:12","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753636635","tenant_id":1,"time":"2025-07-28 01:17:15"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:17:15"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:17:15"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:17:15"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:17:15"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:17:15"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:17:15"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:17:15"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:17:15"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:17:15"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:17:15"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:17:15"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:17:15","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753636635","time":"2025-07-28 01:17:15","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:19:12"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:21:12"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753636924","tenant_id":1,"time":"2025-07-28 01:22:04"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:22:04"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:22:04"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:22:04"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:22:04"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:22:04"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:22:04"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:22:04"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:22:04"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:22:04"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:22:04"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:22:04"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:22:04","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753636924","time":"2025-07-28 01:22:04","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:23:12"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:24:52"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:24:52"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:24:52"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:24:52","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:24:56","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:24:56","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:24:56"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:24:56"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:24:56"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:24:56"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:25:01","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:25:01","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:25:01","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:25:01"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:25:01","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:25:01","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:25:01"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:25:01","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:25:01"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:25:01"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:25:01","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753637105","tenant_id":1,"time":"2025-07-28 01:25:05"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:25:05"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:05"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:05"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:05"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:05"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:25:05"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:25:05"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:25:05"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:25:05"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:25:05"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:25:05"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:25:05","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753637105","time":"2025-07-28 01:25:05","total_files":7}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753637108","tenant_id":1,"time":"2025-07-28 01:25:08"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:25:08"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:08"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:08"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:08"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:25:08"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:25:08"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:25:08"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:25:08"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:25:08"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:25:08"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:25:08"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:25:08","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753637108","time":"2025-07-28 01:25:08","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:27:01"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:29:01"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:29:39"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:29:39"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:29:39","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:29:39"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:29:44","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:29:44","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:29:44"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:29:44"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:29:44"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:29:44"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:29:49","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:29:49","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:29:49","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:29:49"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:29:49","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:29:49"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:29:49","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:29:49"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:29:49","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:29:49"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:29:49","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753637395","tenant_id":1,"time":"2025-07-28 01:29:55"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:29:55"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:29:55"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:29:55"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:29:55"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:29:55"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:29:55"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:29:55"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:29:55"}
+{"code":"deploy_nginx","entry_file":"survey.yml","included_files":1,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 01:29:55"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:29:55"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:29:55"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:29:55"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:29:55"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:29:55"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:29:55"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:29:55","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753637395","time":"2025-07-28 01:29:55","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:31:49"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:33:12"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:33:12"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:33:12"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:33:12","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:33:21","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:33:21","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:33:21"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:33:21"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:33:21"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:33:21"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:34:06","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:34:06","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:34:06","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:34:06"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:34:06","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:34:06"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:34:06"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:34:06","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:34:06","worker_id":"test-worker-001"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:34:06","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:34:06"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753637656","tenant_id":1,"time":"2025-07-28 01:34:16"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:34:16"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:34:16"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:34:16"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:34:16"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:34:16"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:34:16"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:34:16"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:34:16"}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":1,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 01:34:16"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:34:16"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:34:16"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:34:16"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:34:16"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:34:16"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:34:16"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:34:16","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753637656","time":"2025-07-28 01:34:16","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:36:06"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:38:06"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753637887","tenant_id":1,"time":"2025-07-28 01:38:07"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:38:07"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:38:07"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:38:07"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:38:07"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:38:07"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:38:07"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:38:07"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:38:07"}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":1,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 01:38:07"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:38:07"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:38:07"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:38:07"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:38:07"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:38:07"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:38:07"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:38:07","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753637887","time":"2025-07-28 01:38:07","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:40:06"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:42:06"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:44:06"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:45:56"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:45:56"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:45:56"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:45:56","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:46:03","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:46:03","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:46:03"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:46:03"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:46:03"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:46:03"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:47:05","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:47:05","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:47:05","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:47:05"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:47:05"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:47:05","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:47:05"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:47:05","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:47:05","worker_id":"test-worker-001"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:47:05","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:47:05"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:48:00","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:48:00","worker_id":"test-worker-001"}
+{"error":"向Master认证失败: 认证失败: Worker ID 'test-worker-001' 已经被其他实例使用（IP: 192.168.31.66） (HTTP 200, Code 409)","level":"fatal","msg":"创建Worker失败","time":"2025-07-28 01:48:00"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:49:29","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:49:29","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:49:29","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:49:29"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:49:29","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:49:29"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:49:29"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:49:29","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:49:29","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753638565","tenant_id":1,"time":"2025-07-28 01:49:29"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:49:29"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:49:29"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:49:29"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:49:29"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:49:29"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:49:29","worker_id":"test-worker-001"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:49:29"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:49:29"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:49:29"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:49:29"}
+{"level":"debug","msg":"detectIncludedFiles called","scriptType":"ansible","surveyDir":"/data/ahop/repos/1/1","surveyPath":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 01:49:29"}
+{"added":"survey.yml","level":"debug","msg":"Added survey file","time":"2025-07-28 01:49:29"}
+{"added":"templates/nginx_site.conf.j2","level":"debug","msg":"Added template file","time":"2025-07-28 01:49:29"}
+{"level":"debug","msg":"detectIncludedFiles completed","time":"2025-07-28 01:49:29","total_files":2}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":2,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 01:49:29"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:49:29"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:49:29"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:49:29"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:49:29"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:49:29"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:49:29"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:49:29","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753638565","time":"2025-07-28 01:49:29","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:51:29"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 01:53:19"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 01:53:19"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 01:53:19","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 01:53:19"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:53:22","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 01:53:22","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 01:53:22"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 01:53:22"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 01:53:22"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 01:53:22"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 01:53:23","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 01:53:23","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 01:53:23","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 01:53:23"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 01:53:23","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 01:53:23"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:53:23","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 01:53:23"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 01:53:23","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 01:53:23"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 01:53:23","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753638805","tenant_id":1,"time":"2025-07-28 01:53:25"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:53:25"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:53:25"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:53:25"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:53:25"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:53:25"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:53:25"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:53:25"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:53:25"}
+{"level":"debug","msg":"detectIncludedFiles called","scriptType":"ansible","surveyDir":"/data/ahop/repos/1/1","surveyPath":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 01:53:25"}
+{"added":"survey.yml","level":"debug","msg":"Added survey file","time":"2025-07-28 01:53:25"}
+{"added":"templates/nginx_site.conf.j2","level":"debug","msg":"Added template file","time":"2025-07-28 01:53:25"}
+{"level":"debug","msg":"detectIncludedFiles completed","time":"2025-07-28 01:53:25","total_files":2}
+{"added":"deploy_nginx.yml","level":"debug","msg":"Added entry file to included files","time":"2025-07-28 01:53:25"}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":3,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 01:53:25"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:53:25"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:53:25"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:53:25"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:53:25"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:53:25"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:53:25"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:53:25","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753638805","time":"2025-07-28 01:53:25","total_files":7}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753638898","tenant_id":1,"time":"2025-07-28 01:54:58"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 01:54:58"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:54:58"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:54:58"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:54:58"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 01:54:58"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 01:54:58"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 01:54:58"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:54:58"}
+{"level":"debug","msg":"detectIncludedFiles called","scriptType":"ansible","surveyDir":"/data/ahop/repos/1/1","surveyPath":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 01:54:58"}
+{"added":"survey.yml","level":"debug","msg":"Added survey file","time":"2025-07-28 01:54:58"}
+{"added":"templates/nginx_site.conf.j2","level":"debug","msg":"Added template file","time":"2025-07-28 01:54:58"}
+{"level":"debug","msg":"detectIncludedFiles completed","time":"2025-07-28 01:54:58","total_files":2}
+{"added":"deploy_nginx.yml","level":"debug","msg":"Added entry file to included files","time":"2025-07-28 01:54:58"}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":3,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 01:54:58"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 01:54:58"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 01:54:58"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:54:58"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 01:54:58"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:54:58"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 01:54:58"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 01:54:58","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753638898","time":"2025-07-28 01:54:58","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:55:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:57:23"}
+{"channel":"template:copy:9","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 01:59:22","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":9,\"tenant_id\":1,\"template_code\":\"deploy_nginx\",\"repository_id\":1,\"source_path\":\".\",\"entry_file\":\"deploy_nginx.yml\",\"included_files\":[{\"path\":\"survey.yml\",\"type\":\"file\"},{\"path\":\"templates/nginx_site.conf.j2\",\"type\":\"file\"},{\"path\":\"deploy_nginx.yml\",\"type\":\"file\"}]}","time":"2025-07-28 01:59:22"}
+{"action":"copy","entry_file":"deploy_nginx.yml","included_files":3,"level":"info","msg":"处理模板文件操作","template_code":"deploy_nginx","template_id":9,"tenant_id":1,"time":"2025-07-28 01:59:22"}
+{"entry_source":"/data/ahop/repos/1/1/deploy_nginx.yml","entry_target":"/data/ahop/templates/1/deploy_nginx/deploy_nginx.yml","level":"debug","msg":"复制入口文件","time":"2025-07-28 01:59:22"}
+{"included_files_count":3,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 01:59:22"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/survey.yml","file_path":"survey.yml","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 01:59:22"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/templates/nginx_site.conf.j2","file_path":"templates/nginx_site.conf.j2","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/templates/nginx_site.conf.j2","time":"2025-07-28 01:59:22"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/deploy_nginx.yml","file_path":"deploy_nginx.yml","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/deploy_nginx.yml","time":"2025-07-28 01:59:22"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/deploy_nginx","template_code":"deploy_nginx","template_id":9,"time":"2025-07-28 01:59:22"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:9","time":"2025-07-28 01:59:22","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 01:59:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:01:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:03:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:05:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:07:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:09:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:11:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:13:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:15:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:17:23"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 02:18:56"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 02:18:56"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 02:18:56","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 02:18:56"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 02:18:59","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 02:18:59","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 02:18:59"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 02:18:59"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 02:18:59"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 02:18:59"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 02:19:02","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 02:19:02","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 02:19:02","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 02:19:03"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 02:19:03","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 02:19:03"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 02:19:03","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 02:19:03"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 02:19:03","worker_id":"test-worker-001"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 02:19:03","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 02:19:03"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 02:19:03"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 02:19:03"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 02:19:03"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 02:19:03","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 02:19:13","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 02:19:13","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 02:19:13"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 02:19:13"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 02:19:13"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 02:19:13"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 02:19:17","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 02:19:17","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 02:19:17","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 02:19:17"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 02:19:17","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 02:19:17"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 02:19:17"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 02:19:17","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 02:19:17","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 02:19:17"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 02:19:17","worker_id":"test-worker-001"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753640361","tenant_id":1,"time":"2025-07-28 02:19:21"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 02:19:21"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:21"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:21"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:21"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:21"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 02:19:21"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 02:19:21"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:19:21"}
+{"level":"debug","msg":"detectIncludedFiles called","scriptType":"ansible","surveyDir":"/data/ahop/repos/1/1","surveyPath":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 02:19:21"}
+{"added":"survey.yml","level":"debug","msg":"Added survey file","time":"2025-07-28 02:19:21"}
+{"added":"templates/nginx_site.conf.j2","level":"debug","msg":"Added template file","time":"2025-07-28 02:19:21"}
+{"level":"debug","msg":"detectIncludedFiles completed","time":"2025-07-28 02:19:21","total_files":2}
+{"added":"deploy_nginx.yml","level":"debug","msg":"Added entry file to included files","time":"2025-07-28 02:19:21"}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":3,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 02:19:21"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 02:19:21"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 02:19:21"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 02:19:21"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 02:19:21"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:19:21"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:19:21"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 02:19:21","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753640361","time":"2025-07-28 02:19:21","total_files":7}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753640379","tenant_id":1,"time":"2025-07-28 02:19:39"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 02:19:39"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:39"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:39"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:39"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:19:39"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 02:19:39"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 02:19:39"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:19:39"}
+{"level":"debug","msg":"detectIncludedFiles called","scriptType":"ansible","surveyDir":"/data/ahop/repos/1/1","surveyPath":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 02:19:39"}
+{"added":"survey.yml","level":"debug","msg":"Added survey file","time":"2025-07-28 02:19:39"}
+{"added":"templates/nginx_site.conf.j2","level":"debug","msg":"Added template file","time":"2025-07-28 02:19:39"}
+{"level":"debug","msg":"detectIncludedFiles completed","time":"2025-07-28 02:19:39","total_files":2}
+{"added":"deploy_nginx.yml","level":"debug","msg":"Added entry file to included files","time":"2025-07-28 02:19:39"}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":3,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 02:19:39"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 02:19:39"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 02:19:39"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 02:19:39"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 02:19:39"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:19:39"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:19:39"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 02:19:39","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753640379","time":"2025-07-28 02:19:39","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:21:17"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:23:17"}
+{"level":"info","msg":"收到退出信号，正在停止Worker...","time":"2025-07-28 02:25:13"}
+{"level":"info","msg":"开始停止Worker","time":"2025-07-28 02:25:13"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者收到退出信号","time":"2025-07-28 02:25:13","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务收到退出信号","time":"2025-07-28 02:25:13"}
+{"consumer_id":0,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 02:25:21","worker_id":"test-worker-001"}
+{"consumer_id":1,"level":"info","msg":"任务消费者收到退出信号","time":"2025-07-28 02:25:21","worker_id":"test-worker-001"}
+{"level":"info","msg":"所有任务已完成","time":"2025-07-28 02:25:21"}
+{"level":"info","msg":"已通知Master断开连接","time":"2025-07-28 02:25:21"}
+{"level":"info","msg":"Worker已停止","time":"2025-07-28 02:25:21"}
+{"level":"info","msg":"Worker已优雅停止","time":"2025-07-28 02:25:21"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-28 02:25:23","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-28 02:25:23","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-28 02:25:23","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-28 02:25:23"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-28 02:25:23","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-28 02:25:23"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-28 02:25:23","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-28 02:25:23"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-28 02:25:23","worker_id":"test-worker-001"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-28 02:25:23","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-28 02:25:23"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753640736","tenant_id":1,"time":"2025-07-28 02:25:36"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-28 02:25:36"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:25:36"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:25:36"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:25:36"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-28 02:25:36"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-28 02:25:36"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-28 02:25:36"}
+{"base":"survey.yml","dir":"/data/ahop/repos/1/1","file_path":"/data/ahop/repos/1/1/survey.yml","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:25:36"}
+{"level":"debug","msg":"detectIncludedFiles called","scriptType":"ansible","surveyDir":"/data/ahop/repos/1/1","surveyPath":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 02:25:36"}
+{"added":"survey.yml","level":"debug","msg":"Added survey file","time":"2025-07-28 02:25:36"}
+{"added":"templates/nginx_site.conf.j2","level":"debug","msg":"Added template file","time":"2025-07-28 02:25:36"}
+{"level":"debug","msg":"detectIncludedFiles completed","time":"2025-07-28 02:25:36","total_files":2}
+{"added":"deploy_nginx.yml","level":"debug","msg":"Added entry file to included files","time":"2025-07-28 02:25:36"}
+{"code":"deploy_nginx","entry_file":"deploy_nginx.yml","included_files":3,"level":"debug","msg":"生成模板元信息","original_path":".","script_type":"ansible","survey_path":"survey.yml","time":"2025-07-28 02:25:36"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-28 02:25:36"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-28 02:25:36"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 02:25:36"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-28 02:25:36"}
+{"base":"backup_database.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/backup_database.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:25:36"}
+{"base":"system_info.sh","dir":"/data/ahop/repos/1/1/scripts","file_path":"/data/ahop/repos/1/1/scripts/system_info.sh","level":"debug","msg":"generateTemplateCode called","time":"2025-07-28 02:25:36"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-28 02:25:36","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753640736","time":"2025-07-28 02:25:36","total_files":7}
+{"channel":"template:copy:10","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 02:26:12","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":10,\"tenant_id\":1,\"template_code\":\"deploy_nginx\",\"repository_id\":1,\"source_path\":\".\",\"entry_file\":\"deploy_nginx.yml\",\"included_files\":[{\"path\":\"survey.yml\",\"type\":\"file\"},{\"path\":\"templates/nginx_site.conf.j2\",\"type\":\"file\"},{\"path\":\"deploy_nginx.yml\",\"type\":\"file\"}]}","time":"2025-07-28 02:26:12"}
+{"action":"copy","entry_file":"deploy_nginx.yml","included_files":3,"level":"info","msg":"处理模板文件操作","template_code":"deploy_nginx","template_id":10,"tenant_id":1,"time":"2025-07-28 02:26:12"}
+{"entry_source":"/data/ahop/repos/1/1/deploy_nginx.yml","entry_target":"/data/ahop/templates/1/deploy_nginx/deploy_nginx.yml","level":"debug","msg":"复制入口文件","time":"2025-07-28 02:26:12"}
+{"included_files_count":3,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 02:26:12"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/survey.yml","file_path":"survey.yml","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 02:26:12"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/templates/nginx_site.conf.j2","file_path":"templates/nginx_site.conf.j2","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/templates/nginx_site.conf.j2","time":"2025-07-28 02:26:12"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/deploy_nginx.yml","file_path":"deploy_nginx.yml","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/deploy_nginx.yml","time":"2025-07-28 02:26:12"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/deploy_nginx","template_code":"deploy_nginx","template_id":10,"time":"2025-07-28 02:26:12"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:10","time":"2025-07-28 02:26:12","worker_id":"test-worker-001"}
+{"channel":"template:copy:11","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 02:26:29","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":11,\"tenant_id\":1,\"template_code\":\"backup_database\",\"repository_id\":1,\"source_path\":\"scripts\",\"entry_file\":\"backup_database.sh\",\"included_files\":[]}","time":"2025-07-28 02:26:29"}
+{"action":"copy","entry_file":"backup_database.sh","included_files":0,"level":"info","msg":"处理模板文件操作","template_code":"backup_database","template_id":11,"tenant_id":1,"time":"2025-07-28 02:26:29"}
+{"entry_source":"/data/ahop/repos/1/1/scripts/backup_database.sh","entry_target":"/data/ahop/templates/1/backup_database/backup_database.sh","level":"debug","msg":"复制入口文件","time":"2025-07-28 02:26:29"}
+{"included_files_count":0,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 02:26:29"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/backup_database","template_code":"backup_database","template_id":11,"time":"2025-07-28 02:26:29"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:11","time":"2025-07-28 02:26:29","worker_id":"test-worker-001"}
+{"channel":"template:copy:12","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 02:26:38","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":12,\"tenant_id\":1,\"template_code\":\"system_info\",\"repository_id\":1,\"source_path\":\"scripts\",\"entry_file\":\"system_info.sh\",\"included_files\":[]}","time":"2025-07-28 02:26:38"}
+{"action":"copy","entry_file":"system_info.sh","included_files":0,"level":"info","msg":"处理模板文件操作","template_code":"system_info","template_id":12,"tenant_id":1,"time":"2025-07-28 02:26:38"}
+{"entry_source":"/data/ahop/repos/1/1/scripts/system_info.sh","entry_target":"/data/ahop/templates/1/system_info/system_info.sh","level":"debug","msg":"复制入口文件","time":"2025-07-28 02:26:38"}
+{"included_files_count":0,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 02:26:38"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/system_info","template_code":"system_info","template_id":12,"time":"2025-07-28 02:26:38"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:12","time":"2025-07-28 02:26:38","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:27:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:29:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:31:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:33:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:35:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:37:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:39:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:41:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:43:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:45:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:47:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:49:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:51:23"}
+{"channel":"template:copy:13","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 02:51:53","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":13,\"tenant_id\":1,\"template_code\":\"deploy_nginx\",\"repository_id\":1,\"source_path\":\".\",\"entry_file\":\"deploy_nginx.yml\",\"included_files\":[{\"path\":\"survey.yml\",\"type\":\"file\"},{\"path\":\"templates/nginx_site.conf.j2\",\"type\":\"file\"},{\"path\":\"deploy_nginx.yml\",\"type\":\"file\"}]}","time":"2025-07-28 02:51:53"}
+{"action":"copy","entry_file":"deploy_nginx.yml","included_files":3,"level":"info","msg":"处理模板文件操作","template_code":"deploy_nginx","template_id":13,"tenant_id":1,"time":"2025-07-28 02:51:53"}
+{"entry_source":"/data/ahop/repos/1/1/deploy_nginx.yml","entry_target":"/data/ahop/templates/1/deploy_nginx/deploy_nginx.yml","level":"debug","msg":"复制入口文件","time":"2025-07-28 02:51:53"}
+{"included_files_count":3,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 02:51:53"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/survey.yml","file_path":"survey.yml","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/survey.yml","time":"2025-07-28 02:51:53"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/templates/nginx_site.conf.j2","file_path":"templates/nginx_site.conf.j2","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/templates/nginx_site.conf.j2","time":"2025-07-28 02:51:53"}
+{"dst":"/data/ahop/templates/1/deploy_nginx/deploy_nginx.yml","file_path":"deploy_nginx.yml","level":"debug","msg":"复制包含文件","src":"/data/ahop/repos/1/1/deploy_nginx.yml","time":"2025-07-28 02:51:53"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/deploy_nginx","template_code":"deploy_nginx","template_id":13,"time":"2025-07-28 02:51:53"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:13","time":"2025-07-28 02:51:53","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"开始处理任务","source":"api","task_id":"8955591b-8247-4e21-843a-7a7290152e19","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:52:24","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"count":2,"host_ids":[2,3],"level":"debug","msg":"开始查询主机信息","tenant_id":1,"time":"2025-07-28 02:52:24"}
+{"credential_type":"password","host_id":2,"host_ip":"192.168.31.66","host_name":"development","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:52:24"}
+{"credential_type":"password","host_id":3,"host_ip":"192.168.31.100","host_name":"","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:52:24"}
+{"level":"debug","msg":"主机信息准备完成","time":"2025-07-28 02:52:24","total_prepared":2,"total_requested":2}
+{"consumer_id":0,"level":"info","msg":"任务执行成功","source":"api","task_id":"8955591b-8247-4e21-843a-7a7290152e19","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:52:43","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"channel":"template:copy:14","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 02:53:13","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":14,\"tenant_id\":1,\"template_code\":\"backup_database\",\"repository_id\":1,\"source_path\":\"scripts\",\"entry_file\":\"backup_database.sh\",\"included_files\":[]}","time":"2025-07-28 02:53:13"}
+{"action":"copy","entry_file":"backup_database.sh","included_files":0,"level":"info","msg":"处理模板文件操作","template_code":"backup_database","template_id":14,"tenant_id":1,"time":"2025-07-28 02:53:13"}
+{"entry_source":"/data/ahop/repos/1/1/scripts/backup_database.sh","entry_target":"/data/ahop/templates/1/backup_database/backup_database.sh","level":"debug","msg":"复制入口文件","time":"2025-07-28 02:53:13"}
+{"included_files_count":0,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 02:53:13"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/backup_database","template_code":"backup_database","template_id":14,"time":"2025-07-28 02:53:13"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:14","time":"2025-07-28 02:53:13","worker_id":"test-worker-001"}
+{"channel":"template:copy:15","consumer":"template_copy","level":"debug","msg":"收到模板复制消息","pattern":"template:copy:*","time":"2025-07-28 02:53:17","worker_id":"test-worker-001"}
+{"level":"debug","msg":"收到原始模板复制消息","raw_message":"{\"action\":\"copy\",\"template_id\":15,\"tenant_id\":1,\"template_code\":\"system_info\",\"repository_id\":1,\"source_path\":\"scripts\",\"entry_file\":\"system_info.sh\",\"included_files\":[]}","time":"2025-07-28 02:53:17"}
+{"action":"copy","entry_file":"system_info.sh","included_files":0,"level":"info","msg":"处理模板文件操作","template_code":"system_info","template_id":15,"tenant_id":1,"time":"2025-07-28 02:53:17"}
+{"entry_source":"/data/ahop/repos/1/1/scripts/system_info.sh","entry_target":"/data/ahop/templates/1/system_info/system_info.sh","level":"debug","msg":"复制入口文件","time":"2025-07-28 02:53:17"}
+{"included_files_count":0,"level":"info","msg":"开始复制包含的文件","time":"2025-07-28 02:53:17"}
+{"level":"info","msg":"模板文件复制完成","target_path":"/data/ahop/templates/1/system_info","template_code":"system_info","template_id":15,"time":"2025-07-28 02:53:17"}
+{"consumer":"template_copy","level":"info","msg":"成功处理模板复制消息: channel=template:copy:15","time":"2025-07-28 02:53:17","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:53:23"}
+{"consumer_id":1,"level":"info","msg":"开始处理任务","source":"api","task_id":"182dbb18-ef3a-4f65-bb11-42f23b9e1cc2","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:53:58","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"count":2,"host_ids":[2,3],"level":"debug","msg":"开始查询主机信息","tenant_id":1,"time":"2025-07-28 02:53:58"}
+{"credential_type":"password","host_id":2,"host_ip":"192.168.31.66","host_name":"development","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:53:58"}
+{"credential_type":"password","host_id":3,"host_ip":"192.168.31.100","host_name":"","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:53:58"}
+{"level":"debug","msg":"主机信息准备完成","time":"2025-07-28 02:53:58","total_prepared":2,"total_requested":2}
+{"consumer_id":1,"error":"所有主机执行失败","level":"error","msg":"任务执行失败","source":"api","task_id":"182dbb18-ef3a-4f65-bb11-42f23b9e1cc2","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:53:59","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"consumer_id":0,"level":"info","msg":"开始处理任务","source":"api","task_id":"af1936b6-7d08-4a7d-b92e-b3b27e9bd562","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:54:36","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"count":2,"host_ids":[2,3],"level":"debug","msg":"开始查询主机信息","tenant_id":1,"time":"2025-07-28 02:54:36"}
+{"credential_type":"password","host_id":2,"host_ip":"192.168.31.66","host_name":"development","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:54:36"}
+{"credential_type":"password","host_id":3,"host_ip":"192.168.31.100","host_name":"","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:54:36"}
+{"level":"debug","msg":"主机信息准备完成","time":"2025-07-28 02:54:36","total_prepared":2,"total_requested":2}
+{"consumer_id":0,"level":"info","msg":"任务执行成功","source":"api","task_id":"af1936b6-7d08-4a7d-b92e-b3b27e9bd562","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:54:37","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:55:23"}
+{"consumer_id":0,"level":"info","msg":"开始处理任务","source":"api","task_id":"f08fd85c-85b5-40a1-95f1-cd09bfdaa32a","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:55:30","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"count":2,"host_ids":[2,3],"level":"debug","msg":"开始查询主机信息","tenant_id":1,"time":"2025-07-28 02:55:30"}
+{"credential_type":"password","host_id":2,"host_ip":"192.168.31.66","host_name":"development","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:55:30"}
+{"credential_type":"password","host_id":3,"host_ip":"192.168.31.100","host_name":"","level":"debug","msg":"准备主机连接信息","time":"2025-07-28 02:55:30"}
+{"level":"debug","msg":"主机信息准备完成","time":"2025-07-28 02:55:30","total_prepared":2,"total_requested":2}
+{"consumer_id":0,"level":"info","msg":"任务执行成功","source":"api","task_id":"f08fd85c-85b5-40a1-95f1-cd09bfdaa32a","task_type":"template","tenant_id":1,"tenant_name":"默认租户","time":"2025-07-28 02:55:31","user_id":1,"username":"admin","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:57:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 02:59:23"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 03:01:23"}
