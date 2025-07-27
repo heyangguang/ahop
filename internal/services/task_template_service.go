@@ -316,13 +316,14 @@ func (s *TaskTemplateService) convertScriptParameters(scriptParams []ScriptParam
 	params := make([]models.TemplateParameter, len(scriptParams))
 	for i, sp := range scriptParams {
 		params[i] = models.TemplateParameter{
-			Name:         sp.Name,
-			Type:         sp.Type,
-			Label:        sp.Name, // 使用参数名作为默认标签
-			Description:  sp.Description,
-			Required:     sp.Required,
-			DefaultValue: sp.DefaultValue,
-			Options:      sp.Options,
+			Name:        sp.Name,
+			Type:        s.normalizeParameterType(sp.Type),
+			Label:       sp.Name, // 使用参数名作为默认标签
+			Description: sp.Description,
+			Required:    sp.Required,
+			Default:     sp.DefaultValue,
+			Options:     sp.Options,
+			Source:      "script",
 		}
 	}
 	return params
@@ -428,35 +429,49 @@ type SurveyParameter struct {
 func (s *TaskTemplateService) convertSurveyToTemplateParameters(surveyParams []SurveyParameter) models.TemplateParameters {
 	params := make([]models.TemplateParameter, len(surveyParams))
 	for i, sp := range surveyParams {
-		params[i] = models.TemplateParameter{
-			Name:         sp.Variable,
-			Type:         s.mapSurveyTypeToTemplateType(sp.Type),
-			Label:        sp.QuestionName,
-			Description:  sp.QuestionDescription,
-			Required:     sp.Required,
-			DefaultValue: sp.Default,
-			Options:      sp.Choices,
+		param := models.TemplateParameter{
+			Name:        sp.Variable,                          // variable -> name
+			Type:        s.normalizeParameterType(sp.Type),    // 类型标准化
+			Label:       sp.QuestionName,                      // question_name -> label
+			Description: sp.QuestionDescription,               // question_description -> description
+			Required:    sp.Required,
+			Default:     sp.Default,
+			Options:     sp.Choices,                           // choices -> options
+			Source:      "scanner",
 		}
+		
+		// 设置验证规则
+		if sp.Min != nil || sp.Max != nil {
+			param.Validation = &models.ValidationRules{
+				Min: sp.Min,
+				Max: sp.Max,
+			}
+		}
+		
+		params[i] = param
 	}
 	return params
 }
 
-// mapSurveyTypeToTemplateType 映射扫描器类型到模板类型
-func (s *TaskTemplateService) mapSurveyTypeToTemplateType(surveyType string) string {
-	typeMap := map[string]string{
-		"text":           "string",
-		"textarea":       "string",
-		"password":       "password",
-		"integer":        "string", // 在模板中统一作为字符串处理
-		"float":          "string",
-		"multiplechoice": "select",
-		"multiselect":    "multiselect",
+// normalizeParameterType 标准化参数类型
+func (s *TaskTemplateService) normalizeParameterType(scannerType string) string {
+	// 统一类型映射
+	switch scannerType {
+	case "text", "string":
+		return "text"
+	case "textarea":
+		return "textarea"
+	case "integer", "int", "float":
+		return "number"
+	case "password", "secret":
+		return "password"
+	case "multiplechoice":
+		return "select"
+	case "multiselect":
+		return "multiselect"
+	default:
+		return "text"
 	}
-	
-	if templateType, ok := typeMap[surveyType]; ok {
-		return templateType
-	}
-	return "string"
 }
 
 // TemplateCopyMessage Worker模板文件复制消息

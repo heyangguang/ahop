@@ -12,27 +12,38 @@
       "code": "echo_test",
       "description": "简单的echo测试脚本",
       "script_type": "shell",
-      "entry_file": "test/scripts/test_echo.sh",
+      "entry_file": "test_echo.sh",
+      "included_files": [
+        {
+          "path": "test_echo.sh",
+          "file_type": "shell"
+        }
+      ],
+      "original_path": "test/scripts",
       "repository_id": 1,
       "execution_type": "ssh",
       "require_sudo": false,
       "timeout": 60,
       "parameters": [
         {
-          "variable": "message",
+          "name": "message",
           "type": "text",
-          "question_name": "测试消息",
-          "question_description": "要显示的消息内容",
+          "label": "测试消息",
+          "description": "要显示的消息内容",
           "required": false,
           "default": "Hello from AHOP!"
         },
         {
-          "variable": "count",
-          "type": "text",
-          "question_name": "重复次数",
-          "question_description": "消息重复显示的次数",
+          "name": "count",
+          "type": "number",
+          "label": "重复次数",
+          "description": "消息重复显示的次数",
           "required": false,
-          "default": "3"
+          "default": "3",
+          "validation": {
+            "min": 1,
+            "max": 10
+          }
         }
       ]
     }
@@ -49,27 +60,38 @@
       "code": "ansible_echo_test",
       "description": "简单的Ansible测试任务，不需要facts",
       "script_type": "ansible",
-      "entry_file": "test/playbooks/test_echo.yml",
+      "entry_file": "test_echo.yml",
+      "included_files": [
+        {
+          "path": "test_echo.yml",
+          "file_type": "yaml"
+        }
+      ],
+      "original_path": "test/playbooks",
       "repository_id": 1,
       "execution_type": "ansible",
       "require_sudo": false,
       "timeout": 120,
       "parameters": [
         {
-          "variable": "message",
+          "name": "message",
           "type": "text",
-          "question_name": "测试消息",
-          "question_description": "要显示的消息内容",
+          "label": "测试消息",
+          "description": "要显示的消息内容",
           "required": false,
           "default": "Hello from AHOP Task Template!"
         },
         {
-          "variable": "count",
-          "type": "text",
-          "question_name": "重复次数",
-          "question_description": "消息重复显示的次数",
+          "name": "count",
+          "type": "number",
+          "label": "重复次数",
+          "description": "消息重复显示的次数",
           "required": false,
-          "default": "3"
+          "default": "3",
+          "validation": {
+            "min": 1,
+            "max": 10
+          }
         }
       ]
     }
@@ -86,45 +108,56 @@
       "code": "nginx_deploy_no_facts",
       "description": "不依赖facts的Nginx部署模板",
       "script_type": "ansible",
-      "entry_file": "test/playbooks/nginx_deploy_no_facts.yml",
+      "entry_file": "nginx_deploy_no_facts.yml",
+      "included_files": [
+        {
+          "path": "nginx_deploy_no_facts.yml",
+          "file_type": "yaml"
+        }
+      ],
+      "original_path": "test/playbooks",
       "repository_id": 1,
       "execution_type": "ansible",
       "require_sudo": true,
       "timeout": 600,
       "parameters": [
         {
-          "variable": "nginx_version",
+          "name": "nginx_version",
           "type": "select",
-          "question_name": "Nginx版本",
-          "question_description": "要安装的Nginx版本",
+          "label": "Nginx版本",
+          "description": "要安装的Nginx版本",
           "required": false,
           "default": "stable",
-          "choices": ["stable", "mainline"]
+          "options": ["stable", "mainline"]
         },
         {
-          "variable": "server_name",
+          "name": "server_name",
           "type": "text",
-          "question_name": "服务器域名",
-          "question_description": "Nginx站点域名",
+          "label": "服务器域名",
+          "description": "Nginx站点域名",
           "required": false,
           "default": "example.com"
         },
         {
-          "variable": "listen_port",
-          "type": "text",
-          "question_name": "监听端口",
-          "question_description": "Nginx监听端口",
+          "name": "listen_port",
+          "type": "number",
+          "label": "监听端口",
+          "description": "Nginx监听端口",
           "required": false,
-          "default": "80"
+          "default": "80",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
         },
         {
-          "variable": "os_type",
+          "name": "os_type",
           "type": "select",
-          "question_name": "操作系统类型",
-          "question_description": "目标服务器的操作系统",
+          "label": "操作系统类型",
+          "description": "目标服务器的操作系统",
           "required": true,
           "default": "ubuntu",
-          "choices": ["ubuntu", "debian", "centos", "rhel"]
+          "options": ["ubuntu", "debian", "centos", "rhel"]
         }
       ]
     }

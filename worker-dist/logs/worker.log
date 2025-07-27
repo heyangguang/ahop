@@ -374,3 +374,84 @@ rker-001"}
 {"level":"info","msg":"已通知Master断开连接","time":"2025-07-27 15:18:09"}
 {"level":"info","msg":"Worker已停止","time":"2025-07-27 15:18:09"}
 {"level":"info","msg":"Worker已优雅停止","time":"2025-07-27 15:18:09"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"启动AHOP Worker","time":"2025-07-27 22:45:42","version":"1.0.0","worker_name":"AHOP Worker on development"}
+{"level":"info","msg":"使用配置的worker_id","time":"2025-07-27 22:45:42","worker_id":"test-worker-001"}
+{"level":"info","master_url":"http://192.168.31.66:8080","msg":"Worker认证成功，获得数据库和Redis凭据","time":"2025-07-27 22:45:42","worker_id":"test-worker-001"}
+{"executors":3,"level":"info","msg":"已注册任务执行器","time":"2025-07-27 22:45:42"}
+{"concurrency":2,"level":"info","msg":"Worker启动成功","time":"2025-07-27 22:45:42","worker_id":"test-worker-001"}
+{"level":"info","msg":"Worker启动成功，正在等待任务...","time":"2025-07-27 22:45:42"}
+{"consumer_id":0,"level":"info","msg":"任务消费者启动","time":"2025-07-27 22:45:42","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git扫描队列消费者已启动","time":"2025-07-27 22:45:42"}
+{"consumer_id":1,"level":"info","msg":"任务消费者启动","time":"2025-07-27 22:45:42","worker_id":"test-worker-001"}
+{"level":"info","msg":"Git同步订阅服务已启动","time":"2025-07-27 22:45:42"}
+{"consumer":"template_copy","level":"info","msg":"模板复制消费者启动","time":"2025-07-27 22:45:42","worker_id":"test-worker-001"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 22:47:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 22:49:42"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753627795","tenant_id":1,"time":"2025-07-27 22:49:55"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-27 22:49:55"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-27 22:49:55"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-27 22:49:55"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-27 22:49:55"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-27 22:49:55"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-27 22:49:55"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-27 22:49:55"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-27 22:49:55"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-27 22:49:55"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-27 22:49:55"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-27 22:49:55"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-27 22:49:55","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753627795","time":"2025-07-27 22:49:55","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 22:51:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 22:53:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 22:55:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 22:57:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 22:59:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:01:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:03:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:05:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:07:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:09:42"}
+{"error":"请求失败: Put \"http://192.168.31.66:8080/api/v1/worker/heartbeat\": dial tcp 192.168.31.66:8080: connect: connection refused","level":"warning","msg":"更新Master心跳失败","time":"2025-07-27 23:10:43"}
+{"action":"scan","level":"info","msg":"收到Git扫描任务","repository_id":1,"task_id":"scan_1_1_1753629056","tenant_id":1,"time":"2025-07-27 23:10:56"}
+{"level":"info","msg":"执行增强扫描（包含文件树）","time":"2025-07-27 23:10:56"}
+{"id":1,"level":"info","msg":"开始增强扫描","name":"测试脚本仓库","path":"/data/ahop/repos/1/1","time":"2025-07-27 23:10:56"}
+{"level":"info","msg":"开始扫描相关文件","path":"/data/ahop/repos/1/1","time":"2025-07-27 23:10:56"}
+{"level":"info","msg":"相关文件扫描完成","path":"/data/ahop/repos/1/1","time":"2025-07-27 23:10:56"}
+{"level":"info","msg":"开始扫描survey文件","path":"/data/ahop/repos/1/1","time":"2025-07-27 23:10:56"}
+{"level":"info","msg":"找到survey文件","name":"Nginx部署配置","parameters":6,"path":"survey.yml","time":"2025-07-27 23:10:56"}
+{"count":1,"level":"info","msg":"survey文件扫描完成","time":"2025-07-27 23:10:56"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/backup_database.sh","time":"2025-07-27 23:10:56"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/scripts/system_info.sh","time":"2025-07-27 23:10:56"}
+{"level":"debug","msg":"扫描 Shell 脚本","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-27 23:10:56"}
+{"level":"debug","msg":"脚本没有参数定义，跳过","path":"/data/ahop/repos/1/1/test_shell_realtime.sh","time":"2025-07-27 23:10:56"}
+{"ansible_files":2,"level":"info","msg":"增强扫描完成","shell_files":3,"surveys":3,"template_files":1,"time":"2025-07-27 23:10:56","total_files":7}
+{"level":"info","msg":"增强扫描完成，结果已存入Redis","survey_count":3,"task_id":"scan_1_1_1753629056","time":"2025-07-27 23:10:56","total_files":7}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:11:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:13:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:15:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:17:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:19:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:21:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:23:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:25:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:27:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:29:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:31:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:33:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:35:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:37:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:39:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:41:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:43:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:45:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:47:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:49:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:51:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:53:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:55:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:57:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-27 23:59:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:01:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:03:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:05:42"}
+{"level":"debug","msg":"完成孤儿任务扫描","time":"2025-07-28 00:07:42"}

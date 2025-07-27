@@ -45,17 +45,31 @@ func (TaskTemplate) TableName() string {
 	return "task_templates"
 }
 
-// TemplateParameter 模板参数定义
+// TemplateParameter 模板参数定义（前端友好的统一格式）
 type TemplateParameter struct {
-	Name         string      `json:"name"`
-	Type         string      `json:"type"`         // string, select, multiselect, datetime, password
-	Label        string      `json:"label"`        // 显示名称
-	Description  string      `json:"description"`
-	Required     bool        `json:"required"`
-	DefaultValue interface{} `json:"default_value,omitempty"`
-	Options      []string    `json:"options,omitempty"`      // select/multiselect的选项
-	Placeholder  string      `json:"placeholder,omitempty"`
-	Validation   string      `json:"validation,omitempty"`   // 验证规则
+	// 核心字段
+	Name        string      `json:"name"`                    // 参数名（变量名，执行时使用）
+	Type        string      `json:"type"`                    // 参数类型
+	Label       string      `json:"label"`                   // 显示标签（UI显示）
+	Description string      `json:"description,omitempty"`   // 详细描述
+	Required    bool        `json:"required"`                // 是否必填
+	Default     interface{} `json:"default,omitempty"`       // 默认值
+	
+	// 类型相关
+	Options     []string    `json:"options,omitempty"`       // 选项列表（select类型）
+	
+	// 验证规则
+	Validation  *ValidationRules `json:"validation,omitempty"` // 验证规则
+	
+	// 元数据
+	Source      string      `json:"source,omitempty"`        // 参数来源（shell/ansible/survey）
+}
+
+// ValidationRules 参数验证规则
+type ValidationRules struct {
+	Min       *int    `json:"min,omitempty"`        // 最小值/最小长度
+	Max       *int    `json:"max,omitempty"`        // 最大值/最大长度
+	Pattern   string  `json:"pattern,omitempty"`    // 正则表达式
 }
 
 // TemplateParameters 模板参数列表
