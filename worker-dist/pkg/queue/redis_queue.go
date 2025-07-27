@@ -274,6 +274,13 @@ func (q *RedisQueue) RemoveTask(taskID string) error {
 	return q.client.Del(ctx, taskKey).Err()
 }
 
+// PSubscribeChannel 模式订阅频道
+func (q *RedisQueue) PSubscribeChannel(pattern string) *redis.PubSub {
+	ctx := context.Background()
+	channelPattern := fmt.Sprintf("%s:channel:%s", q.prefix, pattern)
+	return q.client.PSubscribe(ctx, channelPattern)
+}
+
 // 辅助方法
 
 // getQueueKey 获取队列键名

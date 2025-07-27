@@ -270,13 +270,25 @@ func (s *TaskTemplateService) Delete(tenantID uint, templateID uint) error {
 		TemplateCode: template.Code,
 	}
 	
-	// 发送删除消息到队列（使用同一个队列 template_copy）
-	if err := s.queue.PublishMessage("template_copy", deleteMsg); err != nil {
-		logger.GetLogger().Errorf("发送模板删除消息失败: %v", err)
+	// 发送删除消息到独立的删除频道（与创建时保持一致，直接使用Redis客户端）
+	channel := fmt.Sprintf("template:del:%d", templateID)
+	msgBytes, err := json.Marshal(deleteMsg)
+	if err != nil {
+		logger.GetLogger().Errorf("序列化删除消息失败: %v", err)
 		// 不影响删除操作，只记录错误
 	} else {
-		logger.GetLogger().Infof("已发送模板删除消息: tenant=%d, template=%d, code=%s, action=delete", 
-			tenantID, templateID, template.Code)
+		ctx := context.Background()
+		if s.queue != nil {
+			if err := s.queue.GetClient().Publish(ctx, channel, msgBytes).Err(); err != nil {
+				logger.GetLogger().Errorf("发送模板删除消息失败: %v", err)
+				// 不影响删除操作，只记录错误
+			} else {
+				logger.GetLogger().Infof("已发送模板删除消息: channel=%s, tenant=%d, template=%d, code=%s, action=delete", 
+					channel, tenantID, templateID, template.Code)
+			}
+		} else {
+			logger.GetLogger().Warn("Redis队列未初始化，跳过删除通知")
+		}
 	}
 
 	logger.GetLogger().Infof("任务模板 %s (ID: %d) 已删除", template.Name, template.ID)

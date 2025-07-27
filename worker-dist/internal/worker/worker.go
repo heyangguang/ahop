@@ -161,6 +161,10 @@ func (w *Worker) Start(ctx context.Context) error {
 	// 启动模板复制消息消费者
 	w.wg.Add(1)
 	go w.templateCopyConsumer()
+	
+	// 启动模板删除消息消费者
+	w.wg.Add(1)
+	go w.templateDeleteConsumer()
 
 	w.log.WithFields(logrus.Fields{
 		"worker_id":   w.id,
@@ -442,6 +446,48 @@ func (w *Worker) templateCopyConsumer() {
 				log.WithError(err).Errorf("处理模板复制消息失败: channel=%s", msg.Channel)
 			} else {
 				log.Infof("成功处理模板复制消息: channel=%s", msg.Channel)
+			}
+		}
+	}
+}
+
+// templateDeleteConsumer 模板删除消息消费者
+func (w *Worker) templateDeleteConsumer() {
+	defer w.wg.Done()
+	
+	// 订阅模板删除通道（使用模式订阅）
+	pubsub := w.queue.GetClient().PSubscribe(w.ctx, "template:del:*")
+	defer pubsub.Close()
+	
+	ch := pubsub.Channel()
+	
+	log := w.log.WithFields(logrus.Fields{
+		"worker_id": w.id,
+		"consumer":  "template_delete",
+	})
+	
+	log.Info("模板删除消费者启动")
+	
+	for {
+		select {
+		case <-w.ctx.Done():
+			log.Info("模板删除消费者收到退出信号")
+			return
+		case msg := <-ch:
+			if msg == nil {
+				continue
+			}
+			
+			// 处理消息
+			log.WithFields(logrus.Fields{
+				"channel": msg.Channel,
+				"pattern": msg.Pattern,
+			}).Debug("收到模板删除消息")
+			
+			if err := w.templateCopyExecutor.HandleTemplateCopy(w.ctx, []byte(msg.Payload)); err != nil {
+				log.WithError(err).Errorf("处理模板删除消息失败: channel=%s", msg.Channel)
+			} else {
+				log.Infof("成功处理模板删除消息: channel=%s", msg.Channel)
 			}
 		}
 	}
