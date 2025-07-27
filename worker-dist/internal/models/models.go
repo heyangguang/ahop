@@ -164,13 +164,12 @@ type TaskTemplate struct {
 	// 脚本信息
 	ScriptType     string `gorm:"size:20;not null" json:"script_type"` // shell/ansible
 	EntryFile      string `gorm:"size:500;not null" json:"entry_file"` // 主执行文件路径
-	RepositoryID   uint   `gorm:"not null;index" json:"repository_id"`
+	
+	// Git来源信息（快照，不是外键）
+	SourceGitInfo  JSON           `gorm:"type:jsonb" json:"source_git_info"`        // Git仓库来源信息
 	
 	// 执行配置
 	RequireSudo bool `gorm:"default:false" json:"require_sudo"`
-	
-	// 关联
-	Repository GitRepository `gorm:"foreignKey:RepositoryID" json:"repository,omitempty"`
 }
 
 // Worker Worker注册信息

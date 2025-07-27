@@ -24,20 +24,22 @@ import (
 // TemplateExecutor 模板任务执行器
 type TemplateExecutor struct {
 	*BaseExecutor
-	db          *gorm.DB
-	repoBaseDir string
-	log         *logrus.Logger
+	db              *gorm.DB
+	repoBaseDir     string
+	templateBaseDir string  // 独立模板目录
+	log             *logrus.Logger
 }
 
 // NewTemplateExecutor 创建模板执行器
-func NewTemplateExecutor(db *gorm.DB, repoBaseDir string, log *logrus.Logger) *TemplateExecutor {
+func NewTemplateExecutor(db *gorm.DB, repoBaseDir string, templateBaseDir string, log *logrus.Logger) *TemplateExecutor {
 	return &TemplateExecutor{
 		BaseExecutor: NewBaseExecutor([]string{
 			"template", // 模板任务
 		}),
-		db:          db,
-		repoBaseDir: repoBaseDir,
-		log:         log,
+		db:              db,
+		repoBaseDir:     repoBaseDir,
+		templateBaseDir: templateBaseDir,
+		log:             log,
 	}
 }
 
@@ -78,7 +80,7 @@ func (e *TemplateExecutor) Execute(ctx context.Context, taskCtx *TaskContext, on
 
 	// 从数据库查询模板信息
 	var taskTemplate models.TaskTemplate
-	if err := e.db.Preload("Repository").First(&taskTemplate, templateID).Error; err != nil {
+	if err := e.db.First(&taskTemplate, templateID).Error; err != nil {
 		result.Success = false
 		result.Error = fmt.Sprintf("查询任务模板失败: %v", err)
 		e.LogMessage(onLog, "error", "template", result.Error, "", "")
@@ -90,9 +92,9 @@ func (e *TemplateExecutor) Execute(ctx context.Context, taskCtx *TaskContext, on
 			taskTemplate.Name, taskTemplate.Code, taskTemplate.ScriptType, len(hostInfoMap)), "", "")
 	e.LogProgress(onProgress, 20, "已加载模板信息")
 
-	// 构建脚本文件路径
-	repoPath := filepath.Join(e.repoBaseDir, taskTemplate.Repository.LocalPath)
-	scriptPath := filepath.Join(repoPath, taskTemplate.EntryFile)
+	// 构建脚本文件路径（从独立模板目录）
+	templatePath := filepath.Join(e.templateBaseDir, fmt.Sprintf("%d/%s", taskCtx.TenantID, taskTemplate.Code))
+	scriptPath := filepath.Join(templatePath, taskTemplate.EntryFile)
 
 	// 检查脚本文件是否存在
 	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {

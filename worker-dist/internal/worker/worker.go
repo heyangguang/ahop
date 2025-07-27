@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -31,11 +32,12 @@ type Worker struct {
 	log    *logrus.Logger
 
 	// 组件
-	queue          *queue.RedisQueue
-	db             *gorm.DB
-	executors      map[string]executor.Executor
-	authClient     *auth.AuthClient
-	gitSyncExecutor *executor.GitSyncExecutor
+	queue               *queue.RedisQueue
+	db                  *gorm.DB
+	executors           map[string]executor.Executor
+	authClient          *auth.AuthClient
+	gitSyncExecutor     *executor.GitSyncExecutor
+	templateCopyExecutor *executor.TemplateCopyExecutor
 
 	// 状态管理
 	id           string
@@ -155,6 +157,10 @@ func (w *Worker) Start(ctx context.Context) error {
 		w.wg.Add(1)
 		go w.taskConsumer(i)
 	}
+	
+	// 启动模板复制消息消费者
+	w.wg.Add(1)
+	go w.templateCopyConsumer()
 
 	w.log.WithFields(logrus.Fields{
 		"worker_id":   w.id,
@@ -241,7 +247,9 @@ func (w *Worker) registerExecutors() {
 	}
 
 	// 注册模板执行器（用于template任务）
-	templateExecutor := executor.NewTemplateExecutor(w.db, w.config.Git.RepoBaseDir, w.log)
+	// 模板独立存储目录，默认为 repos 同级的 templates 目录
+	templateBaseDir := filepath.Join(filepath.Dir(w.config.Git.RepoBaseDir), "templates")
+	templateExecutor := executor.NewTemplateExecutor(w.db, w.config.Git.RepoBaseDir, templateBaseDir, w.log)
 	templateExecutor.SetRedisClient(redisClient)
 	for _, taskType := range templateExecutor.GetSupportedTypes() {
 		w.executors[taskType] = templateExecutor
@@ -249,6 +257,9 @@ func (w *Worker) registerExecutors() {
 
 	// 创建Git同步执行器（不作为普通任务执行器注册）
 	w.gitSyncExecutor = executor.NewGitSyncExecutor(w.db, w.authClient, w.config.Git.RepoBaseDir, w.log)
+	
+	// 创建模板复制执行器
+	w.templateCopyExecutor = executor.NewTemplateCopyExecutor(w.config.Git.RepoBaseDir, templateBaseDir, w.log)
 
 	w.log.WithField("executors", len(w.executors)).Info("已注册任务执行器")
 }
@@ -392,6 +403,31 @@ func (w *Worker) updateWorkerStatus() {
 		"status":         status,
 		"last_heartbeat": time.Now(),
 	})
+}
+
+// templateCopyConsumer 模板复制消息消费者
+func (w *Worker) templateCopyConsumer() {
+	defer w.wg.Done()
+	
+	log := w.log.WithFields(logrus.Fields{
+		"worker_id": w.id,
+		"consumer":  "template_copy",
+	})
+	
+	log.Info("模板复制消费者启动")
+	
+	for {
+		select {
+		case <-w.ctx.Done():
+			log.Info("模板复制消费者收到退出信号")
+			return
+		default:
+			// 从模板复制队列获取消息
+			// TODO: 需要在RedisQueue中添加模板复制队列的支持
+			// 目前先使用一个简单的实现
+			time.Sleep(5 * time.Second) // 暂时等待，避免忙等待
+		}
+	}
 }
 
 // taskConsumer 任务消费者
