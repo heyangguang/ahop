@@ -365,9 +365,6 @@ func registerRoutes(router *gin.Engine) {
 			taskTemplates.GET("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:read"), taskTemplateHandler.GetByID)
 			taskTemplates.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:update"), taskTemplateHandler.Update)
 			taskTemplates.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:delete"), taskTemplateHandler.Delete)
-			
-			// 🔐 Worker同步任务模板（无需认证，Worker使用AK/SK）
-			taskTemplates.POST("/sync", taskTemplateHandler.SyncFromWorker)
 		}
 
 		// 🔐 工单插件路由

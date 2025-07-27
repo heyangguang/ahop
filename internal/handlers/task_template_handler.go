@@ -5,7 +5,6 @@ import (
 	"ahop/pkg/jwt"
 	"ahop/pkg/pagination"
 	"ahop/pkg/response"
-	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -166,30 +165,3 @@ func (h *TaskTemplateHandler) List(c *gin.Context) {
 	response.SuccessWithPage(c, templates, pageInfo)
 }
 
-// SyncFromWorker 接收Worker上报的任务模板
-func (h *TaskTemplateHandler) SyncFromWorker(c *gin.Context) {
-	var req struct {
-		RepositoryID uint                       `json:"repository_id" binding:"required"`
-		Templates    []services.TemplateInfo    `json:"templates" binding:"required"`
-		WorkerID     string                     `json:"worker_id" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "参数错误")
-		return
-	}
-
-	// 调用服务处理上报
-	if err := h.taskTemplateService.SyncFromWorker(req.RepositoryID, req.Templates, req.WorkerID); err != nil {
-		if err.Error() == "仓库不存在" {
-			response.NotFound(c, err.Error())
-			return
-		}
-		response.ServerError(c, "处理任务模板同步失败")
-		return
-	}
-
-	response.Success(c, gin.H{
-		"message": fmt.Sprintf("成功同步 %d 个任务模板", len(req.Templates)),
-	})
-}
