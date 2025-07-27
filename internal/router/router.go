@@ -183,22 +183,22 @@ func registerRoutes(router *gin.Engine) {
 			// 🔒 树形结构查询
 			hostGroups.GET("/tree", auth.RequireLogin(), auth.RequirePermission("host_group:list"), hostGroupHandler.GetTree)
 			hostGroups.GET("/:id/tree", auth.RequireLogin(), auth.RequirePermission("host_group:read"), hostGroupHandler.GetSubTree)
-			
+
 			// 🔒 路径查询
 			hostGroups.GET("/path", auth.RequireLogin(), auth.RequirePermission("host_group:read"), hostGroupHandler.GetByPath)
 			hostGroups.GET("/:id/ancestors", auth.RequireLogin(), auth.RequirePermission("host_group:read"), hostGroupHandler.GetAncestors)
 			hostGroups.GET("/:id/descendants", auth.RequireLogin(), auth.RequirePermission("host_group:read"), hostGroupHandler.GetDescendants)
-			
+
 			// 🔒 基础CRUD（需要主机组管理权限）
 			hostGroups.POST("", auth.RequireLogin(), auth.RequirePermission("host_group:create"), hostGroupHandler.Create)
 			hostGroups.GET("", auth.RequireLogin(), auth.RequirePermission("host_group:list"), hostGroupHandler.List)
 			hostGroups.GET("/:id", auth.RequireLogin(), auth.RequirePermission("host_group:read"), hostGroupHandler.GetByID)
 			hostGroups.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("host_group:update"), hostGroupHandler.Update)
 			hostGroups.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("host_group:delete"), hostGroupHandler.Delete)
-			
+
 			// 🔒 组移动（需要移动权限）
 			hostGroups.POST("/:id/move", auth.RequireLogin(), auth.RequirePermission("host_group:move"), hostGroupHandler.Move)
-			
+
 			// 🔒 主机管理（需要管理主机权限）
 			hostGroups.GET("/:id/hosts", auth.RequireLogin(), auth.RequirePermission("host_group:read"), hostGroupHandler.GetHosts)
 			hostGroups.POST("/:id/hosts", auth.RequireLogin(), auth.RequirePermission("host_group:manage_hosts"), hostGroupHandler.AssignHosts)
@@ -228,11 +228,11 @@ func registerRoutes(router *gin.Engine) {
 
 			// 🔒 未分组主机（放在动态路由之前）
 			hosts.GET("/ungrouped", auth.RequireLogin(), auth.RequirePermission("host:list"), hostGroupHandler.GetUngroupedHosts)
-			
+
 			// 🔒 连接测试
 			hosts.POST("/:id/test-connection", auth.RequireLogin(), auth.RequirePermission("host:read"), hostHandler.TestConnection)
 			hosts.POST("/:id/test-ping", auth.RequireLogin(), auth.RequirePermission("host:read"), hostHandler.TestPing)
-			
+
 			// 🔒 主机组管理（需要主机更新权限）
 			hosts.GET("/:id/groups", auth.RequireLogin(), auth.RequirePermission("host:read"), hostGroupHandler.GetHostGroups)
 			hosts.PUT("/:id/group", auth.RequireLogin(), auth.RequirePermission("host:update"), hostGroupHandler.UpdateHostGroup)
@@ -261,7 +261,7 @@ func registerRoutes(router *gin.Engine) {
 		{
 			// WebSocket连接不能使用常规的中间件，认证通过query参数处理
 			ws.GET("/tasks/:id/logs", wsHandler.TaskLogs)
-			
+
 			// 网络扫描WebSocket路由
 			ws.GET("/network-scan/:scan_id", wsHandler.NetworkScanResults)
 		}
@@ -354,7 +354,6 @@ func registerRoutes(router *gin.Engine) {
 			gitRepos.POST("/:id/scan-templates", auth.RequireLogin(), auth.RequirePermission("git_repository:sync"), gitRepoHandler.ScanTemplates)
 		}
 
-
 		// 🔐 任务模板路由
 		taskTemplateHandler := handlers.NewTaskTemplateHandler(services.NewTaskTemplateService(database.GetDB()))
 		taskTemplates := api.Group("/task-templates")
@@ -379,7 +378,7 @@ func registerRoutes(router *gin.Engine) {
 			ticketPlugins.GET("/:id", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), ticketPluginHandler.GetByID)
 			ticketPlugins.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), ticketPluginHandler.Update)
 			ticketPlugins.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:delete"), ticketPluginHandler.Delete)
-			
+
 			// 🔒 插件操作（需要相应权限）
 			ticketPlugins.POST("/:id/test", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), ticketPluginHandler.TestConnection)
 			ticketPlugins.POST("/:id/enable", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), ticketPluginHandler.Enable)
@@ -387,17 +386,15 @@ func registerRoutes(router *gin.Engine) {
 			ticketPlugins.POST("/:id/sync", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:sync"), ticketPluginHandler.ManualSync)
 			ticketPlugins.GET("/:id/sync-logs", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), ticketPluginHandler.GetSyncLogs)
 			ticketPlugins.POST("/:id/test-sync", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), ticketPluginHandler.TestSync)
-			
+
 			// 🔒 字段映射管理
 			ticketPlugins.GET("/:id/field-mappings", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), fieldMappingHandler.GetByPlugin)
 			ticketPlugins.POST("/:id/field-mappings", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), fieldMappingHandler.UpdateMappings)
-			
+
 			// 🔒 同步规则管理
 			ticketPlugins.GET("/:id/sync-rules", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), syncRuleHandler.GetByPlugin)
 			ticketPlugins.POST("/:id/sync-rules", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), syncRuleHandler.UpdateRules)
 		}
-		
-		
 
 		// 🔐 工单管理路由
 		ticketHandler := handlers.NewTicketHandler(services.NewTicketService())
@@ -407,7 +404,7 @@ func registerRoutes(router *gin.Engine) {
 			tickets.GET("", auth.RequireLogin(), auth.RequirePermission("ticket:list"), ticketHandler.List)
 			tickets.GET("/:id", auth.RequireLogin(), auth.RequirePermission("ticket:read"), ticketHandler.GetByID)
 			tickets.GET("/stats", auth.RequireLogin(), auth.RequirePermission("ticket:list"), ticketHandler.GetStats)
-			
+
 			// 🔒 工单回写测试（需要更新权限）
 			tickets.POST("/:id/test-writeback", auth.RequireLogin(), auth.RequirePermission("ticket:update"), ticketHandler.TestWriteback)
 		}

@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26fa7800-2958-40fd-b497-6c36d4420e74" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/app.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/logs/worker.log" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/logs/worker.log" afterDir="false" />
     </list>
@@ -93,7 +92,7 @@
       <window_info anchor="bottom" id="Problems" order="1" />
       <window_info anchor="bottom" id="Problems View" order="2" weight="0.5676758" />
       <window_info anchor="bottom" id="Services" order="3" weight="0.54096174" />
-      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="4" sideWeight="0.51808906" visible="true" weight="0.548738" />
+      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="4" sideWeight="0.51808906" visible="true" weight="0.40426457" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.548738" />
       <window_info anchor="bottom" id="Run" order="6" weight="0.548738" />
       <window_info anchor="bottom" id="Database Changes" order="7" weight="0.67987806" />

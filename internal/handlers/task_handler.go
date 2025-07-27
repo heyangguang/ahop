@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -109,7 +110,14 @@ func (h *TaskHandler) Create(c *gin.Context) {
 
 		// 调用模板任务创建方法
 		if err := h.taskService.CreateTemplateTask(task, req.TemplateID, req.Variables, req.Hosts); err != nil {
-			response.ServerError(c, err.Error())
+			// 如果是参数验证失败，返回 BadRequest
+			if strings.Contains(err.Error(), "参数验证失败") || 
+			   strings.Contains(err.Error(), "任务模板不存在") ||
+			   strings.Contains(err.Error(), "主机不存在") {
+				response.BadRequest(c, err.Error())
+			} else {
+				response.ServerError(c, err.Error())
+			}
 			return
 		}
 		response.Success(c, task)

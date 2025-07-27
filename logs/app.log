@@ -2580,3 +2580,41 @@ l","msg":"Failed to start server: listen tcp :8080: bind: address already in use
 {"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T00:15:36+08:00"}
 {"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T00:15:36+08:00"}
 {"level":"info","msg":"Server started on port 8080","time":"2025-07-28T00:15:36+08:00"}
+{"level":"info","msg":"Shutting down server...","time":"2025-07-28T00:22:36+08:00"}
+{"level":"info","msg":"Server exited","time":"2025-07-28T00:22:36+08:00"}
+{"level":"info","msg":"停止工单同步调度器","time":"2025-07-28T00:22:36+08:00"}
+{"level":"info","msg":"停止Git仓库同步调度器","time":"2025-07-28T00:22:36+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T00:22:39+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T00:22:39+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T00:22:39+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T00:22:40+08:00"}
+{"level":"info","msg":"Shutting down server...","time":"2025-07-28T00:29:10+08:00"}
+{"level":"info","msg":"Server exited","time":"2025-07-28T00:29:10+08:00"}
+{"level":"info","msg":"停止工单同步调度器","time":"2025-07-28T00:29:10+08:00"}
+{"level":"info","msg":"停止Git仓库同步调度器","time":"2025-07-28T00:29:10+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T00:29:14+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T00:29:14+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T00:29:14+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T00:29:15+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T00:29:15+08:00"}
