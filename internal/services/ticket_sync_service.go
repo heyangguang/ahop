@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -347,8 +348,13 @@ func (s *TicketSyncService) MatchRule(value, operator, pattern string) bool {
 		}
 		return false
 	case "regex":
-		// TODO: 实现正则匹配
-		return false
+		// 实现正则匹配
+		matched, err := regexp.MatchString(pattern, value)
+		if err != nil {
+			log.Errorf("正则表达式错误: %v, pattern: %s", err, pattern)
+			return false
+		}
+		return matched
 	default:
 		return false
 	}

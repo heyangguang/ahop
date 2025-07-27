@@ -7,12 +7,7 @@
     <list default="true" id="26fa7800-2958-40fd-b497-6c36d4420e74" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/ticket_plugin_mapping_guide.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ticket_plugin_mapping_guide.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/ticket_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/ticket_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/router/router.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/git_repository_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/git_repository_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/ticket_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/ticket_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/app.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/realistic_mock_ticket_plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/realistic_mock_ticket_plugin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/ticket_sync_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/ticket_sync_service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +100,7 @@
       <window_info anchor="bottom" id="Find" order="8" weight="0.45474327" />
       <window_info anchor="right" id="Notifications" order="0" weight="0.22140865" />
       <window_info anchor="right" id="AIAssistant" order="1" weight="0.22140865" />
-      <window_info active="true" anchor="right" id="Database" order="2" sideWeight="0.48191094" visible="true" weight="0.26255232" />
+      <window_info anchor="right" id="Database" order="2" sideWeight="0.48191094" weight="0.26255232" />
       <window_info anchor="right" id="Gradle" order="3" weight="0.25" />
       <window_info anchor="right" id="Maven" order="4" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="5" sideWeight="0.48591548" side_tool="true" weight="0.3300866" />

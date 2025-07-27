@@ -311,7 +311,46 @@ AHOP系统中的工单（Ticket）模型包含以下可映射字段：
 }
 ```
 
-#### 示例3：按时间过滤（需要外部系统支持）
+#### 示例3：使用正则表达式过滤
+```json
+{
+  "rules": [
+    {
+      "name": "只包含生产环境工单",
+      "field": "external_id",
+      "operator": "regex",
+      "value": "^PROD-\\d{4}",
+      "action": "include",
+      "enabled": true
+    },
+    {
+      "name": "排除测试和演示",
+      "field": "description",
+      "operator": "regex",
+      "value": "(?i)(test|demo|sample|poc)",
+      "action": "exclude",
+      "enabled": true
+    },
+    {
+      "name": "包含紧急标记",
+      "field": "title",
+      "operator": "regex",
+      "value": "\\[(紧急|URGENT|Critical|P[01])\\]",
+      "action": "include",
+      "enabled": true
+    }
+  ]
+}
+```
+
+**正则表达式说明：**
+- `^PROD-\\d{4}` - 匹配以 PROD- 开头后跟4位数字的工单ID
+- `(?i)test` - 不区分大小写匹配 test
+- `\\[紧急\\]` - 匹配方括号内的文字（需要转义）
+- `(A|B|C)` - 匹配 A 或 B 或 C 中的任意一个
+- `P[01]` - 匹配 P0 或 P1
+
+#### 示例4：按时间过滤（需要外部系统支持）
 ```json
 {
   "rules": [
