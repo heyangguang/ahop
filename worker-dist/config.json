@@ -4,8 +4,8 @@
   },
   "worker": {
     "worker_id": "test-worker-001",
-    "access_key": "AHOP_AK_DCZ1BkNnoLgKiYB7",
-    "secret_key": "AHOP_SK_8AvyNd4l7NgaOgPJopMGwhcQVfBEut49",
+    "access_key": "AHOP_AK_oY3ofJ0Sf5SIzDaV",
+    "secret_key": "AHOP_SK_EivFDkiblvvynWVy6VLecd2w5zZ0eZak",
     "concurrency": 2
   },
   "log": {
