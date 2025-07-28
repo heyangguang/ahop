@@ -5,17 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26fa7800-2958-40fd-b497-6c36d4420e74" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ahop" beforeDir="false" afterPath="$PROJECT_DIR$/ahop" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/git_repository_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/git_repository_service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/seed.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/seed.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/database/migrate.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/database/migrate.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/task_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/task_handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/router/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/task_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/task_service.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/task_template_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/task_template_service.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/app.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/internal/executor/enhanced_scanner_adapter.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/executor/enhanced_scanner_adapter.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/internal/executor/template_copy_executor.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/executor/template_copy_executor.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/logs/worker.log" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/logs/worker.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker-dist/worker" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/worker" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,11 +101,11 @@
       <window_info anchor="bottom" id="Problems" order="1" />
       <window_info anchor="bottom" id="Problems View" order="2" weight="0.5676758" />
       <window_info anchor="bottom" id="Services" order="3" weight="0.54096174" />
-      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="4" sideWeight="0.51808906" visible="true" weight="0.5478677" />
+      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="4" sideWeight="0.51808906" visible="true" weight="0.6131419" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.5478677" />
-      <window_info anchor="bottom" id="Run" order="6" weight="0.5478677" />
+      <window_info anchor="bottom" id="Run" order="6" weight="0.45474327" />
       <window_info anchor="bottom" id="Database Changes" order="7" weight="0.5478677" />
-      <window_info anchor="bottom" id="Find" order="8" weight="0.45474327" />
+      <window_info anchor="bottom" id="Find" order="8" show_stripe_button="false" weight="0.45474327" />
       <window_info anchor="right" id="Notifications" order="0" weight="0.22140865" />
       <window_info anchor="right" id="AIAssistant" order="1" weight="0.22140865" />
       <window_info active="true" anchor="right" id="Database" order="2" sideWeight="0.48191094" visible="true" weight="0.26266837" />

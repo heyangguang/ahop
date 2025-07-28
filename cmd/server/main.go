@@ -82,6 +82,17 @@ func main() {
 	
 	// 设置全局调度器实例，供服务使用
 	services.SetGlobalTicketSyncScheduler(ticketSyncScheduler)
+	
+	// 启动定时任务调度器
+	taskService := services.NewTaskService(database.GetDB(), database.GetRedisQueue())
+	taskTemplateService := services.NewTaskTemplateService(database.GetDB())
+	taskScheduler := services.NewTaskSchedulerService(database.GetDB(), taskService, taskTemplateService)
+	services.SetGlobalTaskScheduler(taskScheduler)
+	if err := taskScheduler.Start(); err != nil {
+		appLogger.Errorf("Failed to start task scheduler: %v", err)
+		// 不影响主服务启动
+	}
+	defer taskScheduler.Stop()
 
 	// 启动Worker连接清理任务（每30秒执行一次）
 	workerAuthService := services.NewWorkerAuthService(database.GetDB())

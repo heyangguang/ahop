@@ -134,6 +134,7 @@ func initializePermissions(db *gorm.DB) error {
 		{Code: "task:create", Name: "创建任务", Module: "task", Action: "create", Description: "创建新任务"},
 		{Code: "task:cancel", Name: "取消任务", Module: "task", Action: "cancel", Description: "取消正在执行的任务"},
 		{Code: "task:retry", Name: "重试任务", Module: "task", Action: "retry", Description: "重新执行失败的任务"},
+		{Code: "task:delete", Name: "删除任务", Module: "task", Action: "delete", Description: "删除任务及其日志"},
 		{Code: "task:logs", Name: "查看任务日志", Module: "task", Action: "logs", Description: "查看任务执行日志"},
 
 		// 任务统计权限
@@ -178,6 +179,14 @@ func initializePermissions(db *gorm.DB) error {
 		// 工单管理权限
 		{Code: "ticket:list", Name: "查看工单列表", Module: "ticket", Action: "list", Description: "查看同步的工单列表"},
 		{Code: "ticket:read", Name: "查看工单详情", Module: "ticket", Action: "read", Description: "查看工单详细信息"},
+		
+		// 定时任务权限
+		{Code: "scheduled_task:list", Name: "查看定时任务列表", Module: "scheduled_task", Action: "list", Description: "查看定时任务列表"},
+		{Code: "scheduled_task:read", Name: "查看定时任务详情", Module: "scheduled_task", Action: "read", Description: "查看定时任务详情和执行历史"},
+		{Code: "scheduled_task:create", Name: "创建定时任务", Module: "scheduled_task", Action: "create", Description: "创建新的定时任务"},
+		{Code: "scheduled_task:update", Name: "更新定时任务", Module: "scheduled_task", Action: "update", Description: "更新定时任务配置、启用/禁用"},
+		{Code: "scheduled_task:delete", Name: "删除定时任务", Module: "scheduled_task", Action: "delete", Description: "删除定时任务"},
+		{Code: "scheduled_task:execute", Name: "执行定时任务", Module: "scheduled_task", Action: "execute", Description: "手动立即执行定时任务"},
 	}
 
 	// 批量创建权限

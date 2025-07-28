@@ -39,6 +39,9 @@ func Migrate() error {
 		&models.SyncRule{},
 		&models.Ticket{},
 		&models.TicketSyncLog{},
+		// 定时任务
+		&models.ScheduledTask{},
+		&models.ScheduledTaskExecution{},
 	)
 
 	if err != nil {

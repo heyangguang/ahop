@@ -247,6 +247,7 @@ func registerRoutes(router *gin.Engine) {
 			tasks.GET("", auth.RequireLogin(), auth.RequirePermission("task:list"), taskHandler.List)
 			tasks.GET("/:id", auth.RequireLogin(), auth.RequirePermission("task:read"), taskHandler.GetByID)
 			tasks.POST("/:id/cancel", auth.RequireLogin(), auth.RequirePermission("task:cancel"), taskHandler.Cancel)
+			tasks.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("task:delete"), taskHandler.Delete)
 
 			// 🔒 日志查看
 			tasks.GET("/:id/logs", auth.RequireLogin(), auth.RequirePermission("task:logs"), taskHandler.GetLogs)
@@ -364,6 +365,41 @@ func registerRoutes(router *gin.Engine) {
 			taskTemplates.GET("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:read"), taskTemplateHandler.GetByID)
 			taskTemplates.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:update"), taskTemplateHandler.Update)
 			taskTemplates.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("task_template:delete"), taskTemplateHandler.Delete)
+		}
+
+		// 🔐 定时任务路由
+		// 创建定时任务服务（如果全局实例不存在）
+		var taskSchedulerService *services.TaskSchedulerService
+		if globalScheduler := services.GetGlobalTaskScheduler(); globalScheduler != nil {
+			taskSchedulerService = globalScheduler
+		} else {
+			// 路由初始化时创建（主要用于测试场景）
+			taskSchedulerService = services.NewTaskSchedulerService(
+				database.GetDB(),
+				services.NewTaskService(database.GetDB(), database.GetRedisQueue()),
+				services.NewTaskTemplateService(database.GetDB()),
+			)
+		}
+		scheduledTaskHandler := handlers.NewScheduledTaskHandler(taskSchedulerService)
+		scheduledTasks := api.Group("/scheduled-tasks")
+		{
+			// 🔒 基础CRUD（需要定时任务管理权限）
+			scheduledTasks.POST("", auth.RequireLogin(), auth.RequirePermission("scheduled_task:create"), scheduledTaskHandler.Create)
+			scheduledTasks.GET("", auth.RequireLogin(), auth.RequirePermission("scheduled_task:list"), scheduledTaskHandler.List)
+			scheduledTasks.GET("/:id", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetByID)
+			scheduledTasks.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("scheduled_task:update"), scheduledTaskHandler.Update)
+			scheduledTasks.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("scheduled_task:delete"), scheduledTaskHandler.Delete)
+			
+			// 🔒 任务控制（需要相应权限）
+			scheduledTasks.POST("/:id/enable", auth.RequireLogin(), auth.RequirePermission("scheduled_task:update"), scheduledTaskHandler.Enable)
+			scheduledTasks.POST("/:id/disable", auth.RequireLogin(), auth.RequirePermission("scheduled_task:update"), scheduledTaskHandler.Disable)
+			scheduledTasks.POST("/:id/run", auth.RequireLogin(), auth.RequirePermission("scheduled_task:execute"), scheduledTaskHandler.RunNow)
+			
+			// 🔒 执行历史
+			scheduledTasks.GET("/:id/executions", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetExecutions)
+			
+			// 🔒 执行日志
+			scheduledTasks.GET("/:id/logs", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetLogs)
 		}
 
 		// 🔐 工单插件路由

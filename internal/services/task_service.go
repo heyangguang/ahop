@@ -397,6 +397,59 @@ func (s *TaskService) GetTaskLogs(taskID string, tenantID uint, page, pageSize i
 	return logs, total, nil
 }
 
+// DeleteTask 删除任务及其日志
+func (s *TaskService) DeleteTask(taskID string, tenantID uint) error {
+	// 检查任务是否存在
+	var task models.Task
+	if err := s.db.Where("task_id = ? AND tenant_id = ?", taskID, tenantID).First(&task).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return fmt.Errorf("任务不存在")
+		}
+		return err
+	}
+
+	// 检查任务状态
+	if task.Status == "running" || task.Status == "queued" || task.Status == "locked" {
+		return fmt.Errorf("任务正在执行中，无法删除")
+	}
+
+	// 使用事务级联删除
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// 1. 删除任务日志
+		if err := tx.Where("task_id = ?", taskID).Delete(&models.TaskLog{}).Error; err != nil {
+			return fmt.Errorf("删除任务日志失败: %v", err)
+		}
+
+		// 2. 删除任务
+		if err := tx.Delete(&task).Error; err != nil {
+			return fmt.Errorf("删除任务失败: %v", err)
+		}
+
+		return nil
+	})
+}
+
+// DeleteTasksByIDs 批量删除任务（供其他服务调用）
+func (s *TaskService) DeleteTasksByIDs(taskIDs []string) error {
+	if len(taskIDs) == 0 {
+		return nil
+	}
+
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// 删除日志
+		if err := tx.Where("task_id IN ?", taskIDs).Delete(&models.TaskLog{}).Error; err != nil {
+			return fmt.Errorf("删除任务日志失败: %v", err)
+		}
+
+		// 删除任务
+		if err := tx.Where("task_id IN ?", taskIDs).Delete(&models.Task{}).Error; err != nil {
+			return fmt.Errorf("删除任务失败: %v", err)
+		}
+
+		return nil
+	})
+}
+
 // GetQueueStats 获取队列统计信息
 func (s *TaskService) GetQueueStats() (map[string]interface{}, error) {
 	// 从Redis获取队列统计

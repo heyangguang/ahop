@@ -227,6 +227,19 @@ func (s *TaskTemplateService) Delete(tenantID uint, templateID uint) error {
 		return err
 	}
 
+	// 检查是否有定时任务使用此模板
+	var scheduledTaskCount int64
+	if err := s.db.Model(&models.ScheduledTask{}).
+		Where("tenant_id = ? AND template_id = ?", tenantID, templateID).
+		Count(&scheduledTaskCount).Error; err != nil {
+		logger.GetLogger().Errorf("检查定时任务失败: %v", err)
+		return fmt.Errorf("检查定时任务失败")
+	}
+	
+	if scheduledTaskCount > 0 {
+		return fmt.Errorf("有 %d 个定时任务正在使用此模板，请先删除相关定时任务", scheduledTaskCount)
+	}
+	
 	// 检查是否有正在使用的任务
 	var taskCount int64
 	if err := s.db.Model(&models.Task{}).

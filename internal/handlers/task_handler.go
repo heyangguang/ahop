@@ -359,3 +359,16 @@ func (h *TaskHandler) buildTaskParams(hosts []uint, variables map[string]interfa
 
 	return params
 }
+
+// Delete 删除任务
+func (h *TaskHandler) Delete(c *gin.Context) {
+	claims := c.MustGet("claims").(*jwt.JWTClaims)
+	taskID := c.Param("id")
+
+	if err := h.taskService.DeleteTask(taskID, claims.CurrentTenantID); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	response.SuccessWithMessage(c, "任务删除成功", nil)
+}

@@ -2865,3 +2865,147 @@ l","msg":"Failed to start server: listen tcp :8080: bind: address already in use
 {"level":"info","msg":"任务模板 backup_database (ID: 14) 创建成功","time":"2025-07-28T02:53:13+08:00"}
 {"level":"info","msg":"已通知Worker复制模板文件: channel=template:copy:15","time":"2025-07-28T02:53:17+08:00"}
 {"level":"info","msg":"任务模板 system_info (ID: 15) 创建成功","time":"2025-07-28T02:53:17+08:00"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"disconnect","time":"2025-07-28T03:02:55+08:00","timestamp":"2025-07-28T03:02:55.067675062+08:00","worker_id":"test-worker-001"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"success","time":"2025-07-28T03:02:59+08:00","timestamp":"2025-07-28T03:02:59.076131906+08:00","worker_id":"test-worker-001"}
+{"level":"info","msg":"Shutting down server...","time":"2025-07-28T03:03:02+08:00"}
+{"level":"info","msg":"Server exited","time":"2025-07-28T03:03:02+08:00"}
+{"level":"info","msg":"停止工单同步调度器","time":"2025-07-28T03:03:02+08:00"}
+{"level":"info","msg":"停止Git仓库同步调度器","time":"2025-07-28T03:03:02+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T03:03:04+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T03:03:04+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T03:03:04+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T03:03:05+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T03:03:05+08:00"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"disconnect","time":"2025-07-28T03:05:00+08:00","timestamp":"2025-07-28T03:05:00.315190352+08:00","worker_id":"test-worker-001"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"success","time":"2025-07-28T03:05:10+08:00","timestamp":"2025-07-28T03:05:10.668577622+08:00","worker_id":"test-worker-001"}
+{"level":"warning","msg":"任务模板 Nginx部署配置 (ID: 13) 有 1 个历史任务记录","time":"2025-07-28T03:07:55+08:00"}
+{"level":"info","msg":"已发送模板删除消息: tenant=1, template=13, code=deploy_nginx, action=delete","time":"2025-07-28T03:07:55+08:00"}
+{"level":"info","msg":"任务模板 Nginx部署配置 (ID: 13) 已删除","time":"2025-07-28T03:07:55+08:00"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"disconnect","time":"2025-07-28T03:12:15+08:00","timestamp":"2025-07-28T03:12:15.043501373+08:00","worker_id":"test-worker-001"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"success","time":"2025-07-28T03:12:20+08:00","timestamp":"2025-07-28T03:12:20.032079139+08:00","worker_id":"test-worker-001"}
+{"level":"warning","msg":"任务模板 backup_database (ID: 14) 有 1 个历史任务记录","time":"2025-07-28T03:12:39+08:00"}
+{"level":"info","msg":"已发送模板删除消息: tenant=1, template=14, code=backup_database, action=delete","time":"2025-07-28T03:12:39+08:00"}
+{"level":"info","msg":"任务模板 backup_database (ID: 14) 已删除","time":"2025-07-28T03:12:39+08:00"}
+{"level":"info","msg":"Shutting down server...","time":"2025-07-28T03:12:57+08:00"}
+{"level":"info","msg":"Server exited","time":"2025-07-28T03:12:57+08:00"}
+{"level":"info","msg":"停止工单同步调度器","time":"2025-07-28T03:12:57+08:00"}
+{"level":"info","msg":"停止Git仓库同步调度器","time":"2025-07-28T03:12:57+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T03:13:00+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T03:13:00+08:00"}
+{"level":"warning","msg":"任务模板 system_info (ID: 15) 有 2 个历史任务记录","time":"2025-07-28T03:13:03+08:00"}
+{"level":"info","msg":"已发送模板删除消息: channel=template:copy:15, tenant=1, template=15, code=system_info, action=delete","time":"2025-07-28T03:13:03+08:00"}
+{"level":"info","msg":"任务模板 system_info (ID: 15) 已删除","time":"2025-07-28T03:13:03+08:00"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"disconnect","time":"2025-07-28T03:17:22+08:00","timestamp":"2025-07-28T03:17:22.988565173+08:00","worker_id":"test-worker-001"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"success","time":"2025-07-28T03:17:28+08:00","timestamp":"2025-07-28T03:17:28.070966628+08:00","worker_id":"test-worker-001"}
+{"level":"info","msg":"Shutting down server...","time":"2025-07-28T03:17:30+08:00"}
+{"level":"info","msg":"Server exited","time":"2025-07-28T03:17:30+08:00"}
+{"level":"info","msg":"停止工单同步调度器","time":"2025-07-28T03:17:30+08:00"}
+{"level":"info","msg":"停止Git仓库同步调度器","time":"2025-07-28T03:17:30+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T03:17:35+08:00"}
+{"level":"info","msg":"已通知Worker复制模板文件: channel=template:copy:16","time":"2025-07-28T03:17:45+08:00"}
+{"level":"info","msg":"任务模板 Nginx部署配置 (ID: 16) 创建成功","time":"2025-07-28T03:17:45+08:00"}
+{"level":"info","msg":"已发送模板删除消息: channel=template:del:16, tenant=1, template=16, code=deploy_nginx, action=delete","time":"2025-07-28T03:17:59+08:00"}
+{"level":"info","msg":"任务模板 Nginx部署配置 (ID: 16) 已删除","time":"2025-07-28T03:17:59+08:00"}
+{"level":"info","msg":"Shutting down server...","time":"2025-07-28T03:27:20+08:00"}
+{"level":"info","msg":"Server exited","time":"2025-07-28T03:27:20+08:00"}
+{"level":"info","msg":"停止工单同步调度器","time":"2025-07-28T03:27:20+08:00"}
+{"level":"info","msg":"停止Git仓库同步调度器","time":"2025-07-28T03:27:20+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T03:27:26+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T03:27:26+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T03:27:26+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T03:27:26+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T03:27:26+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T03:27:26+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T03:27:27+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T03:27:27+08:00"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"disconnect","time":"2025-07-28T03:27:44+08:00","timestamp":"2025-07-28T03:27:44.385048668+08:00","worker_id":"test-worker-001"}
+{"access_key":"AHOP_AK_DCZ1BkNnoLgKiYB7","action":"worker_auth","ip_address":"192.168.31.66","level":"info","msg":"Worker认证记录","result":"success","time":"2025-07-28T03:27:48+08:00","timestamp":"2025-07-28T03:27:48.900921153+08:00","worker_id":"test-worker-001"}
+{"level":"info","msg":"已通知Worker复制模板文件: channel=template:copy:17","time":"2025-07-28T03:27:55+08:00"}
+{"level":"info","msg":"任务模板 Nginx部署配置 (ID: 17) 创建成功","time":"2025-07-28T03:27:55+08:00"}
+{"level":"info","msg":"已发送模板删除消息: channel=template:del:17, tenant=1, template=17, code=deploy_nginx, action=delete","time":"2025-07-28T03:28:08+08:00"}
+{"level":"info","msg":"任务模板 Nginx部署配置 (ID: 17) 已删除","time":"2025-07-28T03:28:08+08:00"}
+{"level":"info","msg":"已通知Worker复制模板文件: channel=template:copy:18","time":"2025-07-28T03:28:19+08:00"}
+{"level":"info","msg":"任务模板 Nginx部署配置 (ID: 18) 创建成功","time":"2025-07-28T03:28:19+08:00"}
+{"level":"info","msg":"已发送模板删除消息: channel=template:del:18, tenant=1, template=18, code=deploy_nginx, action=delete","time":"2025-07-28T03:28:33+08:00"}
+{"level":"info","msg":"任务模板 Nginx部署配置 (ID: 18) 已删除","time":"2025-07-28T03:28:33+08:00"}
+{"action":"sync","level":"info","msg":"已发布Git仓库同步通知","repository_id":1,"tenant_id":1,"time":"2025-07-28T03:28:46+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T05:30:57+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T05:30:57+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T05:30:57+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T05:30:58+08:00"}
+{"level":"fatal","msg":"Failed to start server: listen tcp :8080: bind: address already in use","time":"2025-07-28T05:30:58+08:00"}
+{"level":"info","msg":"Shutting down server...","time":"2025-07-28T05:35:35+08:00"}
+{"level":"info","msg":"Server exited","time":"2025-07-28T05:35:35+08:00"}
+{"level":"info","msg":"停止工单同步调度器","time":"2025-07-28T05:35:35+08:00"}
+{"level":"info","msg":"停止Git仓库同步调度器","time":"2025-07-28T05:35:35+08:00"}
+{"level":"info","msg":"Starting Auto Healing Platform...","time":"2025-07-28T05:35:40+08:00"}
+{"level":"info","msg":"Database connected successfully","time":"2025-07-28T05:35:40+08:00"}
+{"level":"info","msg":"Starting database migration...","time":"2025-07-28T05:35:40+08:00"}
+{"level":"info","msg":"Database migration completed successfully","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"Starting seed data initialization...","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"默认租户已存在，跳过创建","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"权限初始化完成","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"平台管理员角色已存在，跳过创建","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"管理员用户已存在，跳过创建","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"Seed data initialization completed successfully","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"启动Git仓库同步调度器","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"Git仓库同步调度器启动成功，已加载 0 个定时任务","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"启动工单同步调度器","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"工单同步调度器启动成功，已加载 0 个插件任务","time":"2025-07-28T05:35:41+08:00"}
+{"level":"info","msg":"Server started on port 8080","time":"2025-07-28T05:35:41+08:00"}
+{"action":"sync","level":"info","msg":"已发布Git仓库同步通知","repository_id":2,"tenant_id":1,"time":"2025-07-28T05:38:19+08:00"}
