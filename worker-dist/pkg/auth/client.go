@@ -412,3 +412,46 @@ func (c *AuthClient) SendHeartbeat(workerID string) error {
 	return nil
 }
 
+// InitializationData Worker初始化数据
+type InitializationData struct {
+	Repositories []map[string]interface{} `json:"repositories"`
+	Templates    []map[string]interface{} `json:"templates"`
+	Timestamp    int64                    `json:"timestamp"`
+}
+
+// GetInitializationData 获取Worker初始化数据
+func (c *AuthClient) GetInitializationData() (*InitializationData, error) {
+	resp, err := c.Request("GET", "/api/v1/worker/initialization", nil)
+	if err != nil {
+		return nil, fmt.Errorf("请求初始化数据失败: %v", err)
+	}
+	defer resp.Body.Close()
+	
+	// 解析响应
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("读取响应失败: %v", err)
+	}
+	
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("获取初始化数据失败: HTTP %d, 响应: %s", resp.StatusCode, string(body))
+	}
+	
+	// 解析标准响应格式
+	var response struct {
+		Code    int                `json:"code"`
+		Message string             `json:"message"`
+		Data    InitializationData `json:"data"`
+	}
+	
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %v", err)
+	}
+	
+	if response.Code != 200 {
+		return nil, fmt.Errorf("获取初始化数据失败: %s (Code %d)", response.Message, response.Code)
+	}
+	
+	return &response.Data, nil
+}
+

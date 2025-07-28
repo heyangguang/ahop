@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -28,6 +29,8 @@ type TemplateExecutor struct {
 	repoBaseDir     string
 	templateBaseDir string  // 独立模板目录
 	log             *logrus.Logger
+	gitSyncExecutor *GitSyncExecutor // 用于Git仓库同步
+	authClient      interface{} // AuthClient接口，避免循环依赖
 }
 
 // NewTemplateExecutor 创建模板执行器
@@ -41,6 +44,16 @@ func NewTemplateExecutor(db *gorm.DB, repoBaseDir string, templateBaseDir string
 		templateBaseDir: templateBaseDir,
 		log:             log,
 	}
+}
+
+// SetGitSyncExecutor 设置Git同步执行器
+func (e *TemplateExecutor) SetGitSyncExecutor(gitSyncExecutor *GitSyncExecutor) {
+	e.gitSyncExecutor = gitSyncExecutor
+}
+
+// SetAuthClient 设置认证客户端
+func (e *TemplateExecutor) SetAuthClient(authClient interface{}) {
+	e.authClient = authClient
 }
 
 // Execute 执行模板任务
@@ -98,10 +111,29 @@ func (e *TemplateExecutor) Execute(ctx context.Context, taskCtx *TaskContext, on
 
 	// 检查脚本文件是否存在
 	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
-		result.Success = false
-		result.Error = fmt.Sprintf("脚本文件不存在: %s", scriptPath)
-		e.LogMessage(onLog, "error", "template", result.Error, "", "")
-		return result
+		// 尝试按需同步模板
+		e.log.WithFields(logrus.Fields{
+			"template_id":   taskTemplate.ID,
+			"template_code": taskTemplate.Code,
+			"script_path":   scriptPath,
+		}).Info("模板文件不存在，尝试按需同步")
+		
+		if err := e.syncTemplateOnDemand(&taskTemplate); err != nil {
+			result.Success = false
+			result.Error = fmt.Sprintf("模板同步失败: %v", err)
+			e.LogMessage(onLog, "error", "template", result.Error, "", "")
+			return result
+		}
+		
+		// 再次检查文件是否存在
+		if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
+			result.Success = false
+			result.Error = fmt.Sprintf("模板同步后脚本文件仍不存在: %s", scriptPath)
+			e.LogMessage(onLog, "error", "template", result.Error, "", "")
+			return result
+		}
+		
+		e.LogMessage(onLog, "info", "template", "模板按需同步成功", "", "")
 	}
 
 	// 根据脚本类型执行
@@ -877,6 +909,163 @@ func (e *TemplateExecutor) ValidateParams(params map[string]interface{}) error {
 	// 检查主机信息
 	if _, ok := params["_host_info_map"]; !ok {
 		return fmt.Errorf("缺少主机信息映射")
+	}
+	
+	return nil
+}
+
+// syncTemplateOnDemand 按需同步模板
+func (e *TemplateExecutor) syncTemplateOnDemand(template *models.TaskTemplate) error {
+	// 从source_git_info获取Git仓库信息
+	var gitInfo map[string]interface{}
+	if template.SourceGitInfo != nil {
+		if err := template.SourceGitInfo.Unmarshal(&gitInfo); err != nil {
+			return fmt.Errorf("解析Git来源信息失败: %v", err)
+		}
+	} else {
+		return fmt.Errorf("模板缺少Git来源信息")
+	}
+
+	// 获取仓库ID
+	repoID, ok := gitInfo["repository_id"].(float64)
+	if !ok {
+		return fmt.Errorf("Git来源信息缺少repository_id")
+	}
+
+	// 获取original_path（文件在仓库中的子目录）
+	sourcePath := ""
+	if op, ok := gitInfo["original_path"].(string); ok {
+		sourcePath = op
+	}
+
+	// 从数据库查询Git仓库信息
+	var gitRepo models.GitRepository
+	if err := e.db.Where("id = ?", uint(repoID)).First(&gitRepo).Error; err != nil {
+		return fmt.Errorf("查询Git仓库失败: %v", err)
+	}
+
+	// 构建源仓库路径
+	localPath := gitRepo.LocalPath
+	sourceRepoPath := filepath.Join(e.repoBaseDir, localPath)
+	if sourcePath != "" {
+		sourceRepoPath = filepath.Join(sourceRepoPath, sourcePath)
+	}
+	
+	// 检查Git仓库是否存在
+	if _, err := os.Stat(sourceRepoPath); os.IsNotExist(err) {
+		// 如果Git仓库也不存在，需要先同步Git仓库
+		e.log.WithFields(logrus.Fields{
+			"repository_id": uint(repoID),
+			"local_path":    localPath,
+		}).Info("Git仓库不存在，需要先同步仓库")
+		
+		// 构建Git同步消息（从gitInfo中获取必要信息）
+		syncMsg := &types.GitSyncMessage{
+			RepositoryID: uint(repoID),
+			TenantID:     template.TenantID,
+			Action:       "sync",
+			TaskType:     "manual",  // 按需同步
+			Repository: types.RepositoryInfo{
+				ID:        uint(repoID),
+				Name:      gitRepo.Name,
+				LocalPath: gitRepo.LocalPath,
+			},
+		}
+		
+		// 从gitInfo中补充其他信息
+		if url, ok := gitInfo["url"].(string); ok {
+			syncMsg.Repository.URL = url
+		}
+		if branch, ok := gitInfo["branch"].(string); ok {
+			syncMsg.Repository.Branch = branch
+		}
+		if isPublic, ok := gitInfo["is_public"].(bool); ok {
+			syncMsg.Repository.IsPublic = isPublic
+		}
+		if credID, ok := gitInfo["credential_id"].(float64); ok {
+			credentialID := uint(credID)
+			syncMsg.Repository.CredentialID = &credentialID
+		}
+		
+		// 使用GitSyncExecutor同步仓库
+		if e.gitSyncExecutor != nil {
+			if err := e.gitSyncExecutor.ProcessGitSyncMessage(syncMsg, ""); err != nil {
+				return fmt.Errorf("同步Git仓库失败: %v", err)
+			}
+		} else {
+			return fmt.Errorf("GitSyncExecutor未初始化")
+		}
+	}
+
+	// 构建目标路径
+	templateDir := filepath.Join(e.templateBaseDir, fmt.Sprintf("%d/%s", template.TenantID, template.Code))
+	
+	// 创建目标目录
+	if err := os.MkdirAll(templateDir, 0755); err != nil {
+		return fmt.Errorf("创建模板目录失败: %v", err)
+	}
+	
+	// 复制入口文件
+	sourceFile := filepath.Join(sourceRepoPath, template.EntryFile)
+	targetFile := filepath.Join(templateDir, template.EntryFile)
+	
+	if err := e.copyFile(sourceFile, targetFile); err != nil {
+		return fmt.Errorf("复制入口文件失败: %v", err)
+	}
+	
+	// 复制包含的文件
+	for _, file := range template.IncludedFiles {
+		srcPath := filepath.Join(sourceRepoPath, file.Path)
+		dstPath := filepath.Join(templateDir, file.Path)
+		
+		// 创建子目录
+		if dir := filepath.Dir(dstPath); dir != templateDir {
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				e.log.WithError(err).WithField("dir", dir).Warn("创建子目录失败")
+				continue
+			}
+		}
+		
+		// 复制文件
+		if err := e.copyFile(srcPath, dstPath); err != nil {
+			e.log.WithError(err).WithFields(logrus.Fields{
+				"src": srcPath,
+				"dst": dstPath,
+			}).Warn("复制包含文件失败")
+		}
+	}
+
+	e.log.WithFields(logrus.Fields{
+		"template_id":   template.ID,
+		"template_code": template.Code,
+		"tenant_id":     template.TenantID,
+	}).Info("模板按需同步成功")
+
+	return nil
+}
+
+// copyFile 复制文件
+func (e *TemplateExecutor) copyFile(src, dst string) error {
+	source, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("打开源文件失败: %v", err)
+	}
+	defer source.Close()
+	
+	destination, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("创建目标文件失败: %v", err)
+	}
+	defer destination.Close()
+	
+	if _, err := io.Copy(destination, source); err != nil {
+		return fmt.Errorf("复制文件内容失败: %v", err)
+	}
+	
+	// 复制文件权限
+	info, err := os.Stat(src)
+	if err == nil {
+		os.Chmod(dst, info.Mode())
 	}
 	
 	return nil

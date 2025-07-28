@@ -51,8 +51,8 @@ type ScheduledTaskExecution struct {
 	TriggeredAt     time.Time `gorm:"not null;index" json:"triggered_at"`
 
 	// 关联
-	ScheduledTask ScheduledTask `gorm:"foreignKey:ScheduledTaskID" json:"scheduled_task,omitempty"`
-	Task          Task          `gorm:"foreignKey:TaskID;references:TaskID" json:"task,omitempty"`
+	ScheduledTask ScheduledTask `gorm:"foreignKey:ScheduledTaskID;constraint:OnDelete:CASCADE" json:"scheduled_task,omitempty"`
+	Task          *Task         `gorm:"-" json:"task,omitempty"` // 使用 gorm:"-" 阻止GORM自动管理
 }
 
 // TableName 指定表名

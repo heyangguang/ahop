@@ -184,6 +184,14 @@ func (j *JSON) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Unmarshal 解析JSON数据到目标对象
+func (j *JSON) Unmarshal(v interface{}) error {
+	if j == nil || len(*j) == 0 {
+		return nil
+	}
+	return json.Unmarshal([]byte(*j), v)
+}
+
 // TaskExecutionResult 任务执行结果（用于模板任务）
 type TaskExecutionResult struct {
 	HostID       uint       `json:"host_id"`

@@ -3,9 +3,10 @@ package services
 import (
 	"ahop/internal/models"
 	"ahop/pkg/logger"
-	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 
@@ -22,10 +23,73 @@ type TaskSchedulerService struct {
 	jobs            map[uint]cron.EntryID // scheduledTaskID -> cronEntryID
 	mu              sync.RWMutex
 	running         bool
+	startedAt       time.Time
+}
+
+// SchedulerStatistics 调度器统计信息
+type SchedulerStatistics struct {
+	SchedulerStatus SchedulerStatus `json:"scheduler_status"`
+	TaskOverview    TaskOverview    `json:"task_overview"`
+	ExecutionStats  ExecutionStats  `json:"execution_stats"`
+	TopTasks        TopTasks        `json:"top_tasks"`
+	ResourceUsage   ResourceUsage   `json:"resource_usage"`
+}
+
+// SchedulerStatus 调度器状态
+type SchedulerStatus struct {
+	Running        bool            `json:"running"`
+	StartedAt      time.Time       `json:"started_at"`
+	Uptime         string          `json:"uptime"`
+	JobsCount      int             `json:"jobs_count"`
+	NextExecutions []NextExecution `json:"next_executions"`
+}
+
+// NextExecution 下次执行信息
+type NextExecution struct {
+	TaskID    uint      `json:"task_id"`
+	NextRunAt time.Time `json:"next_run_at"`
+}
+
+// TaskOverview 任务概览
+type TaskOverview struct {
+	TotalTasks    int64 `json:"total_tasks"`
+	ActiveTasks   int64 `json:"active_tasks"`
+	DisabledTasks int64 `json:"disabled_tasks"`
+	RunningTasks  int64 `json:"running_tasks"`
+}
+
+// ExecutionStats 执行统计
+type ExecutionStats struct {
+	TodayExecutions int64 `json:"today_executions"`
+	TotalExecutions int64 `json:"total_executions"`
+	Last24hSuccess  int64 `json:"last_24h_success"`
+	Last24hFailed   int64 `json:"last_24h_failed"`
+}
+
+// TopTasks TOP任务列表
+type TopTasks struct {
+	MostFrequent     []TaskSummary `json:"most_frequent"`
+	RecentlyExecuted []TaskSummary `json:"recently_executed"`
+}
+
+// TaskSummary 任务摘要
+type TaskSummary struct {
+	ID        uint       `json:"id"`
+	Name      string     `json:"name"`
+	RunCount  int64      `json:"run_count,omitempty"`
+	LastRunAt *time.Time `json:"last_run_at,omitempty"`
+	Status    string     `json:"status,omitempty"`
+}
+
+// ResourceUsage 资源使用统计
+type ResourceUsage struct {
+	ByTenant   map[uint]int64 `json:"by_tenant"`
+	ByTemplate map[uint]int64 `json:"by_template"`
 }
 
 // NewTaskSchedulerService 创建任务调度服务
 func NewTaskSchedulerService(db *gorm.DB, taskService *TaskService, templateService *TaskTemplateService) *TaskSchedulerService {
+	// 创建带秒级精度的 cron 调度器
 	return &TaskSchedulerService{
 		db:              db,
 		taskService:     taskService,
@@ -61,6 +125,7 @@ func (s *TaskSchedulerService) Start() error {
 	// 启动cron调度器
 	s.cron.Start()
 	s.running = true
+	s.startedAt = time.Now()
 
 	logger.GetLogger().Infof("定时任务调度器启动成功，已加载 %d 个任务", len(scheduledTasks))
 	return nil
@@ -77,6 +142,189 @@ func (s *TaskSchedulerService) Stop() {
 	s.running = false
 }
 
+// GetSchedulerStatistics 获取调度器统计信息
+func (s *TaskSchedulerService) GetSchedulerStatistics() (*SchedulerStatistics, error) {
+	stats := &SchedulerStatistics{}
+	
+	// 1. 调度器状态
+	s.mu.RLock()
+	stats.SchedulerStatus.Running = s.running
+	stats.SchedulerStatus.StartedAt = s.startedAt
+	stats.SchedulerStatus.JobsCount = len(s.jobs)
+	
+	// 计算运行时长
+	if s.running && !s.startedAt.IsZero() {
+		uptime := time.Since(s.startedAt)
+		stats.SchedulerStatus.Uptime = fmt.Sprintf("%d天%d小时%d分钟", 
+			int(uptime.Hours())/24, 
+			int(uptime.Hours())%24, 
+			int(uptime.Minutes())%60)
+	}
+	
+	// 获取 cron entries
+	entries := s.cron.Entries()
+	stats.SchedulerStatus.NextExecutions = make([]NextExecution, 0)
+	for _, entry := range entries {
+		if jobID, ok := s.getJobIDByEntryID(entry.ID); ok {
+			stats.SchedulerStatus.NextExecutions = append(stats.SchedulerStatus.NextExecutions, NextExecution{
+				TaskID: jobID,
+				NextRunAt: entry.Next,
+			})
+		}
+	}
+	s.mu.RUnlock()
+	
+	// 排序下次执行时间
+	sort.Slice(stats.SchedulerStatus.NextExecutions, func(i, j int) bool {
+		return stats.SchedulerStatus.NextExecutions[i].NextRunAt.Before(stats.SchedulerStatus.NextExecutions[j].NextRunAt)
+	})
+	// 只保留前5个
+	if len(stats.SchedulerStatus.NextExecutions) > 5 {
+		stats.SchedulerStatus.NextExecutions = stats.SchedulerStatus.NextExecutions[:5]
+	}
+	
+	// 2. 任务概览
+	if err := s.db.Model(&models.ScheduledTask{}).Count(&stats.TaskOverview.TotalTasks).Error; err != nil {
+		return nil, fmt.Errorf("统计总任务数失败: %v", err)
+	}
+	
+	if err := s.db.Model(&models.ScheduledTask{}).Where("is_active = ?", true).Count(&stats.TaskOverview.ActiveTasks).Error; err != nil {
+		return nil, fmt.Errorf("统计活跃任务数失败: %v", err)
+	}
+	
+	if err := s.db.Model(&models.ScheduledTask{}).Where("last_status = ?", models.ScheduledTaskStatusRunning).Count(&stats.TaskOverview.RunningTasks).Error; err != nil {
+		return nil, fmt.Errorf("统计运行中任务数失败: %v", err)
+	}
+	
+	stats.TaskOverview.DisabledTasks = stats.TaskOverview.TotalTasks - stats.TaskOverview.ActiveTasks
+	
+	// 3. 执行统计
+	// 今日执行次数
+	today := time.Now().Format("2006-01-02")
+	if err := s.db.Model(&models.ScheduledTaskExecution{}).
+		Where("DATE(triggered_at) = ?", today).
+		Count(&stats.ExecutionStats.TodayExecutions).Error; err != nil {
+		return nil, fmt.Errorf("统计今日执行次数失败: %v", err)
+	}
+	
+	// 总执行次数
+	var totalRunCount sql.NullInt64
+	if err := s.db.Model(&models.ScheduledTask{}).
+		Select("SUM(run_count)").
+		Scan(&totalRunCount).Error; err != nil {
+		return nil, fmt.Errorf("统计总执行次数失败: %v", err)
+	}
+	stats.ExecutionStats.TotalExecutions = totalRunCount.Int64
+	
+	// 最近24小时成功/失败统计
+	last24h := time.Now().Add(-24 * time.Hour)
+	
+	// 通过任务状态统计成功失败（需要先获取24小时内的所有task_id）
+	var taskIDs []string
+	s.db.Model(&models.ScheduledTaskExecution{}).
+		Where("triggered_at >= ?", last24h).
+		Pluck("task_id", &taskIDs)
+	
+	if len(taskIDs) > 0 {
+		s.db.Model(&models.Task{}).
+			Where("task_id IN ? AND status = ?", taskIDs, "success").
+			Count(&stats.ExecutionStats.Last24hSuccess)
+		
+		s.db.Model(&models.Task{}).
+			Where("task_id IN ? AND status = ?", taskIDs, "failed").
+			Count(&stats.ExecutionStats.Last24hFailed)
+	}
+	
+	// 4. TOP 列表
+	// 最频繁执行的任务 TOP 5
+	var frequentTasks []models.ScheduledTask
+	if err := s.db.Model(&models.ScheduledTask{}).
+		Order("run_count DESC").
+		Limit(5).
+		Find(&frequentTasks).Error; err != nil {
+		return nil, fmt.Errorf("查询频繁任务失败: %v", err)
+	}
+	
+	stats.TopTasks.MostFrequent = make([]TaskSummary, len(frequentTasks))
+	for i, task := range frequentTasks {
+		stats.TopTasks.MostFrequent[i] = TaskSummary{
+			ID:       task.ID,
+			Name:     task.Name,
+			RunCount: task.RunCount,
+			Status:   task.LastStatus,
+		}
+	}
+	
+	// 最近执行的任务
+	var recentTasks []models.ScheduledTask
+	if err := s.db.Model(&models.ScheduledTask{}).
+		Where("last_run_at IS NOT NULL").
+		Order("last_run_at DESC").
+		Limit(5).
+		Find(&recentTasks).Error; err != nil {
+		return nil, fmt.Errorf("查询最近任务失败: %v", err)
+	}
+	
+	stats.TopTasks.RecentlyExecuted = make([]TaskSummary, len(recentTasks))
+	for i, task := range recentTasks {
+		stats.TopTasks.RecentlyExecuted[i] = TaskSummary{
+			ID:         task.ID,
+			Name:       task.Name,
+			LastRunAt:  task.LastRunAt,
+			Status:     task.LastStatus,
+		}
+	}
+	
+	// 5. 资源使用统计
+	// 按租户统计
+	type tenantCount struct {
+		TenantID uint
+		Count    int64
+	}
+	var tenantCounts []tenantCount
+	if err := s.db.Model(&models.ScheduledTask{}).
+		Select("tenant_id, COUNT(*) as count").
+		Group("tenant_id").
+		Scan(&tenantCounts).Error; err != nil {
+		return nil, fmt.Errorf("按租户统计失败: %v", err)
+	}
+	
+	stats.ResourceUsage.ByTenant = make(map[uint]int64)
+	for _, tc := range tenantCounts {
+		stats.ResourceUsage.ByTenant[tc.TenantID] = tc.Count
+	}
+	
+	// 按模板统计
+	type templateCount struct {
+		TemplateID uint
+		Count      int64
+	}
+	var templateCounts []templateCount
+	if err := s.db.Model(&models.ScheduledTask{}).
+		Select("template_id, COUNT(*) as count").
+		Group("template_id").
+		Scan(&templateCounts).Error; err != nil {
+		return nil, fmt.Errorf("按模板统计失败: %v", err)
+	}
+	
+	stats.ResourceUsage.ByTemplate = make(map[uint]int64)
+	for _, tc := range templateCounts {
+		stats.ResourceUsage.ByTemplate[tc.TemplateID] = tc.Count
+	}
+	
+	return stats, nil
+}
+
+// getJobIDByEntryID 根据 cron entry ID 获取任务 ID
+func (s *TaskSchedulerService) getJobIDByEntryID(entryID cron.EntryID) (uint, bool) {
+	for jobID, eID := range s.jobs {
+		if eID == entryID {
+			return jobID, true
+		}
+	}
+	return 0, false
+}
+
 // CreateScheduledTask 创建定时任务
 func (s *TaskSchedulerService) CreateScheduledTask(tenantID, userID uint, req *CreateScheduledTaskRequest) (*models.ScheduledTask, error) {
 	// 1. 验证任务模板
@@ -85,9 +333,7 @@ func (s *TaskSchedulerService) CreateScheduledTask(tenantID, userID uint, req *C
 		return nil, fmt.Errorf("任务模板不存在")
 	}
 
-	if template.Status != "active" {
-		return nil, fmt.Errorf("任务模板未激活")
-	}
+	// 模板存在即可使用
 
 	// 2. 验证主机
 	if len(req.HostIDs) == 0 {
@@ -126,6 +372,7 @@ func (s *TaskSchedulerService) CreateScheduledTask(tenantID, userID uint, req *C
 		HostIDs:     models.JSON(hostIDsJSON),
 		Variables:   models.JSON(variablesJSON),
 		TimeoutMins: req.TimeoutMins,
+		IsActive:    req.IsActive,
 		CreatedBy:   userID,
 		NextRunAt:   s.calculateNextRun(schedule),
 		LastStatus:  models.ScheduledTaskStatusIdle,
@@ -445,10 +692,36 @@ func (s *TaskSchedulerService) GetExecutionHistory(scheduledTaskID, tenantID uin
 	offset := (page - 1) * pageSize
 
 	var executions []models.ScheduledTaskExecution
-	err := query.Preload("Task").
-		Order("triggered_at DESC").
+	err := query.Order("triggered_at DESC").
 		Offset(offset).Limit(pageSize).
 		Find(&executions).Error
+	
+	if err != nil {
+		return executions, total, err
+	}
+	
+	// 手动加载Task信息
+	if len(executions) > 0 {
+		var taskIDs []string
+		for _, exec := range executions {
+			taskIDs = append(taskIDs, exec.TaskID)
+		}
+		
+		var tasks []models.Task
+		taskMap := make(map[string]*models.Task)
+		if err := s.db.Where("task_id IN ?", taskIDs).Find(&tasks).Error; err == nil {
+			for i := range tasks {
+				taskMap[tasks[i].TaskID] = &tasks[i]
+			}
+			
+			// 填充Task信息
+			for i := range executions {
+				if task, ok := taskMap[executions[i].TaskID]; ok {
+					executions[i].Task = task
+				}
+			}
+		}
+	}
 
 	return executions, total, err
 }
@@ -465,7 +738,6 @@ func (s *TaskSchedulerService) GetTaskLogs(scheduledTaskID, tenantID uint, page,
 	}
 
 	// 2. 获取该定时任务的所有执行历史
-	var executions []models.ScheduledTaskExecution
 	executionQuery := s.db.Model(&models.ScheduledTaskExecution{}).Where("scheduled_task_id = ?", scheduledTaskID)
 	
 	// 如果指定了特定的执行ID
@@ -542,9 +814,14 @@ func (s *TaskSchedulerService) addJob(scheduledTask *models.ScheduledTask) error
 		return fmt.Errorf("无效的cron表达式: %v", err)
 	}
 
+	// 复制必要的值，避免闭包问题
+	taskID := scheduledTask.ID
+	taskName := scheduledTask.Name
+	
 	// 创建任务函数
 	jobFunc := func() {
-		s.executeScheduledTaskAsync(scheduledTask.ID)
+		logger.GetLogger().Infof("定时任务触发: [%s] (ID: %d)", taskName, taskID)
+		s.executeScheduledTaskAsync(taskID)
 	}
 
 	// 添加到cron调度器
@@ -576,7 +853,7 @@ func (s *TaskSchedulerService) removeJob(scheduledTaskID uint) {
 
 // executeScheduledTaskAsync 异步执行定时任务（cron触发）
 func (s *TaskSchedulerService) executeScheduledTaskAsync(scheduledTaskID uint) {
-	task, err := s.executeScheduledTask(&models.ScheduledTask{ID: scheduledTaskID}, 0)
+	task, err := s.executeScheduledTask(&models.ScheduledTask{BaseModel: models.BaseModel{ID: scheduledTaskID}}, 0)
 	if err != nil {
 		logger.GetLogger().Errorf("执行定时任务失败 [ID: %d]: %v", scheduledTaskID, err)
 		return
@@ -619,10 +896,7 @@ func (s *TaskSchedulerService) executeScheduledTask(scheduledTask *models.Schedu
 		return nil, fmt.Errorf("任务模板不存在: %v", err)
 	}
 
-	if template.Status != "active" {
-		s.updateTaskStatus(st.ID, models.ScheduledTaskStatusFailed, "")
-		return nil, fmt.Errorf("任务模板未激活")
-	}
+	// 模板存在即可使用
 
 	// 6. 解析配置
 	var hostIDs []uint

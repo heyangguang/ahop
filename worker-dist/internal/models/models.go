@@ -162,14 +162,21 @@ type TaskTemplate struct {
 	Code     string `gorm:"size:50;not null" json:"code"`
 	
 	// 脚本信息
-	ScriptType     string `gorm:"size:20;not null" json:"script_type"` // shell/ansible
-	EntryFile      string `gorm:"size:500;not null" json:"entry_file"` // 主执行文件路径
+	ScriptType     string         `gorm:"size:20;not null" json:"script_type"` // shell/ansible
+	EntryFile      string         `gorm:"size:500;not null" json:"entry_file"` // 主执行文件路径
+	IncludedFiles  []IncludedFile `gorm:"-" json:"included_files"`              // 包含的文件列表（从JSON解析）
 	
 	// Git来源信息（快照，不是外键）
 	SourceGitInfo  JSON           `gorm:"type:jsonb" json:"source_git_info"`        // Git仓库来源信息
 	
 	// 执行配置
 	RequireSudo bool `gorm:"default:false" json:"require_sudo"`
+}
+
+// IncludedFile 包含的文件信息
+type IncludedFile struct {
+	Path     string `json:"path"`                  // 文件路径
+	FileType string `json:"file_type,omitempty"`   // 文件类型
 }
 
 // Worker Worker注册信息
@@ -265,4 +272,12 @@ func (j *JSON) UnmarshalJSON(data []byte) error {
 	}
 	*j = data
 	return nil
+}
+
+// Unmarshal 解析JSON数据到目标对象
+func (j *JSON) Unmarshal(v interface{}) error {
+	if j == nil || len(*j) == 0 {
+		return nil
+	}
+	return json.Unmarshal([]byte(*j), v)
 }

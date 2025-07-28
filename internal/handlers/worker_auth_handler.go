@@ -322,3 +322,51 @@ func (h *WorkerAuthHandler) DeleteWorkerAuth(c *gin.Context) {
 
 	response.Success(c, gin.H{"message": "授权删除成功"})
 }
+
+// GetInitializationData 获取Worker初始化数据
+func (h *WorkerAuthHandler) GetInitializationData(c *gin.Context) {
+	// 从头部获取认证信息
+	accessKey := c.GetHeader("X-Access-Key")
+	timestampStr := c.GetHeader("X-Timestamp")
+	signature := c.GetHeader("X-Signature")
+	
+	if accessKey == "" || timestampStr == "" || signature == "" {
+		response.Unauthorized(c, "缺少认证信息")
+		return
+	}
+	
+	// 解析时间戳
+	timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+	if err != nil {
+		response.Unauthorized(c, "无效的时间戳")
+		return
+	}
+	
+	// 1. 验证AccessKey
+	auth, err := h.workerAuthService.ValidateAccessKey(accessKey)
+	if err != nil {
+		response.Unauthorized(c, err.Error())
+		return
+	}
+	
+	// 2. 验证时间戳（防重放攻击）
+	if !h.workerAuthService.IsValidTimestamp(timestamp) {
+		response.Unauthorized(c, "请求已过期")
+		return
+	}
+	
+	// 3. 验证签名
+	if !h.workerAuthService.VerifySignature(accessKey, "/api/v1/worker/initialization", timestamp, signature, auth.SecretKey) {
+		response.Unauthorized(c, "签名验证失败")
+		return
+	}
+
+	// 4. 获取初始化数据
+	initData, err := h.workerAuthService.GetWorkerInitializationData()
+	if err != nil {
+		response.ServerError(c, "获取初始化数据失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, initData)
+}

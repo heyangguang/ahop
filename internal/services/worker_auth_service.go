@@ -268,3 +268,111 @@ func (s *WorkerAuthService) CleanupTimeoutConnections() error {
 	
 	return nil
 }
+
+// GetWorkerInitializationData 获取Worker初始化数据
+func (s *WorkerAuthService) GetWorkerInitializationData() (map[string]interface{}, error) {
+	log := logger.GetLogger()
+	
+	// 获取所有需要同步的Git仓库
+	var repositories []models.GitRepository
+	err := s.db.Where("status = ? AND (sync_enabled = ? OR id IN (SELECT DISTINCT (source_git_info->>'repository_id')::bigint FROM task_templates WHERE source_git_info IS NOT NULL))", 
+		"active", true).
+		Preload("Credential").
+		Find(&repositories).Error
+	if err != nil {
+		log.WithError(err).Error("获取Git仓库列表失败")
+		return nil, err
+	}
+
+	// 获取所有活跃的任务模板
+	var templates []models.TaskTemplate
+	err = s.db.Where("id IN (SELECT DISTINCT template_id FROM scheduled_tasks WHERE is_active = ? AND template_id IS NOT NULL)", true).
+		Find(&templates).Error
+	if err != nil {
+		log.WithError(err).Error("获取任务模板列表失败")
+		return nil, err
+	}
+
+	// 构建响应数据
+	repoList := make([]map[string]interface{}, 0, len(repositories))
+	for _, repo := range repositories {
+		repoData := map[string]interface{}{
+			"id":          repo.ID,
+			"tenant_id":   repo.TenantID,
+			"name":        repo.Name,
+			"url":         repo.URL,
+			"branch":      repo.Branch,
+			"is_public":   repo.IsPublic,
+			"local_path":  repo.LocalPath,
+		}
+		
+		// 如果有凭证，添加凭证信息（包含解密后的数据供Worker使用）
+		if repo.CredentialID != nil && repo.Credential.ID > 0 {
+			repoData["credential_id"] = *repo.CredentialID
+			
+			// 解密凭证供Worker使用
+			credService := NewCredentialService(s.db)
+			decryptedCred, err := credService.DecryptCredential(*repo.CredentialID, repo.TenantID)
+			if err != nil {
+				log.WithError(err).WithField("credential_id", *repo.CredentialID).Warn("解密凭证失败")
+			} else {
+				// 构建凭证信息
+				credInfo := map[string]interface{}{
+					"type": decryptedCred["type"],
+				}
+				
+				// 根据类型添加相应字段
+				switch decryptedCred["type"] {
+				case "password":
+					credInfo["username"] = decryptedCred["username"]
+					credInfo["password"] = decryptedCred["password"]
+				case "ssh_key":
+					credInfo["username"] = decryptedCred["username"]
+					credInfo["private_key"] = decryptedCred["private_key"]
+					if passphrase, ok := decryptedCred["passphrase"]; ok {
+						credInfo["passphrase"] = passphrase
+					}
+				}
+				
+				repoData["credential"] = credInfo
+			}
+		}
+		
+		repoList = append(repoList, repoData)
+	}
+
+	// 构建模板列表
+	templateList := make([]map[string]interface{}, 0, len(templates))
+	for _, tmpl := range templates {
+		templateData := map[string]interface{}{
+			"id":             tmpl.ID,
+			"tenant_id":      tmpl.TenantID,
+			"code":           tmpl.Code,
+			"name":           tmpl.Name,
+			"script_type":    tmpl.ScriptType,
+			"entry_file":     tmpl.EntryFile,
+			"included_files": tmpl.IncludedFiles,
+		}
+		
+		// 添加Git来源信息
+		if tmpl.SourceGitInfo != nil {
+			var gitInfo map[string]interface{}
+			if err := tmpl.SourceGitInfo.Unmarshal(&gitInfo); err == nil {
+				templateData["source_git_info"] = gitInfo
+			}
+		}
+		
+		templateList = append(templateList, templateData)
+	}
+
+	log.WithFields(logrus.Fields{
+		"repositories": len(repoList),
+		"templates":    len(templateList),
+	}).Info("准备Worker初始化数据")
+
+	return map[string]interface{}{
+		"repositories": repoList,
+		"templates":    templateList,
+		"timestamp":    time.Now().Unix(),
+	}, nil
+}

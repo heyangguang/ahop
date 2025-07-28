@@ -16,9 +16,9 @@ type ScheduledTaskHandler struct {
 }
 
 // NewScheduledTaskHandler 创建定时任务处理器
-func NewScheduledTaskHandler(schedulerService *services.TaskSchedulerService) *ScheduledTaskHandler {
+func NewScheduledTaskHandler() *ScheduledTaskHandler {
 	return &ScheduledTaskHandler{
-		schedulerService: schedulerService,
+		schedulerService: services.GetGlobalTaskScheduler(),
 	}
 }
 
@@ -259,7 +259,7 @@ func (h *ScheduledTaskHandler) GetExecutions(c *gin.Context) {
 		}
 
 		// 如果关联了任务，添加任务信息
-		if exec.Task.ID > 0 {
+		if exec.Task != nil && exec.Task.ID > 0 {
 			resp.TaskName = exec.Task.Name
 			resp.TaskStatus = exec.Task.Status
 			
@@ -283,6 +283,16 @@ func (h *ScheduledTaskHandler) GetExecutions(c *gin.Context) {
 
 	pageInfo := pagination.NewPageInfo(params.Page, params.PageSize, total)
 	response.SuccessWithPage(c, results, pageInfo)
+}
+
+// GetSchedulerStatus 获取调度器统计信息
+func (h *ScheduledTaskHandler) GetSchedulerStatus(c *gin.Context) {
+	stats, err := h.schedulerService.GetSchedulerStatistics()
+	if err != nil {
+		response.ServerError(c, "获取统计信息失败: "+err.Error())
+		return
+	}
+	response.Success(c, stats)
 }
 
 // GetLogs 获取定时任务的执行日志

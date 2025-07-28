@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -135,6 +136,15 @@ func (w *Worker) Start(ctx context.Context) error {
 	// 注册到数据库
 	if err := w.registerWorker(); err != nil {
 		return fmt.Errorf("注册Worker失败: %v", err)
+	}
+
+	// 执行初始化（同步Git仓库和模板）
+	w.log.Info("开始执行Worker初始化...")
+	if err := w.performInitialization(); err != nil {
+		// 初始化失败不阻止Worker启动，只记录警告
+		w.log.WithError(err).Warn("Worker初始化失败，部分功能可能受影响")
+	} else {
+		w.log.Info("Worker初始化完成")
 	}
 
 	// 启动心跳
@@ -264,6 +274,10 @@ func (w *Worker) registerExecutors() {
 	
 	// 创建模板复制执行器
 	w.templateCopyExecutor = executor.NewTemplateCopyExecutor(w.config.Git.RepoBaseDir, templateBaseDir, w.log)
+	
+	// 设置模板执行器的GitSyncExecutor和AuthClient
+	templateExecutor.SetGitSyncExecutor(w.gitSyncExecutor)
+	templateExecutor.SetAuthClient(w.authClient)
 
 	w.log.WithField("executors", len(w.executors)).Info("已注册任务执行器")
 }
@@ -1023,5 +1037,224 @@ func (w *Worker) startGitScanConsumer() {
 // 现在使用固定路径，不再需要清理旧副本
 func (w *Worker) startGitRepoCleanup() {
 	// 不再需要清理功能
+}
+
+// performInitialization 执行Worker初始化
+func (w *Worker) performInitialization() error {
+	// 从Master获取初始化数据
+	initData, err := w.authClient.GetInitializationData()
+	if err != nil {
+		return fmt.Errorf("获取初始化数据失败: %v", err)
+	}
+
+	w.log.WithFields(logrus.Fields{
+		"repositories": len(initData.Repositories),
+		"templates":    len(initData.Templates),
+	}).Info("获取到初始化数据")
+
+	// 构建仓库ID到local_path的映射
+	repoMap := make(map[uint]string)
+	
+	// 同步Git仓库
+	if len(initData.Repositories) > 0 {
+		w.log.Info("开始同步Git仓库...")
+		syncedRepos := 0
+		for _, repoData := range initData.Repositories {
+			repoID := uint(repoData["id"].(float64))
+			localPath := repoData["local_path"].(string)
+			repoMap[repoID] = localPath
+			
+			if err := w.syncRepository(repoData); err != nil {
+				w.log.WithError(err).WithField("repo_id", repoID).Error("同步仓库失败")
+			} else {
+				syncedRepos++
+			}
+		}
+		w.log.WithField("synced", syncedRepos).Info("Git仓库同步完成")
+	}
+
+	// 同步模板文件
+	if len(initData.Templates) > 0 {
+		w.log.Info("开始同步模板文件...")
+		syncedTemplates := 0
+		for _, tmplData := range initData.Templates {
+			if err := w.syncTemplateWithRepoMap(tmplData, repoMap); err != nil {
+				w.log.WithError(err).WithField("template_id", tmplData["id"]).Error("同步模板失败")
+			} else {
+				syncedTemplates++
+			}
+		}
+		w.log.WithField("synced", syncedTemplates).Info("模板文件同步完成")
+	}
+
+	return nil
+}
+
+// syncRepository 同步单个仓库
+func (w *Worker) syncRepository(repoData map[string]interface{}) error {
+	// 构建Git同步消息
+	msg := &types.GitSyncMessage{
+		RepositoryID: uint(repoData["id"].(float64)),
+		TenantID:     uint(repoData["tenant_id"].(float64)),
+		Action:       "sync",
+		TaskType:     "initial",  // Worker启动时的初始化同步
+		Repository: types.RepositoryInfo{
+			ID:        uint(repoData["id"].(float64)),
+			Name:      repoData["name"].(string),
+			URL:       repoData["url"].(string),
+			Branch:    repoData["branch"].(string),
+			LocalPath: repoData["local_path"].(string),
+			IsPublic:  repoData["is_public"].(bool),
+		},
+	}
+
+	// 如果有凭证ID，设置凭证信息
+	if credID, ok := repoData["credential_id"]; ok && credID != nil {
+		credentialID := uint(credID.(float64))
+		msg.Repository.CredentialID = &credentialID
+		
+		// 如果有解密后的凭证信息，直接使用
+		if credential, ok := repoData["credential"].(map[string]interface{}); ok {
+			credInfo := &types.CredentialInfo{
+				Type: credential["type"].(string),
+			}
+			
+			// 根据类型设置凭证字段
+			switch credInfo.Type {
+			case "password":
+				if username, ok := credential["username"].(string); ok {
+					credInfo.Username = username
+				}
+				if password, ok := credential["password"].(string); ok {
+					credInfo.Password = password
+				}
+			case "ssh_key":
+				if username, ok := credential["username"].(string); ok {
+					credInfo.Username = username
+				}
+				if privateKey, ok := credential["private_key"].(string); ok {
+					credInfo.PrivateKey = privateKey
+				}
+				if passphrase, ok := credential["passphrase"].(string); ok {
+					credInfo.Passphrase = passphrase
+				}
+			}
+			
+			msg.Repository.Credential = credInfo
+		}
+	}
+
+	// 使用Git同步执行器同步仓库
+	return w.gitSyncExecutor.ProcessGitSyncMessage(msg, w.id)
+}
+
+// syncTemplateWithRepoMap 同步单个模板（简化版本）
+func (w *Worker) syncTemplateWithRepoMap(tmplData map[string]interface{}, repoMap map[uint]string) error {
+	// 1. 提取基本信息
+	tenantID := uint(tmplData["tenant_id"].(float64))
+	templateCode := tmplData["code"].(string)
+	entryFile := tmplData["entry_file"].(string)
+	
+	// 2. 获取Git信息
+	gitInfo := tmplData["source_git_info"].(map[string]interface{})
+	repoID := uint(gitInfo["repository_id"].(float64))
+	originalPath := gitInfo["original_path"].(string)
+	
+	// 3. 构建路径
+	templateDir := filepath.Join(filepath.Dir(w.config.Git.RepoBaseDir), "templates", 
+		fmt.Sprintf("%d", tenantID), templateCode)
+	
+	// 检查入口文件是否已存在
+	if _, err := os.Stat(filepath.Join(templateDir, entryFile)); err == nil {
+		w.log.WithField("template", templateCode).Debug("模板已存在，跳过")
+		return nil
+	}
+	
+	// 4. 获取Git仓库路径
+	repoLocalPath, ok := repoMap[repoID]
+	if !ok {
+		return fmt.Errorf("仓库 %d 未找到", repoID)
+	}
+	
+	// 5. 构建源文件路径
+	sourceDir := filepath.Join(w.config.Git.RepoBaseDir, repoLocalPath)
+	if originalPath != "" && originalPath != "." {
+		sourceDir = filepath.Join(sourceDir, originalPath)
+	}
+	
+	// 6. 创建目标目录
+	if err := os.MkdirAll(templateDir, 0755); err != nil {
+		return fmt.Errorf("创建目录失败: %v", err)
+	}
+	
+	// 7. 复制入口文件
+	src := filepath.Join(sourceDir, entryFile)
+	dst := filepath.Join(templateDir, entryFile)
+	if err := w.copyFile(src, dst); err != nil {
+		return fmt.Errorf("复制入口文件失败: %v", err)
+	}
+	
+	// 8. 复制included_files（如果有）
+	fileCount := 1 // 入口文件
+	if files, ok := tmplData["included_files"].([]interface{}); ok && len(files) > 0 {
+		fileCount += len(files)
+		for _, f := range files {
+			if fileMap, ok := f.(map[string]interface{}); ok {
+				if filePath, ok := fileMap["path"].(string); ok {
+					// 跳过入口文件（避免重复复制）
+					if filePath == entryFile {
+						continue
+					}
+					
+					src := filepath.Join(sourceDir, filePath)
+					dst := filepath.Join(templateDir, filePath)
+					
+					// 创建子目录
+					if dir := filepath.Dir(dst); dir != templateDir {
+						os.MkdirAll(dir, 0755)
+					}
+					
+					// 复制文件
+					if err := w.copyFile(src, dst); err != nil {
+						w.log.WithError(err).WithField("file", filePath).Warn("复制文件失败")
+					}
+				}
+			}
+		}
+	}
+	
+	w.log.WithFields(logrus.Fields{
+		"template": templateCode,
+		"files":    fileCount,
+	}).Info("模板同步完成")
+	
+	return nil
+}
+
+// copyFile 复制文件
+func (w *Worker) copyFile(src, dst string) error {
+	source, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("打开源文件失败: %v", err)
+	}
+	defer source.Close()
+	
+	destination, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("创建目标文件失败: %v", err)
+	}
+	defer destination.Close()
+	
+	if _, err := io.Copy(destination, source); err != nil {
+		return fmt.Errorf("复制文件内容失败: %v", err)
+	}
+	
+	// 复制文件权限
+	info, err := os.Stat(src)
+	if err == nil {
+		os.Chmod(dst, info.Mode())
+	}
+	
+	return nil
 }
 

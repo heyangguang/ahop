@@ -60,10 +60,7 @@ func main() {
 	// 设置Gin模式
 	gin.SetMode(cfg.Server.Mode)
 
-	// 设置路由
-	r := router.SetupRouter()
-
-	// 启动Git同步调度器
+	// 启动Git同步调度器（在路由初始化前）
 	gitSyncScheduler := services.NewGitSyncScheduler(database.GetDB(), database.GetRedisQueue())
 	services.SetGitSyncScheduler(gitSyncScheduler)
 	if err := gitSyncScheduler.Start(); err != nil {
@@ -72,18 +69,16 @@ func main() {
 	}
 	defer gitSyncScheduler.Stop()
 	
-	// 启动工单同步调度器
+	// 启动工单同步调度器（在路由初始化前）
 	ticketSyncScheduler := services.NewTicketSyncScheduler(database.GetDB())
+	services.SetGlobalTicketSyncScheduler(ticketSyncScheduler)
 	if err := ticketSyncScheduler.Start(); err != nil {
 		appLogger.Errorf("Failed to start ticket sync scheduler: %v", err)
 		// 不影响主服务启动
 	}
 	defer ticketSyncScheduler.Stop()
 	
-	// 设置全局调度器实例，供服务使用
-	services.SetGlobalTicketSyncScheduler(ticketSyncScheduler)
-	
-	// 启动定时任务调度器
+	// 创建并启动定时任务调度器（必须在路由初始化前）
 	taskService := services.NewTaskService(database.GetDB(), database.GetRedisQueue())
 	taskTemplateService := services.NewTaskTemplateService(database.GetDB())
 	taskScheduler := services.NewTaskSchedulerService(database.GetDB(), taskService, taskTemplateService)
@@ -93,6 +88,9 @@ func main() {
 		// 不影响主服务启动
 	}
 	defer taskScheduler.Stop()
+
+	// 设置路由（在所有调度器初始化后）
+	r := router.SetupRouter()
 
 	// 启动Worker连接清理任务（每30秒执行一次）
 	workerAuthService := services.NewWorkerAuthService(database.GetDB())

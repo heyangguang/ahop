@@ -141,69 +141,27 @@ func (e *GitSyncExecutor) ProcessGitSyncMessage(msg *types.GitSyncMessage, worke
 
 	startTime := time.Now()
 	
-	// 查找最新的pending状态的同步日志
-	var syncLog GitSyncLog
-	e.log.WithFields(logrus.Fields{
-		"repository_id": msg.RepositoryID,
-		"tenant_id": msg.TenantID,
-	}).Debug("开始查找pending状态的同步日志")
-	
-	// 先查询所有的同步日志看看
-	var allLogs []GitSyncLog
-	if err := e.db.Where("repository_id = ?", msg.RepositoryID).Find(&allLogs).Error; err == nil {
-		e.log.WithFields(logrus.Fields{
-			"count": len(allLogs),
-			"logs": allLogs,
-		}).Debug("查询到的所有同步日志")
+	// 创建同步日志记录
+	syncLog := &GitSyncLog{
+		RepositoryID: msg.RepositoryID,
+		TenantID:     msg.TenantID,
+		TaskID:       msg.TaskID,
+		TaskType:     msg.TaskType,
+		WorkerID:     workerID,
+		OperatorID:   msg.OperatorID,
+		StartedAt:    startTime,
+		Status:       "running",
+		LocalPath:    msg.Repository.LocalPath,
+		CreatedAt:    time.Now(),
 	}
 	
-	findLogErr := e.db.Where("repository_id = ? AND status = ? AND tenant_id = ? AND worker_id = ?", 
-		msg.RepositoryID, "pending", msg.TenantID, workerID).
-		Order("created_at DESC").
-		First(&syncLog).Error
-	
-	if findLogErr != nil {
-		// 如果找不到属于自己的同步日志，创建一个
-		e.log.Info("未找到属于本 Worker 的同步日志，创建新日志")
-		
-		// 确定任务类型
-		taskType := "scheduled" // 默认为定时任务
-		if msg.OperatorID != nil {
-			taskType = "manual" // 有操作者ID表示手动触发
-			if msg.Metadata != nil && msg.Metadata["scan"] == "true" {
-				taskType = "manual_scan" // 手动触发并扫描
-			}
+	// 只有非初始化任务才记录日志
+	if msg.TaskType != "initial" {
+		if err := e.db.Create(syncLog).Error; err != nil {
+			log.WithError(err).Error("创建同步日志失败")
 		}
-		
-		syncLog = GitSyncLog{
-			RepositoryID: msg.RepositoryID,
-			TenantID:     msg.TenantID,
-			TaskType:     taskType,
-			WorkerID:     workerID,
-			OperatorID:   msg.OperatorID,
-			Status:       "pending",
-			StartedAt:    time.Now(),
-			CreatedAt:    time.Now(),
-		}
-		
-		if createErr := e.db.Create(&syncLog).Error; createErr != nil {
-			e.log.WithError(createErr).Error("创建同步日志失败")
-			// 不影响同步执行
-		} else {
-			e.log.WithFields(logrus.Fields{
-				"sync_log_id": syncLog.ID,
-				"worker_id":   syncLog.WorkerID,
-			}).Info("成功创建同步日志")
-			findLogErr = nil // 标记找到了日志
-		}
-	} else {
-		e.log.WithFields(logrus.Fields{
-			"sync_log_id": syncLog.ID,
-			"worker_id": syncLog.WorkerID,
-		}).Debug("找到pending状态的同步日志")
 	}
-
-	// 创建同步日志（简化版，实际的日志记录应该在主服务器端）
+	
 	e.log.Info("开始处理Git同步任务")
 
 	// 执行同步
@@ -219,60 +177,35 @@ func (e *GitSyncExecutor) ProcessGitSyncMessage(msg *types.GitSyncMessage, worke
 		err = fmt.Errorf("未知的同步动作: %s", msg.Action)
 	}
 
-	duration := time.Since(startTime)
+	// 更新日志记录
+	finishedAt := time.Now()
+	duration := int(finishedAt.Sub(startTime).Seconds())
 	
-	// 更新同步日志
-	if findLogErr == nil {
-		finishedAt := time.Now()
-		updateData := map[string]interface{}{
-			"worker_id":   workerID,
-			"finished_at": finishedAt,
-			"duration":    int(duration.Milliseconds()), // 使用毫秒更精确
-		}
-		
-		if err != nil {
-			updateData["status"] = "failed"
-			updateData["error_message"] = err.Error()
-		} else {
-			updateData["status"] = "success"
-			updateData["error_message"] = "" // 清空错误信息
-		}
-		
-		// 如果是同步操作，记录详细信息
-		if msg.Action == "sync" && err == nil {
-			updateData["local_path"] = repoPath
-			if fromCommit != "" {
-				updateData["from_commit"] = fromCommit
-			}
-			if toCommit != "" {
-				updateData["to_commit"] = toCommit
-			}
-		}
-		
-		e.log.WithFields(logrus.Fields{
-			"sync_log_id": syncLog.ID,
-			"update_data": updateData,
-		}).Debug("准备更新同步日志")
-		
-		if updateErr := e.db.Model(&syncLog).Updates(updateData).Error; updateErr != nil {
-			e.log.WithError(updateErr).Error("更新同步日志失败")
-		} else {
-			e.log.WithFields(logrus.Fields{
-				"sync_log_id": syncLog.ID,
-				"status": updateData["status"],
-			}).Info("成功更新同步日志")
-		}
-	} else {
-		e.log.WithError(findLogErr).Warn("无法更新同步日志，因为未找到对应的pending日志")
+	updateData := map[string]interface{}{
+		"finished_at": finishedAt,
+		"duration":    duration,
+		"local_path":  repoPath,
 	}
 	
 	if err != nil {
-		log.WithError(err).Errorf("Git仓库同步失败，耗时: %s", duration)
-		return err
+		updateData["status"] = "failed"
+		updateData["error_message"] = err.Error()
+		log.WithError(err).Errorf("Git仓库同步失败，耗时: %d秒", duration)
+	} else {
+		updateData["status"] = "success"
+		updateData["from_commit"] = fromCommit
+		updateData["to_commit"] = toCommit
+		e.log.Infof("Git仓库同步成功，耗时: %d秒", duration)
 	}
-
-	e.log.Infof("Git仓库同步成功，耗时: %s", duration)
-	return nil
+	
+	// 只有非初始化任务才更新日志
+	if msg.TaskType != "initial" && syncLog.ID > 0 {
+		if updateErr := e.db.Model(syncLog).Updates(updateData).Error; updateErr != nil {
+			log.WithError(updateErr).Error("更新同步日志失败")
+		}
+	}
+	
+	return err
 }
 
 // syncRepository 同步仓库

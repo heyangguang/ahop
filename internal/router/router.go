@@ -277,6 +277,8 @@ func registerRoutes(router *gin.Engine) {
 			worker.PUT("/heartbeat", workerAuthHandler.Heartbeat)
 			// Worker主动断开连接接口（Worker使用AK/SK认证）
 			worker.POST("/disconnect", workerAuthHandler.Disconnect)
+			// Worker初始化数据接口（Worker使用AK/SK认证）
+			worker.GET("/initialization", workerAuthHandler.GetInitializationData)
 		}
 
 		// 🔐 Worker授权管理路由（管理员权限）
@@ -368,19 +370,7 @@ func registerRoutes(router *gin.Engine) {
 		}
 
 		// 🔐 定时任务路由
-		// 创建定时任务服务（如果全局实例不存在）
-		var taskSchedulerService *services.TaskSchedulerService
-		if globalScheduler := services.GetGlobalTaskScheduler(); globalScheduler != nil {
-			taskSchedulerService = globalScheduler
-		} else {
-			// 路由初始化时创建（主要用于测试场景）
-			taskSchedulerService = services.NewTaskSchedulerService(
-				database.GetDB(),
-				services.NewTaskService(database.GetDB(), database.GetRedisQueue()),
-				services.NewTaskTemplateService(database.GetDB()),
-			)
-		}
-		scheduledTaskHandler := handlers.NewScheduledTaskHandler(taskSchedulerService)
+		scheduledTaskHandler := handlers.NewScheduledTaskHandler()
 		scheduledTasks := api.Group("/scheduled-tasks")
 		{
 			// 🔒 基础CRUD（需要定时任务管理权限）
@@ -400,6 +390,9 @@ func registerRoutes(router *gin.Engine) {
 			
 			// 🔒 执行日志
 			scheduledTasks.GET("/:id/logs", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetLogs)
+			
+			// 🔒 调度器统计信息
+			scheduledTasks.GET("/statistics", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetSchedulerStatus)
 		}
 
 		// 🔐 工单插件路由
