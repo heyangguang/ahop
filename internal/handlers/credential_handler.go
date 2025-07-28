@@ -269,7 +269,11 @@ func (h *CredentialHandler) GetDecrypted(c *gin.Context) {
 	claims := claimsInterface.(*jwt.JWTClaims)
 
 	// 获取解密的凭证
-	credential, err := h.credentialService.GetDecrypted(uint(id), claims.CurrentTenantID, claims.UserID, purpose)
+	credential, err := h.credentialService.GetDecrypted(uint(id), claims.CurrentTenantID, &services.OperatorInfo{
+		Type: "user",
+		UserID: &claims.UserID,
+		Info: "api-decrypt",
+	}, purpose)
 	if err != nil {
 		errMsg := err.Error()
 		if errors.Is(err, gorm.ErrRecordNotFound) {

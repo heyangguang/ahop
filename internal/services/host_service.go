@@ -322,7 +322,11 @@ func (s *HostService) TestConnection(hostID uint, tenantID uint, userID uint) (*
 	credential, err := s.credSvc.GetDecrypted(
 		host.CredentialID,
 		tenantID,
-		userID,
+		&OperatorInfo{
+			Type: "user",
+			UserID: &userID,
+			Info: "host-connection-test",
+		},
 		"host_connection_test",
 	)
 	if err != nil {

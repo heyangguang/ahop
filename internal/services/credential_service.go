@@ -161,7 +161,7 @@ func (s *CredentialService) GetByID(id uint, tenantID uint) (*models.Credential,
 }
 
 // GetDecrypted 获取解密后的凭证（需要特殊权限）
-func (s *CredentialService) GetDecrypted(id uint, tenantID uint, userID uint, purpose string) (*models.Credential, error) {
+func (s *CredentialService) GetDecrypted(id uint, tenantID uint, operator *OperatorInfo, purpose string) (*models.Credential, error) {
 	var credential models.Credential
 	err := s.db.Where("id = ? AND tenant_id = ?", id, tenantID).First(&credential).Error
 	if err != nil {
@@ -189,10 +189,10 @@ func (s *CredentialService) GetDecrypted(id uint, tenantID uint, userID uint, pu
 	}
 
 	// 记录使用日志（异步）
-	go s.logUsage(credential.ID, tenantID, userID, purpose, "", "", true, "")
+	go s.logUsage(credential.ID, tenantID, operator, purpose, "", "", true, "")
 
 	// 更新使用信息
-	go s.updateUsageInfo(credential.ID, userID)
+	go s.updateUsageInfo(credential.ID, operator.UserID)
 
 	return &credential, nil
 }
@@ -494,12 +494,21 @@ func (s *CredentialService) isIPInRange(ip string, cidr string) bool {
 	return ipnet.Contains(ipAddr)
 }
 
+// OperatorInfo 操作者信息
+type OperatorInfo struct {
+	Type string // user/system/worker/integration
+	UserID *uint // 用户ID（user类型时使用）
+	Info string // 详细信息
+}
+
 // logUsage 记录凭证使用日志
-func (s *CredentialService) logUsage(credentialID, tenantID, userID uint, purpose, hostName, hostIP string, success bool, errorMsg string) {
+func (s *CredentialService) logUsage(credentialID, tenantID uint, operator *OperatorInfo, purpose, hostName, hostIP string, success bool, errorMsg string) {
 	log := &models.CredentialUsageLog{
 		TenantID:     tenantID,
 		CredentialID: credentialID,
-		UserID:       userID,
+		UserID:       operator.UserID,
+		OperatorType: operator.Type,
+		OperatorInfo: operator.Info,
 		HostName:     hostName,
 		HostIP:       hostIP,
 		Purpose:      purpose,
@@ -510,11 +519,14 @@ func (s *CredentialService) logUsage(credentialID, tenantID, userID uint, purpos
 }
 
 // updateUsageInfo 更新凭证使用信息
-func (s *CredentialService) updateUsageInfo(credentialID uint, userID uint) {
+func (s *CredentialService) updateUsageInfo(credentialID uint, userID *uint) {
 	updates := map[string]interface{}{
 		"last_used_at": time.Now(),
-		"last_used_by": userID,
 		"usage_count":  gorm.Expr("usage_count + 1"),
+	}
+	// 只有当userID不为空时才更新last_used_by
+	if userID != nil {
+		updates["last_used_by"] = *userID
 	}
 	s.db.Model(&models.Credential{}).Where("id = ?", credentialID).Updates(updates)
 }
@@ -585,9 +597,13 @@ func (s *CredentialService) DecryptCredential(credentialID uint, tenantID uint) 
 		}
 	}
 
-	// 记录使用（Worker使用，userID为0）
-	s.logUsage(credentialID, tenantID, 0, "git_sync", "worker", "", true, "")
-	s.updateUsageInfo(credentialID, 0)
+	// 记录使用（Worker使用）
+	go s.logUsage(credentialID, tenantID, &OperatorInfo{
+		Type: "worker",
+		UserID: nil,
+		Info: "worker-api",
+	}, "git_sync", "worker", "", true, "")
+	go s.updateUsageInfo(credentialID, nil)
 
 	return result, nil
 }

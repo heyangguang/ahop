@@ -67,17 +67,19 @@ type CredentialUsageLog struct {
 	BaseModel
 	TenantID     uint   `gorm:"not null;index" json:"tenant_id"`
 	CredentialID uint   `gorm:"not null;index" json:"credential_id"`
-	UserID       uint   `gorm:"not null" json:"user_id"`
-	HostID       *uint  `json:"host_id,omitempty"`         // 关联的主机ID（如果有）
-	HostName     string `gorm:"size:100" json:"host_name"` // 目标主机名
-	HostIP       string `gorm:"size:45" json:"host_ip"`    // 目标IP
-	Purpose      string `gorm:"size:200" json:"purpose"`   // 使用目的
-	Success      bool   `json:"success"`                   // 是否成功
-	ErrorMessage string `gorm:"size:500" json:"error_message,omitempty"`
+	UserID       *uint  `gorm:"index" json:"user_id,omitempty"`           // 可为空，表示非用户操作
+	OperatorType string `gorm:"size:20;not null;default:'user';index" json:"operator_type"` // user/system/worker/integration
+	OperatorInfo string `gorm:"size:200" json:"operator_info"`            // 操作者详细信息
+	HostID       *uint  `json:"host_id,omitempty"`                        // 关联的主机ID（如果有）
+	HostName     string `gorm:"size:100" json:"host_name"`                // 目标主机名
+	HostIP       string `gorm:"size:45" json:"host_ip"`                   // 目标IP
+	Purpose      string `gorm:"size:200" json:"purpose"`                  // 使用目的
+	Success      bool   `json:"success"`                                  // 是否成功
+	ErrorMessage string `gorm:"size:500" json:"error_message,omitempty"` // 错误信息
 
 	// 关联
 	Credential Credential `gorm:"foreignKey:CredentialID" json:"-"`
-	User       User       `gorm:"foreignKey:UserID" json:"-"`
+	User       *User      `gorm:"foreignKey:UserID" json:"-"` // 改为指针类型，支持NULL
 }
 
 // TableName 指定表名

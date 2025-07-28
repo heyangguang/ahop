@@ -667,7 +667,11 @@ func (s *GitRepositoryService) notifyWorkersSyncWithOperator(repo *models.GitRep
 	
 	if repo.CredentialID != nil && !repo.IsPublic {
 		// 获取解密后的凭证
-		credential, err := s.credentialService.GetDecrypted(*repo.CredentialID, repo.TenantID, 0, "Git仓库同步")
+		credential, err := s.credentialService.GetDecrypted(*repo.CredentialID, repo.TenantID, &OperatorInfo{
+			Type: "system",
+			UserID: nil,
+			Info: "git-sync",
+		}, "Git仓库同步")
 		if err != nil {
 			logger.GetLogger().Errorf("获取凭证失败: %v", err)
 			// 不影响同步，Worker会记录错误
