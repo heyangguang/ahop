@@ -1,0 +1,38 @@
+# 编译生成的二进制文件
+ahop
+worker-dist/worker
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 日志文件
+*.log
+logs/
+worker-dist/logs/
+
+# IDE配置文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 依赖目录
+vendor/
+
+# 测试覆盖率
+*.out
+coverage.txt
+coverage.html
+
+# macOS
+.DS_Store
+
+# 临时文件
+*.tmp
+*.temp
+*.pid
+
+# Go构建缓存
+go.sum.bak
