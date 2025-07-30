@@ -102,6 +102,12 @@ func (s *GitSyncScheduler) AddJob(repo *models.GitRepository) error {
 	s.jobsLock.Lock()
 	s.jobs[repo.ID] = entryID
 	s.jobsLock.Unlock()
+	
+	// 更新下次执行时间
+	if entry := s.cron.Entry(entryID); entry.ID != 0 {
+		nextRun := entry.Next
+		s.db.Model(&models.GitRepository{}).Where("id = ?", repo.ID).Update("next_run_at", nextRun)
+	}
 
 	logger.GetLogger().Infof("已添加Git仓库 %s (ID: %d) 的定时同步任务，cron: %s", repo.Name, repo.ID, repo.SyncCron)
 	return nil
@@ -219,6 +225,19 @@ func (s *GitSyncScheduler) executeSyncJob(repo *models.GitRepository) {
 		StartedAt:    time.Now(),
 	}
 	s.db.Create(syncLog)
+	
+	// 更新下次执行时间和最后调度时间
+	s.jobsLock.RLock()
+	if entryID, exists := s.jobs[currentRepo.ID]; exists {
+		if entry := s.cron.Entry(entryID); entry.ID != 0 {
+			now := time.Now()
+			s.db.Model(&models.GitRepository{}).Where("id = ?", currentRepo.ID).Updates(map[string]interface{}{
+				"last_scheduled_at": now,
+				"next_run_at": entry.Next,
+			})
+		}
+	}
+	s.jobsLock.RUnlock()
 
 	logger.GetLogger().Infof("已发布Git仓库 %s (ID: %d) 的定时同步任务", currentRepo.Name, currentRepo.ID)
 }

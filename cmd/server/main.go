@@ -62,7 +62,7 @@ func main() {
 
 	// 启动Git同步调度器（在路由初始化前）
 	gitSyncScheduler := services.NewGitSyncScheduler(database.GetDB(), database.GetRedisQueue())
-	services.SetGitSyncScheduler(gitSyncScheduler)
+	services.SetGlobalGitSyncScheduler(gitSyncScheduler)
 	if err := gitSyncScheduler.Start(); err != nil {
 		appLogger.Errorf("Failed to start Git sync scheduler: %v", err)
 		// 不影响主服务启动
@@ -89,6 +89,16 @@ func main() {
 	}
 	defer taskScheduler.Stop()
 
+	// 创建并启动自愈规则调度器
+	ticketService := services.NewTicketService()
+	healingScheduler := services.NewHealingScheduler(database.GetDB(), taskService, ticketService)
+	services.SetGlobalHealingScheduler(healingScheduler)
+	if err := healingScheduler.Start(); err != nil {
+		appLogger.Errorf("Failed to start healing scheduler: %v", err)
+		// 不影响主服务启动
+	}
+	defer healingScheduler.Stop()
+
 	// 设置路由（在所有调度器初始化后）
 	r := router.SetupRouter()
 
@@ -103,6 +113,11 @@ func main() {
 		}
 	}()
 	defer cleanupTicker.Stop()
+	
+	// 启动任务清理服务
+	taskCleanupService := services.NewTaskCleanupService(database.GetDB(), database.GetRedisQueue())
+	taskCleanupService.StartCleanupScheduler()
+	appLogger.Info("Task cleanup service started")
 
 	// 启动服务器
 	server := &http.Server{

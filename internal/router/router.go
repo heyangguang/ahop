@@ -254,6 +254,9 @@ func registerRoutes(router *gin.Engine) {
 
 			// 🔒 统计信息
 			tasks.GET("/stats", auth.RequireLogin(), auth.RequirePermission("task:stats"), taskHandler.GetStats)
+			
+			// 🔒 清理僵尸任务（需要管理员权限）
+			tasks.POST("/cleanup", auth.RequireLogin(), taskHandler.CleanupZombieTasks)
 		}
 
 		// 🔐 WebSocket路由（任务实时日志）
@@ -355,6 +358,9 @@ func registerRoutes(router *gin.Engine) {
 			gitRepos.GET("/:id/sync-logs", auth.RequireLogin(), auth.RequirePermission("git_repository:sync_logs"), gitRepoHandler.GetSyncLogs)
 			gitRepos.POST("/:id/sync", auth.RequireLogin(), auth.RequirePermission("git_repository:sync"), gitRepoHandler.ManualSync)
 			gitRepos.POST("/:id/scan-templates", auth.RequireLogin(), auth.RequirePermission("git_repository:sync"), gitRepoHandler.ScanTemplates)
+			
+			// 🔒 调度器状态
+			gitRepos.GET("/scheduler-status", auth.RequireLogin(), auth.RequirePermission("git_repository:list"), gitRepoHandler.GetSchedulerStatus)
 		}
 
 		// 🔐 任务模板路由
@@ -391,8 +397,8 @@ func registerRoutes(router *gin.Engine) {
 			// 🔒 执行日志
 			scheduledTasks.GET("/:id/logs", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetLogs)
 			
-			// 🔒 调度器统计信息
-			scheduledTasks.GET("/statistics", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetSchedulerStatus)
+			// 🔒 调度器状态
+			scheduledTasks.GET("/scheduler-status", auth.RequireLogin(), auth.RequirePermission("scheduled_task:read"), scheduledTaskHandler.GetSchedulerStatus)
 		}
 
 		// 🔐 工单插件路由
@@ -423,6 +429,9 @@ func registerRoutes(router *gin.Engine) {
 			// 🔒 同步规则管理
 			ticketPlugins.GET("/:id/sync-rules", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:read"), syncRuleHandler.GetByPlugin)
 			ticketPlugins.POST("/:id/sync-rules", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:update"), syncRuleHandler.UpdateRules)
+			
+			// 🔒 调度器状态
+			ticketPlugins.GET("/scheduler-status", auth.RequireLogin(), auth.RequirePermission("ticket_plugin:list"), ticketPluginHandler.GetSchedulerStatus)
 		}
 
 		// 🔐 工单管理路由
@@ -436,6 +445,87 @@ func registerRoutes(router *gin.Engine) {
 
 			// 🔒 工单回写测试（需要更新权限）
 			tickets.POST("/:id/test-writeback", auth.RequireLogin(), auth.RequirePermission("ticket:update"), ticketHandler.TestWriteback)
+		}
+
+		// 🔐 系统监控路由
+		systemHandler := handlers.NewSystemHandler()
+		system := api.Group("/system")
+		{
+			// 🔒 调度器监控（需要查看权限）
+			system.GET("/schedulers", auth.RequireLogin(), systemHandler.GetAllSchedulersStatus)
+		}
+		
+		// 🔐 自愈模块路由
+		healingRuleHandler := handlers.NewHealingRuleHandler(services.NewHealingRuleService(database.GetDB()))
+		healingWorkflowHandler := handlers.NewHealingWorkflowHandler(services.NewHealingWorkflowService(database.GetDB()))
+		healingRuleExecutionService := services.NewHealingRuleExecutionService(database.GetDB())
+		healingRuleExecutionHandler := handlers.NewHealingRuleExecutionHandler(healingRuleExecutionService, services.NewHealingRuleService(database.GetDB()))
+		previewHandler := handlers.NewPreviewHandler(database.GetDB())
+		
+		// 自愈规则路由
+		healingRules := api.Group("/healing/rules")
+		{
+			// 🔒 基础CRUD（需要相应权限）
+			healingRules.POST("", auth.RequireLogin(), auth.RequirePermission("healing_rule:create"), healingRuleHandler.Create)
+			healingRules.GET("", auth.RequireLogin(), auth.RequirePermission("healing_rule:list"), healingRuleHandler.List)
+			healingRules.GET("/:id", auth.RequireLogin(), auth.RequirePermission("healing_rule:read"), healingRuleHandler.GetByID)
+			healingRules.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("healing_rule:update"), healingRuleHandler.Update)
+			healingRules.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("healing_rule:delete"), healingRuleHandler.Delete)
+			
+			// 🔒 规则控制（需要更新权限）
+			healingRules.POST("/:id/enable", auth.RequireLogin(), auth.RequirePermission("healing_rule:update"), healingRuleHandler.Enable)
+			healingRules.POST("/:id/disable", auth.RequireLogin(), auth.RequirePermission("healing_rule:update"), healingRuleHandler.Disable)
+			
+			// 🔒 调度器状态（需要列表权限）
+			healingRules.GET("/scheduler-status", auth.RequireLogin(), auth.RequirePermission("healing_rule:list"), healingRuleHandler.GetSchedulerStatus)
+			
+			// 🔒 规则执行记录（需要查看权限）
+			healingRules.GET("/:id/executions", auth.RequireLogin(), auth.RequirePermission("healing_rule:read"), healingRuleExecutionHandler.GetByRuleID)
+			healingRules.GET("/execution-stats", auth.RequireLogin(), auth.RequirePermission("healing_rule:list"), healingRuleExecutionHandler.GetStats)
+			
+			// 🔒 规则预览（需要读取权限）
+			healingRules.POST("/:id/preview", auth.RequireLogin(), auth.RequirePermission("healing_rule:read"), previewHandler.PreviewRule)
+		}
+		
+		// 自愈工作流路由
+		healingWorkflows := api.Group("/healing/workflows")
+		{
+			// 🔒 基础CRUD（需要相应权限）
+			healingWorkflows.POST("", auth.RequireLogin(), auth.RequirePermission("healing_workflow:create"), healingWorkflowHandler.Create)
+			healingWorkflows.GET("", auth.RequireLogin(), auth.RequirePermission("healing_workflow:list"), healingWorkflowHandler.List)
+			healingWorkflows.GET("/:id", auth.RequireLogin(), auth.RequirePermission("healing_workflow:read"), healingWorkflowHandler.GetByID)
+			healingWorkflows.PUT("/:id", auth.RequireLogin(), auth.RequirePermission("healing_workflow:update"), healingWorkflowHandler.Update)
+			healingWorkflows.DELETE("/:id", auth.RequireLogin(), auth.RequirePermission("healing_workflow:delete"), healingWorkflowHandler.Delete)
+			
+			// 🔒 工作流控制（需要更新权限）
+			healingWorkflows.POST("/:id/enable", auth.RequireLogin(), auth.RequirePermission("healing_workflow:update"), healingWorkflowHandler.Enable)
+			healingWorkflows.POST("/:id/disable", auth.RequireLogin(), auth.RequirePermission("healing_workflow:update"), healingWorkflowHandler.Disable)
+			healingWorkflows.POST("/:id/clone", auth.RequireLogin(), auth.RequirePermission("healing_workflow:create"), healingWorkflowHandler.Clone)
+			
+			// 🔒 工作流预览（需要读取权限）
+			healingWorkflows.POST("/:id/preview", auth.RequireLogin(), auth.RequirePermission("healing_workflow:read"), previewHandler.PreviewWorkflow)
+		}
+		
+		// 自愈执行历史路由
+		healingExecutionHandler := handlers.NewHealingExecutionHandler(database.GetDB(), services.NewTaskService(database.GetDB(), database.GetRedisQueue()), services.NewTicketService())
+		healingExecutions := api.Group("/healing/executions")
+		{
+			// 🔒 查看执行历史（需要相应权限）
+			healingExecutions.GET("", auth.RequireLogin(), auth.RequirePermission("healing_execution:list"), healingExecutionHandler.List)
+			healingExecutions.GET("/:id", auth.RequireLogin(), auth.RequirePermission("healing_execution:read"), healingExecutionHandler.GetByID)
+			healingExecutions.GET("/:id/logs", auth.RequireLogin(), auth.RequirePermission("healing_execution:read"), healingExecutionHandler.GetLogs)
+		}
+		
+		// 🔐 队列管理路由
+		queueHandler := handlers.NewQueueHandler(services.NewQueueService(database.GetDB()))
+		queues := api.Group("/queue")
+		{
+			// 🔒 查看队列状态（需要相应权限）
+			queues.GET("/status", auth.RequireLogin(), auth.RequirePermission("queue:read"), queueHandler.GetQueueStatus)
+			queues.GET("/tasks", auth.RequireLogin(), auth.RequirePermission("queue:read"), queueHandler.GetQueueTasks)
+			queues.GET("/stats/by-type", auth.RequireLogin(), auth.RequirePermission("queue:read"), queueHandler.GetQueueStatsByType)
+			// 🔒 取消队列任务（需要管理权限）
+			queues.POST("/tasks/:id/cancel", auth.RequireLogin(), auth.RequirePermission("queue:manage"), queueHandler.CancelQueueTask)
 		}
 
 	}

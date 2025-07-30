@@ -24,6 +24,7 @@ type GitRepository struct {
 	SyncEnabled     bool       `gorm:"default:false" json:"sync_enabled"`
 	SyncCron        string     `gorm:"size:50" json:"sync_cron,omitempty"`        // cron表达式
 	LastScheduledAt *time.Time `json:"last_scheduled_at,omitempty"`
+	NextRunAt       *time.Time `gorm:"index" json:"next_run_at,omitempty"`        // 下次执行时间
 	
 	// 状态信息
 	Status         string     `gorm:"size:20;default:'active'" json:"status"`

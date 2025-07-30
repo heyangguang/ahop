@@ -15,6 +15,18 @@ const (
 	TaskTypeTemplate = "template" // 任务模板执行
 )
 
+// 任务状态常量
+const (
+	TaskStatusPending   = "pending"   // 待执行
+	TaskStatusQueued    = "queued"    // 已入队
+	TaskStatusLocked    = "locked"    // 已锁定
+	TaskStatusRunning   = "running"   // 执行中
+	TaskStatusSuccess   = "success"   // 执行成功
+	TaskStatusFailed    = "failed"    // 执行失败
+	TaskStatusCancelled = "cancelled" // 已取消
+	TaskStatusTimeout   = "timeout"   // 超时
+)
+
 // TaskParams 任务参数结构
 type TaskParams struct {
 	// 基础参数

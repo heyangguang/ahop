@@ -773,7 +773,8 @@ func (e *TemplateExecutor) executeSSHScriptWithArgs(hostInfo *types.HostInfo, sc
 	}
 
 	// 上传脚本
-	uploadCmd := fmt.Sprintf("cat > %s << 'EOF'\n%s\nEOF\nchmod +x %s", tmpScript, string(scriptContent), tmpScript)
+	// 使用特殊的分隔符避免与脚本内容冲突
+	uploadCmd := fmt.Sprintf("cat > %s << 'AHOP_SCRIPT_EOF'\n%s\nAHOP_SCRIPT_EOF\nchmod +x %s", tmpScript, string(scriptContent), tmpScript)
 	if uploadErr := uploadSession.Run(uploadCmd); uploadErr != nil {
 		err = fmt.Errorf("上传脚本失败: %v", uploadErr)
 		return

@@ -97,19 +97,22 @@ func (h *TaskHandler) Create(c *gin.Context) {
 		}
 
 		// 创建基础任务对象
-		task := &models.Task{
-			TenantID:    claims.CurrentTenantID,
-			Name:        req.Name,
-			Priority:    req.Priority,
-			Timeout:     req.Timeout,
-			Description: req.Description,
-			CreatedBy:   claims.UserID,
-			Username:    claims.Username,
-			Source:      "api",
-		}
-
 		// 调用模板任务创建方法
-		if err := h.taskService.CreateTemplateTask(task, req.TemplateID, req.Variables, req.Hosts); err != nil {
+		params := map[string]interface{}{
+			"hosts":     req.Hosts,
+			"variables": req.Variables,
+			"timeout":   req.Timeout,
+		}
+		
+		createdTask, err := h.taskService.CreateTemplateTask(
+			claims.CurrentTenantID,
+			req.TemplateID,
+			req.Name,
+			req.Description,
+			params,
+			req.Priority,
+		)
+		if err != nil {
 			// 如果是参数验证失败，返回 BadRequest
 			if strings.Contains(err.Error(), "参数验证失败") || 
 			   strings.Contains(err.Error(), "任务模板不存在") ||
@@ -120,7 +123,7 @@ func (h *TaskHandler) Create(c *gin.Context) {
 			}
 			return
 		}
-		response.Success(c, task)
+		response.Success(c, createdTask)
 
 	case models.TaskTypePing, models.TaskTypeCollect:
 		// ping/collect任务
@@ -270,6 +273,35 @@ func (h *TaskHandler) GetLogs(c *gin.Context) {
 	// 构建分页信息
 	pageInfo := pagination.NewPageInfo(params.Page, params.PageSize, total)
 	response.SuccessWithPage(c, logs, pageInfo)
+}
+
+// CleanupZombieTasks 清理僵尸任务
+func (h *TaskHandler) CleanupZombieTasks(c *gin.Context) {
+	// 检查权限（需要管理员权限）
+	claims := c.MustGet("claims").(*jwt.JWTClaims)
+	if !claims.IsPlatformAdmin && !claims.IsTenantAdmin {
+		response.Forbidden(c, "需要管理员权限")
+		return
+	}
+	
+	// 创建清理服务
+	cleanupService := services.NewTaskCleanupService(database.GetDB(), database.GetRedisQueue())
+	
+	// 执行清理
+	if err := cleanupService.CleanupZombieTasks(); err != nil {
+		response.ServerError(c, err.Error())
+		return
+	}
+	
+	// 清理卡住的定时任务
+	if err := cleanupService.CleanupStuckScheduledTasks(); err != nil {
+		response.ServerError(c, err.Error())
+		return
+	}
+	
+	response.Success(c, gin.H{
+		"message": "清理完成",
+	})
 }
 
 // GetStats 获取队列统计信息

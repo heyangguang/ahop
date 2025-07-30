@@ -2,6 +2,7 @@ package services
 
 import (
 	"ahop/internal/models"
+	"ahop/pkg/logger"
 	"ahop/pkg/queue"
 	"encoding/json"
 	"errors"
@@ -148,66 +149,6 @@ func (s *TaskService) ListTasks(tenantID uint, page, pageSize int, filters map[s
 	return tasks, total, nil
 }
 
-// CreateTemplateTask 创建模板任务
-func (s *TaskService) CreateTemplateTask(task *models.Task, templateID uint, variables map[string]interface{}, hostIDs []uint) error {
-	// 验证任务模板是否存在
-	var template models.TaskTemplate
-	if err := s.db.Where("id = ? AND tenant_id = ?", templateID, task.TenantID).First(&template).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("任务模板不存在")
-		}
-		return err
-	}
-
-	// 验证参数是否符合模板定义
-	templateService := NewTaskTemplateService(s.db)
-	if err := templateService.ValidateTemplateVariables(&template, variables); err != nil {
-		return fmt.Errorf("参数验证失败: %v", err)
-	}
-
-	// 验证主机是否存在且属于当前租户
-	var hosts []models.Host
-	if err := s.db.Where("id IN ? AND tenant_id = ?", hostIDs, task.TenantID).Find(&hosts).Error; err != nil {
-		return err
-	}
-	if len(hosts) != len(hostIDs) {
-		return fmt.Errorf("部分主机不存在或不属于当前租户")
-	}
-
-	// 构建任务参数，将主机ID数组转换为 interface{} 数组
-	hostsInterface := make([]interface{}, len(hostIDs))
-	for i, id := range hostIDs {
-		hostsInterface[i] = id
-	}
-
-	taskParams := models.TaskParams{
-		TemplateID: templateID,
-		Variables:  variables,
-		Hosts:      hostsInterface, // 使用 hosts 字段传递主机ID
-	}
-
-	paramsJSON, err := json.Marshal(taskParams)
-	if err != nil {
-		return fmt.Errorf("序列化任务参数失败: %v", err)
-	}
-
-	// 设置任务属性
-	task.TaskType = models.TaskTypeTemplate
-	task.Params = paramsJSON
-	
-	// 如果没有设置任务名称，使用模板名称
-	if task.Name == "" {
-		task.Name = fmt.Sprintf("%s - %s", template.Name, time.Now().Format("2006-01-02 15:04:05"))
-	}
-
-	// 如果没有设置超时时间，使用模板的超时时间
-	if task.Timeout == 0 && template.Timeout > 0 {
-		task.Timeout = template.Timeout
-	}
-
-	// 调用基础的创建任务方法
-	return s.CreateTask(task)
-}
 
 
 // SaveTaskLogs 批量保存任务日志
@@ -257,6 +198,36 @@ func (s *TaskService) UpdateTaskStatus(taskID string, status string, progress in
 		// Redis更新失败不影响主要流程，记录日志即可
 	}
 
+	return nil
+}
+
+// UpdateTaskError 更新任务错误信息
+func (s *TaskService) UpdateTaskError(taskID string, errorMsg string, workerID string) error {
+	now := time.Now()
+	updates := map[string]interface{}{
+		"status":      "failed",
+		"error":       errorMsg,
+		"finished_at": &now,
+		"updated_at":  now,
+	}
+	
+	if workerID != "" {
+		updates["worker_id"] = workerID
+	}
+	
+	result := s.db.Model(&models.Task{}).
+		Where("task_id = ?", taskID).
+		Updates(updates)
+	
+	if result.Error != nil {
+		return result.Error
+	}
+	
+	// 同步更新Redis状态
+	if err := s.queue.UpdateTaskStatus(taskID, "failed", 0, workerID); err != nil {
+		logger.GetLogger().Warnf("更新Redis任务状态失败: %v", err)
+	}
+	
 	return nil
 }
 
@@ -395,6 +366,97 @@ func (s *TaskService) GetTaskLogs(taskID string, tenantID uint, page, pageSize i
 	}
 
 	return logs, total, nil
+}
+
+// CreateTemplateTask 创建模板任务
+func (s *TaskService) CreateTemplateTask(tenantID uint, templateID uint, name string, description string, params map[string]interface{}, priority int) (*models.Task, error) {
+	// 查询模板
+	var template models.TaskTemplate
+	if err := s.db.Where("id = ? AND tenant_id = ?", templateID, tenantID).First(&template).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("任务模板不存在")
+		}
+		return nil, err
+	}
+
+	// 构建任务参数
+	var variables map[string]interface{}
+	if v, ok := params["variables"].(map[string]interface{}); ok {
+		variables = v
+	}
+
+	taskParams := models.TaskParams{
+		TemplateID: templateID,
+		Variables:  variables,
+	}
+
+	// 处理主机参数
+	if hostsRaw, exists := params["hosts"]; exists && hostsRaw != nil {
+		switch hosts := hostsRaw.(type) {
+		case []interface{}:
+			taskParams.Hosts = hosts
+		case []int:
+			// 转换 []int 为 []interface{}
+			taskParams.Hosts = make([]interface{}, len(hosts))
+			for i, h := range hosts {
+				taskParams.Hosts[i] = h
+			}
+		case []float64:
+			// JSON 解码通常会将数字解析为 float64
+			taskParams.Hosts = make([]interface{}, len(hosts))
+			for i, h := range hosts {
+				taskParams.Hosts[i] = int(h)
+			}
+		case []uint:
+			// 转换 []uint 为 []interface{}
+			taskParams.Hosts = make([]interface{}, len(hosts))
+			for i, h := range hosts {
+				taskParams.Hosts[i] = h
+			}
+		default:
+			// 记录未识别的类型
+			logger.GetLogger().Warnf("未识别的 hosts 参数类型: %T", hostsRaw)
+			return nil, fmt.Errorf("hosts 参数类型错误，期望数组类型，实际为: %T", hostsRaw)
+		}
+	}
+	
+	// 验证是否有主机
+	if len(taskParams.Hosts) == 0 {
+		return nil, fmt.Errorf("模板任务必须指定至少一个主机")
+	}
+
+	// 设置超时
+	timeout := 3600 // 默认1小时
+	if t, ok := params["timeout"].(int); ok {
+		timeout = t
+	}
+
+	// 序列化任务参数
+	paramsJSON, err := json.Marshal(taskParams)
+	if err != nil {
+		return nil, fmt.Errorf("序列化任务参数失败: %v", err)
+	}
+
+	// 创建任务
+	task := &models.Task{
+		TenantID:    tenantID,
+		TaskType:    models.TaskTypeTemplate,
+		Name:        name,
+		Description: description,
+		Priority:    priority,
+		Params:      paramsJSON,
+		MaxRetries:  0, // TODO: 从模板获取重试次数
+		Timeout:     timeout,
+		Status:      models.TaskStatusPending,
+		CreatedBy:   1, // TODO: 从上下文获取用户ID
+	}
+
+	// 创建任务
+	if err := s.CreateTask(task); err != nil {
+		return nil, err
+	}
+
+	return task, nil
 }
 
 // DeleteTask 删除任务及其日志

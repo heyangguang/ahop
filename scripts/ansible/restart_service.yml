@@ -1,0 +1,119 @@
+---
+# Ansible playbook for restarting services
+# This playbook can restart various services based on the service_name parameter
+# Usage: ansible-playbook restart_service.yml -e "service_name=nginx"
+
+- name: Restart Service Playbook
+  hosts: all
+  become: yes
+  gather_facts: yes
+  vars:
+    # Default service name, can be overridden
+    service_name: "{{ service_name | default('nginx') }}"
+    # Whether to check service status before restart
+    check_before_restart: "{{ check_before_restart | default(true) }}"
+    # Whether to wait for service to be fully up
+    wait_for_service: "{{ wait_for_service | default(true) }}"
+    # Maximum wait time in seconds
+    wait_timeout: "{{ wait_timeout | default(60) }}"
+    
+  tasks:
+    - name: Check if service exists
+      ansible.builtin.systemd:
+        name: "{{ service_name }}"
+      register: service_status
+      failed_when: false
+      changed_when: false
+
+    - name: Fail if service does not exist
+      ansible.builtin.fail:
+        msg: "Service {{ service_name }} does not exist on {{ inventory_hostname }}"
+      when: service_status.status.LoadState == "not-found"
+
+    - name: Get service status before restart
+      ansible.builtin.systemd:
+        name: "{{ service_name }}"
+      register: service_status_before
+      when: check_before_restart | bool
+
+    - name: Display service status before restart
+      ansible.builtin.debug:
+        msg: "Service {{ service_name }} status on {{ inventory_hostname }}: {{ service_status_before.status.ActiveState | default('unknown') }}"
+      when: check_before_restart | bool
+
+    - name: Stop the service
+      ansible.builtin.systemd:
+        name: "{{ service_name }}"
+        state: stopped
+      register: stop_result
+
+    - name: Wait for service to stop completely
+      ansible.builtin.pause:
+        seconds: 3
+
+    - name: Start the service
+      ansible.builtin.systemd:
+        name: "{{ service_name }}"
+        state: started
+        enabled: yes
+      register: start_result
+
+    - name: Wait for service to be running
+      ansible.builtin.systemd:
+        name: "{{ service_name }}"
+      register: service_running
+      until: service_running.status.ActiveState == "active"
+      retries: "{{ (wait_timeout / 5) | int }}"
+      delay: 5
+      when: wait_for_service | bool
+
+    - name: Get service status after restart
+      ansible.builtin.systemd:
+        name: "{{ service_name }}"
+      register: service_status_after
+
+    - name: Display service status after restart
+      ansible.builtin.debug:
+        msg: |
+          Service {{ service_name }} on {{ inventory_hostname }}:
+          - Status: {{ service_status_after.status.ActiveState }}
+          - SubState: {{ service_status_after.status.SubState }}
+          - Main PID: {{ service_status_after.status.MainPID }}
+
+    - name: Check service health (if applicable)
+      block:
+        - name: Check nginx config (for nginx)
+          ansible.builtin.command: nginx -t
+          when: service_name == "nginx"
+          changed_when: false
+
+        - name: Check mysql status (for mysql/mariadb)
+          ansible.builtin.command: mysqladmin ping
+          when: service_name in ['mysql', 'mariadb']
+          changed_when: false
+
+        - name: Check redis ping (for redis)
+          ansible.builtin.command: redis-cli ping
+          when: service_name in ['redis', 'redis-server']
+          changed_when: false
+      rescue:
+        - name: Service health check failed
+          ansible.builtin.debug:
+            msg: "Health check failed for {{ service_name }}, but service is running"
+
+    - name: Set success fact
+      ansible.builtin.set_fact:
+        restart_success: true
+        restart_message: "Service {{ service_name }} restarted successfully on {{ inventory_hostname }}"
+      when: service_status_after.status.ActiveState == "active"
+
+    - name: Set failure fact
+      ansible.builtin.set_fact:
+        restart_success: false
+        restart_message: "Service {{ service_name }} failed to restart properly on {{ inventory_hostname }}"
+      when: service_status_after.status.ActiveState != "active"
+
+  handlers:
+    - name: send notification
+      ansible.builtin.debug:
+        msg: "Notification would be sent: {{ restart_message }}"

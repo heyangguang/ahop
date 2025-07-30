@@ -331,3 +331,21 @@ func (h *TicketPluginHandler) TestSync(c *gin.Context) {
 
 	response.Success(c, result)
 }
+
+// GetSchedulerStatus 获取工单同步调度器状态
+func (h *TicketPluginHandler) GetSchedulerStatus(c *gin.Context) {
+	// 获取调度器
+	scheduler := services.GetGlobalTicketSyncScheduler()
+	if scheduler == nil {
+		response.ServerError(c, "工单同步调度器未启动")
+		return
+	}
+
+	// 获取调度状态
+	status := map[string]interface{}{
+		"running": scheduler.IsRunning(),
+		"scheduled_plugins": scheduler.GetScheduledPlugins(),
+	}
+	
+	response.Success(c, status)
+}

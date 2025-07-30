@@ -274,3 +274,43 @@ func (q *RedisQueue) SubscribeChannel(channel string) *redis.PubSub {
 	channelKey := fmt.Sprintf("%s:channel:%s", q.prefix, channel)
 	return q.client.Subscribe(ctx, channelKey)
 }
+
+// TaskExists 检查任务是否在队列中
+func (q *RedisQueue) TaskExists(taskID string) (bool, error) {
+	ctx := context.Background()
+	
+	// 1. 检查任务信息是否存在
+	taskKey := q.getTaskKey(taskID)
+	exists, err := q.client.Exists(ctx, taskKey).Result()
+	if err != nil {
+		return false, err
+	}
+	if exists > 0 {
+		return true, nil
+	}
+	
+	// 2. 检查是否在任何优先级队列中
+	for priority := 1; priority <= 10; priority++ {
+		queueKey := q.getQueueKey(priority)
+		
+		// 获取队列中所有任务
+		tasks, err := q.client.LRange(ctx, queueKey, 0, -1).Result()
+		if err != nil {
+			continue
+		}
+		
+		// 检查任务是否在队列中
+		for _, taskData := range tasks {
+			var msg TaskMessage
+			if err := json.Unmarshal([]byte(taskData), &msg); err != nil {
+				continue
+			}
+			if msg.TaskID == taskID {
+				return true, nil
+			}
+		}
+	}
+	
+	return false, nil
+}
+

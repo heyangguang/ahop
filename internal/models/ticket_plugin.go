@@ -24,6 +24,7 @@ type TicketPlugin struct {
 	SyncInterval int        `gorm:"default:5" json:"sync_interval"`     // 同步间隔(分钟)
 	SyncWindow   int        `gorm:"default:60" json:"sync_window"`      // 数据获取时间窗口(分钟)
 	LastSyncAt   *time.Time `json:"last_sync_at"`                       // 最后同步时间
+	NextRunAt    *time.Time `gorm:"index" json:"next_run_at"`           // 下次执行时间
 
 	// 状态信息
 	Status       string `gorm:"size:20;default:'active'" json:"status"` // active/inactive/error
@@ -91,8 +92,8 @@ type Ticket struct {
 	Service  string `gorm:"size:100;index" json:"service"`  // 影响的服务
 
 	// 时间信息
-	ExternalCreatedAt time.Time `json:"external_created_at"` // 工单系统中的创建时间
-	ExternalUpdatedAt time.Time `json:"external_updated_at"` // 工单系统中的更新时间
+	ExternalCreatedAt *time.Time `json:"external_created_at,omitempty"` // 工单系统中的创建时间
+	ExternalUpdatedAt *time.Time `json:"external_updated_at,omitempty"` // 工单系统中的更新时间
 
 	// 扩展信息
 	Tags       StringArray `gorm:"type:text" json:"tags"`         // 标签

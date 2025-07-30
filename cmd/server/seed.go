@@ -187,6 +187,26 @@ func initializePermissions(db *gorm.DB) error {
 		{Code: "scheduled_task:update", Name: "更新定时任务", Module: "scheduled_task", Action: "update", Description: "更新定时任务配置、启用/禁用"},
 		{Code: "scheduled_task:delete", Name: "删除定时任务", Module: "scheduled_task", Action: "delete", Description: "删除定时任务"},
 		{Code: "scheduled_task:execute", Name: "执行定时任务", Module: "scheduled_task", Action: "execute", Description: "手动立即执行定时任务"},
+		
+		// 自愈模块权限
+		{Code: "healing_rule:list", Name: "查看自愈规则列表", Module: "healing_rule", Action: "list", Description: "查看自愈规则列表"},
+		{Code: "healing_rule:read", Name: "查看自愈规则详情", Module: "healing_rule", Action: "read", Description: "查看自愈规则详情"},
+		{Code: "healing_rule:create", Name: "创建自愈规则", Module: "healing_rule", Action: "create", Description: "创建新的自愈规则"},
+		{Code: "healing_rule:update", Name: "更新自愈规则", Module: "healing_rule", Action: "update", Description: "更新自愈规则配置"},
+		{Code: "healing_rule:delete", Name: "删除自愈规则", Module: "healing_rule", Action: "delete", Description: "删除自愈规则"},
+		{Code: "healing_rule:execute", Name: "手动执行自愈规则", Module: "healing_rule", Action: "execute", Description: "手动触发自愈规则执行"},
+		{Code: "healing_workflow:list", Name: "查看自愈工作流列表", Module: "healing_workflow", Action: "list", Description: "查看自愈工作流列表"},
+		{Code: "healing_workflow:read", Name: "查看自愈工作流详情", Module: "healing_workflow", Action: "read", Description: "查看自愈工作流详情"},
+		{Code: "healing_workflow:create", Name: "创建自愈工作流", Module: "healing_workflow", Action: "create", Description: "创建新的自愈工作流"},
+		{Code: "healing_workflow:update", Name: "更新自愈工作流", Module: "healing_workflow", Action: "update", Description: "更新自愈工作流配置"},
+		{Code: "healing_workflow:delete", Name: "删除自愈工作流", Module: "healing_workflow", Action: "delete", Description: "删除自愈工作流"},
+		{Code: "healing_execution:list", Name: "查看自愈执行历史", Module: "healing_execution", Action: "list", Description: "查看自愈执行历史列表"},
+		{Code: "healing_execution:read", Name: "查看自愈执行详情", Module: "healing_execution", Action: "read", Description: "查看自愈执行详情和日志"},
+		{Code: "healing_execution:execute", Name: "手动执行自愈", Module: "healing_execution", Action: "execute", Description: "手动触发自愈工作流执行"},
+		
+		// 队列管理权限
+		{Code: "queue:read", Name: "查看队列状态", Module: "queue", Action: "read", Description: "查看任务队列状态和统计信息"},
+		{Code: "queue:manage", Name: "管理队列任务", Module: "queue", Action: "manage", Description: "取消或管理队列中的任务"},
 	}
 
 	// 批量创建权限

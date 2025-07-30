@@ -424,13 +424,17 @@ func (s *TicketSyncService) applyDefaultMapping(ticket *models.Ticket, data map[
 	// 处理时间字段
 	if createdAt := s.tryGetString(data, "created_at", "created", "create_time"); createdAt != "" {
 		if t, err := time.Parse(time.RFC3339, createdAt); err == nil {
-			ticket.ExternalCreatedAt = t
+			ticket.ExternalCreatedAt = &t
+		} else if t, err := time.Parse("2006-01-02 15:04:05", createdAt); err == nil {
+			ticket.ExternalCreatedAt = &t
 		}
 	}
 	
 	if updatedAt := s.tryGetString(data, "updated_at", "updated", "update_time"); updatedAt != "" {
 		if t, err := time.Parse(time.RFC3339, updatedAt); err == nil {
-			ticket.ExternalUpdatedAt = t
+			ticket.ExternalUpdatedAt = &t
+		} else if t, err := time.Parse("2006-01-02 15:04:05", updatedAt); err == nil {
+			ticket.ExternalUpdatedAt = &t
 		}
 	}
 	

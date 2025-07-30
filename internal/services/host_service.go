@@ -655,3 +655,65 @@ func (s *HostService) ExportToCSV(tenantID uint, filters map[string]interface{})
 
 	return buffer.String(), nil
 }
+
+// FindHostsByIdentifiers 根据标识查找主机
+// matchBy: "ip" 或 "hostname"
+// 返回找到的主机列表和未找到的标识符列表
+func (s *HostService) FindHostsByIdentifiers(tenantID uint, identifiers []string, matchBy string) ([]models.Host, error) {
+	if len(identifiers) == 0 {
+		return nil, nil
+	}
+
+	query := s.db.Where("tenant_id = ?", tenantID)
+	
+	switch matchBy {
+	case "ip":
+		query = query.Where("ip_address IN ?", identifiers)
+	case "hostname":
+		query = query.Where("hostname IN ?", identifiers)
+	default:
+		return nil, fmt.Errorf("无效的匹配方式: %s（必须是 'ip' 或 'hostname'）", matchBy)
+	}
+	
+	var hosts []models.Host
+	if err := query.Preload("Credential").Find(&hosts).Error; err != nil {
+		return nil, err
+	}
+	
+	// 即使没有找到所有主机，也返回找到的主机
+	// 调用方可以根据返回的主机数量判断是否部分成功
+	return hosts, nil
+}
+
+// FindHostsByIdentifiersWithDetails 根据标识查找主机，返回详细信息
+// 包括找到的主机和未找到的标识符
+func (s *HostService) FindHostsByIdentifiersWithDetails(tenantID uint, identifiers []string, matchBy string) ([]models.Host, []string, error) {
+	if len(identifiers) == 0 {
+		return nil, nil, nil
+	}
+
+	hosts, err := s.FindHostsByIdentifiers(tenantID, identifiers, matchBy)
+	if err != nil {
+		return nil, nil, err
+	}
+	
+	// 找出未匹配的标识
+	foundMap := make(map[string]bool)
+	for _, host := range hosts {
+		switch matchBy {
+		case "ip":
+			foundMap[host.IPAddress] = true
+		case "hostname":
+			foundMap[host.Hostname] = true
+		}
+	}
+	
+	var notFound []string
+	for _, id := range identifiers {
+		if !foundMap[id] {
+			notFound = append(notFound, id)
+		}
+	}
+	
+	return hosts, notFound, nil
+}

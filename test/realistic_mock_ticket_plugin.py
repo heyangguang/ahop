@@ -172,8 +172,212 @@ ASSIGNMENT_RULES = {
     "infrastructure": ["基础设施团队", "系统管理员", "运维团队", "硬件工程师"]
 }
 
+def generate_disk_space_ticket(ticket_id):
+    """生成磁盘空间不足的专门工单"""
+    # 时间生成
+    created_delta = timedelta(
+        minutes=random.randint(0, 120)  # 最近2小时内的工单
+    )
+    created_at = datetime.now() - created_delta
+    updated_at = created_at + timedelta(minutes=random.randint(0, 30))
+    
+    # 选择主机
+    hosts = [
+        "192.168.31.66", "192.168.31.100", "192.168.31.150", "192.168.31.200",
+        "192.168.32.10", "192.168.32.20", "192.168.32.30", "192.168.32.40"
+    ]
+    affected_hosts = random.sample(hosts, k=random.randint(1, 2))
+    
+    # 磁盘使用率
+    disk_usage = random.randint(85, 99)
+    partition = random.choice(["/", "/var", "/home", "/data", "/opt", "/tmp"])
+    
+    # 状态和优先级
+    if disk_usage >= 95:
+        priority = "critical"
+        status = random.choice(["open", "open", "in_progress"])  # 更多open状态
+    elif disk_usage >= 90:
+        priority = random.choice(["critical", "high"])
+        status = random.choice(["open", "in_progress", "in_progress"])
+    else:
+        priority = "high"
+        status = random.choice(["open", "in_progress", "resolved"])
+    
+    # 标题变体
+    title_variants = [
+        f"磁盘空间不足 - {affected_hosts[0]} {partition}分区 {disk_usage}%",
+        f"紧急：{affected_hosts[0]}服务器磁盘空间不足",
+        f"[告警] 磁盘空间不足：{partition} ({disk_usage}%)",
+        f"生产环境磁盘告警 - {affected_hosts[0]}",
+        f"磁盘空间不足影响服务运行 - {partition}分区"
+    ]
+    
+    title = random.choice(title_variants)
+    
+    # 描述
+    descriptions = [
+        f"监控系统发现{affected_hosts[0]}服务器的{partition}分区使用率达到{disk_usage}%，"
+        f"剩余空间仅{random.randint(1, 10)}GB，可能影响服务正常运行。请立即处理。",
+        
+        f"告警详情：\n主机：{affected_hosts[0]}\n分区：{partition}\n"
+        f"当前使用率：{disk_usage}%\n剩余空间：{random.randint(100, 5000)}MB\n"
+        f"增长速度：每小时{random.randint(100, 500)}MB",
+        
+        f"紧急告警！{partition}分区空间即将耗尽。\n"
+        f"影响主机：{', '.join(affected_hosts)}\n"
+        f"当前使用：{disk_usage}%\n"
+        f"预计{random.randint(1, 24)}小时内将完全占满。"
+    ]
+    
+    description = random.choice(descriptions)
+    
+    # 生成唯一ID
+    ticket_hash = hashlib.md5(f"DISK-{ticket_id}{created_at}".encode()).hexdigest()[:6].upper()
+    
+    return {
+        "id": f"DISK-{ticket_id:04d}-{ticket_hash}",
+        "title": title,
+        "description": description,
+        "status": status,
+        "priority": priority,
+        "type": "incident",
+        "reporter": random.choice(["监控系统", "Zabbix", "Prometheus", "自动巡检"]),
+        "assignee": random.choice(["运维团队", "系统管理员", "基础设施团队"]),
+        "category": "infrastructure",
+        "service": random.choice(SERVICES),
+        "tags": ["磁盘空间", "紧急", "基础设施", "生产环境"],
+        "created_at": created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "updated_at": updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "custom_fields": {
+            "environment": "生产环境",
+            "affected_components": [partition],
+            "affected_hosts": affected_hosts,
+            "disk_usage": disk_usage,
+            "partition": partition,
+            "remaining_space_gb": random.randint(1, 20),
+            "growth_rate_mb_per_hour": random.randint(50, 1000),
+            "root_cause": "待分析" if status in ["open", "in_progress"] else "日志文件累积",
+            "resolution": "无" if status in ["open", "in_progress"] else "已清理日志文件，释放空间",
+            "impact_level": "高",
+            "sla_deadline": (created_at + timedelta(hours=random.choice([2, 4, 8]))).strftime("%Y-%m-%d %H:%M:%S")
+        }
+    }
+
+def generate_realistic_ticket_no_disk(ticket_id):
+    """生成一个真实感的工单（不包含磁盘空间）"""
+    # 排除infrastructure类别中的磁盘相关问题
+    categories = [c for c in ISSUE_TEMPLATES.keys() if c != 'infrastructure']
+    category = random.choice(categories)
+    
+    template = ISSUE_TEMPLATES[category]
+    
+    # 选择标题和描述模板
+    title_template = random.choice(template["titles"])
+    desc_template = random.choice(template["descriptions"])
+    
+    # 生成时间
+    created_delta = timedelta(
+        minutes=random.randint(0, 30)  # 最近30分钟内的工单
+    )
+    created_at = datetime.now() - created_delta
+    
+    # 更新时间应该在创建之后
+    update_delta = timedelta(
+        minutes=random.randint(0, int(created_delta.total_seconds() / 60))
+    )
+    updated_at = datetime.now() - update_delta
+    
+    # 根据问题年龄决定状态
+    age_minutes = created_delta.total_seconds() / 60
+    if age_minutes < 10:
+        status = random.choice(['open', 'open', 'in_progress'])
+    else:
+        status = random.choice(['in_progress', 'resolved'])
+    
+    # 根据类别决定优先级
+    priority_weights = {
+        "database": {"critical": 30, "high": 40, "medium": 25, "low": 5},
+        "application": {"critical": 20, "high": 35, "medium": 35, "low": 10},
+        "network": {"critical": 25, "high": 35, "medium": 30, "low": 10},
+        "security": {"critical": 40, "high": 40, "medium": 15, "low": 5}
+    }
+    
+    priority = random.choices(
+        list(priority_weights[category].keys()),
+        weights=list(priority_weights[category].values())
+    )[0]
+    
+    # 生成描述的参数（简化版）
+    desc_params = {
+        "service": random.choice(SERVICES),
+        "time": fake.time(),
+        "affected_users": random.randint(10, 1000),
+        "normal_time": random.randint(50, 200),
+        "current_time": random.randint(500, 2000),
+        "api_endpoint": f"/api/v1/{fake.word()}",
+        "error_message": "Connection timeout",
+        "region": random.choice(["华北", "华东", "华南"]),
+        "domain": fake.domain_name(),
+        "account": fake.user_name()
+    }
+    
+    # 生成描述
+    description = desc_template
+    for key in desc_params:
+        if f"{{{key}}}" in description:
+            description = description.replace(f"{{{key}}}", str(desc_params[key]))
+    
+    # 填充其他可能的占位符
+    remaining_placeholders = set()
+    import re
+    for match in re.finditer(r'\{(\w+)\}', description):
+        remaining_placeholders.add(match.group(1))
+    
+    for placeholder in remaining_placeholders:
+        description = description.replace(f"{{{placeholder}}}", "N/A")
+    
+    # 选择报告者
+    reporter = random.choice(["监控系统", "告警系统", "用户反馈"])
+    
+    # 选择处理人
+    assignee = random.choice(ASSIGNMENT_RULES.get(category, ["运维团队"]))
+    
+    # 生成标签
+    base_tags = ["生产环境"]
+    if priority in ["critical", "high"]:
+        base_tags.append("紧急")
+    
+    # 生成唯一ID
+    ticket_hash = hashlib.md5(f"{ticket_id}{created_at}".encode()).hexdigest()[:6].upper()
+    
+    return {
+        "id": f"TICKET-{ticket_id:04d}-{ticket_hash}",
+        "title": title_template,
+        "description": description,
+        "status": status,
+        "priority": priority,
+        "type": "incident",
+        "reporter": reporter,
+        "assignee": assignee,
+        "category": category,
+        "service": random.choice(SERVICES),
+        "tags": base_tags,
+        "created_at": created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "updated_at": updated_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "custom_fields": {
+            "environment": "生产环境",
+            "affected_components": [random.choice(SERVICES)],
+            "affected_hosts": [random.choice(["192.168.31.66", "192.168.31.100"])],
+            "impact_level": "中"
+        }
+    }
+
 def generate_realistic_ticket(ticket_id):
     """生成一个真实感的工单"""
+    # 30%概率生成磁盘空间相关工单
+    if random.random() < 0.3:
+        return generate_disk_space_ticket(ticket_id)
+    
     category = random.choice(list(ISSUE_TEMPLATES.keys()))
     template = ISSUE_TEMPLATES[category]
     
@@ -385,6 +589,12 @@ def generate_realistic_ticket(ticket_id):
         "custom_fields": {
             "environment": env_tag,
             "affected_components": random.sample(SERVICES, k=random.randint(1, 3)),
+            "affected_hosts": random.sample([
+                "192.168.31.66", "192.168.31.100", "192.168.31.150", "192.168.31.200",
+                "192.168.32.10", "192.168.32.20", "192.168.32.30", "192.168.32.40",
+                "10.0.1.10", "10.0.1.20", "10.0.1.30", "10.0.1.40",
+                "172.16.1.10", "172.16.1.20", "172.16.1.30", "172.16.1.40"
+            ], k=random.randint(1, 3)),
             "root_cause": "待分析" if status in ["open", "in_progress"] else fake.sentence(),
             "resolution": "无" if status in ["open", "in_progress"] else fake.paragraph(nb_sentences=3),
             "impact_level": random.choice(["高", "中", "低"]),
@@ -394,10 +604,12 @@ def generate_realistic_ticket(ticket_id):
 
 # 生成初始工单池
 TICKET_POOL = []
+# 记录最后一次生成硬盘工单的时间
+LAST_DISK_TICKET_TIME = None
 
 def refresh_ticket_pool():
     """刷新工单池，模拟实时数据"""
-    global TICKET_POOL
+    global TICKET_POOL, LAST_DISK_TICKET_TIME
     
     # 保留最近的工单
     now = datetime.now()
@@ -406,30 +618,53 @@ def refresh_ticket_pool():
         if (now - datetime.strptime(t['updated_at'], "%Y-%m-%d %H:%M:%S")).days < 7
     ]
     
-    # 添加新工单
-    current_count = len(TICKET_POOL)
-    target_count = random.randint(100, 200)
+    # 控制工单生成频率
+    # 检查是否应该生成硬盘空间工单（每分钟最多一条）
+    should_generate_disk = False
+    if LAST_DISK_TICKET_TIME is None:
+        should_generate_disk = True
+    else:
+        time_since_last_disk = (now - LAST_DISK_TICKET_TIME).total_seconds()
+        if time_since_last_disk >= 60:  # 至少间隔60秒
+            should_generate_disk = True
     
-    for i in range(current_count, target_count):
-        TICKET_POOL.append(generate_realistic_ticket(i + 1))
+    # 保持合理的工单数量（20-30个）
+    current_count = len(TICKET_POOL)
+    if current_count < 20:
+        # 生成1-3个新工单
+        new_tickets_count = random.randint(1, 3)
+        start_id = max([int(t['id'].split('-')[1]) for t in TICKET_POOL] + [0]) + 1
+        
+        for i in range(new_tickets_count):
+            if should_generate_disk and i == 0:
+                # 生成硬盘空间工单
+                TICKET_POOL.append(generate_disk_space_ticket(start_id + i))
+                LAST_DISK_TICKET_TIME = now
+                should_generate_disk = False
+            else:
+                # 生成其他类型工单（禁用随机硬盘工单）
+                ticket = generate_realistic_ticket_no_disk(start_id + i)
+                TICKET_POOL.append(ticket)
     
     # 随机更新一些现有工单
-    for ticket in random.sample(TICKET_POOL, k=min(10, len(TICKET_POOL))):
-        ticket['updated_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if ticket['status'] == 'open' and random.random() > 0.5:
-            ticket['status'] = 'in_progress'
-        elif ticket['status'] == 'in_progress' and random.random() > 0.7:
-            ticket['status'] = 'resolved'
+    if len(TICKET_POOL) > 0:
+        update_count = min(3, len(TICKET_POOL))
+        for ticket in random.sample(TICKET_POOL, k=update_count):
+            ticket['updated_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
+            if ticket['status'] == 'open' and random.random() > 0.5:
+                ticket['status'] = 'in_progress'
+            elif ticket['status'] == 'in_progress' and random.random() > 0.7:
+                ticket['status'] = 'resolved'
 
-# 初始化工单池
-refresh_ticket_pool()
+# 初始化工单池（生成少量初始工单）
+for i in range(10):
+    TICKET_POOL.append(generate_realistic_ticket_no_disk(i + 1))
 
 @app.route('/tickets', methods=['GET'])
 def get_tickets():
     """获取工单列表"""
-    # 定期刷新工单池
-    if random.random() > 0.9:
-        refresh_ticket_pool()
+    # 每次请求都检查是否需要刷新工单池
+    refresh_ticket_pool()
     
     # 获取查询参数
     minutes = request.args.get('minutes', type=int)
@@ -501,16 +736,28 @@ def update_ticket(ticket_id):
     
     # 添加评论
     if 'comment' in data:
-        if ticket:
+        comment_text = ''
+        if isinstance(data['comment'], dict):
+            # 处理结构化评论
+            comment_text = data['comment'].get('template', '')
+            comment_type = data['comment'].get('type', 'general')
+            include_logs = data['comment'].get('include_logs', False)
+            print(f"收到 {comment_type} 类型的评论")
+        else:
+            # 处理简单字符串评论
+            comment_text = str(data['comment'])
+        
+        if ticket and comment_text:
             if 'comments' not in ticket:
                 ticket['comments'] = []
             ticket['comments'].append({
-                'content': data['comment'],
+                'content': comment_text,
                 'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 'author': 'AHOP System'
             })
         updated_fields.append('comment')
-        print(f"✓ 添加评论: {data['comment'][:50]}...")
+        preview = comment_text[:50] if len(comment_text) > 50 else comment_text
+        print(f"✓ 添加评论: {preview}...")
     
     # 更新自定义字段
     if 'custom_fields' in data:
@@ -572,6 +819,59 @@ def health_check():
         "tickets_in_pool": len(TICKET_POOL)
     })
 
+@app.route('/generate-test-tickets', methods=['POST'])
+def generate_test_tickets():
+    """生成测试工单 - 用于自愈规则测试"""
+    global LAST_DISK_TICKET_TIME
+    
+    data = request.get_json() or {}
+    count = data.get('count', 10)
+    ticket_type = data.get('type', 'mixed')  # disk, mixed
+    
+    new_tickets = []
+    start_id = max([int(t['id'].split('-')[1]) for t in TICKET_POOL] + [1000]) + 1
+    
+    now = datetime.now()
+    disk_tickets_generated = 0
+    
+    for i in range(count):
+        if ticket_type == 'disk':
+            # 检查是否可以生成硬盘工单
+            if LAST_DISK_TICKET_TIME is None or (now - LAST_DISK_TICKET_TIME).total_seconds() >= 60:
+                ticket = generate_disk_space_ticket(start_id + i)
+                LAST_DISK_TICKET_TIME = now
+                disk_tickets_generated += 1
+            else:
+                # 如果不能生成硬盘工单，生成其他类型
+                ticket = generate_realistic_ticket_no_disk(start_id + i)
+        elif ticket_type == 'mixed':
+            # 混合模式：优先生成一个硬盘工单（如果可以），其余为其他类型
+            if disk_tickets_generated == 0 and (LAST_DISK_TICKET_TIME is None or (now - LAST_DISK_TICKET_TIME).total_seconds() >= 60):
+                ticket = generate_disk_space_ticket(start_id + i)
+                LAST_DISK_TICKET_TIME = now
+                disk_tickets_generated += 1
+            else:
+                ticket = generate_realistic_ticket_no_disk(start_id + i)
+        else:
+            ticket = generate_realistic_ticket_no_disk(start_id + i)
+        
+        # 确保最近的工单
+        ticket['created_at'] = (datetime.now() - timedelta(minutes=random.randint(0, 30))).strftime("%Y-%m-%d %H:%M:%S")
+        ticket['updated_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        new_tickets.append(ticket)
+        TICKET_POOL.append(ticket)
+    
+    # 限制工单池大小
+    if len(TICKET_POOL) > 50:
+        TICKET_POOL[:] = TICKET_POOL[-50:]
+    
+    return jsonify({
+        "success": True,
+        "message": f"Generated {count} test tickets (disk tickets: {disk_tickets_generated})",
+        "tickets": new_tickets
+    })
+
 @app.route('/stats', methods=['GET'])
 def get_stats():
     """获取工单统计信息"""
@@ -623,6 +923,8 @@ if __name__ == '__main__':
     print("  GET  /stats - 查看统计信息")
     print("  PUT  /tickets/{id} - 更新工单（状态、评论、自定义字段）")
     print("  POST /tickets/{id}/comment - 添加评论")
+    print("  POST /generate-test-tickets - 生成测试工单")
+    print("       参数: {\"count\": 20, \"type\": \"disk\"} # disk/mixed")
     print("  GET  /health - 健康检查")
     
     app.run(host='0.0.0.0', port=5002, debug=True)

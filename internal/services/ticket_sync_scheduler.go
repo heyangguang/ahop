@@ -60,6 +60,16 @@ func (s *TicketSyncScheduler) Start() error {
 	s.cron.Start()
 	s.running = true
 
+	// 批量更新所有已调度插件的下次执行时间
+	for pluginID, jobID := range s.jobMap {
+		if entry := s.cron.Entry(jobID); entry.ID != 0 {
+			nextRun := entry.Next
+			if err := s.db.Model(&models.TicketPlugin{}).Where("id = ?", pluginID).Update("next_run_at", nextRun).Error; err != nil {
+				log.WithError(err).Errorf("更新插件 %d 的下次执行时间失败", pluginID)
+			}
+		}
+	}
+
 	log.Infof("工单同步调度器启动成功，已加载 %d 个插件任务", len(s.jobMap))
 	return nil
 }
@@ -148,8 +158,8 @@ func (s *TicketSyncScheduler) TriggerSync(pluginID uint) error {
 // schedulePlugin 为插件创建定时任务
 func (s *TicketSyncScheduler) schedulePlugin(plugin *models.TicketPlugin) error {
 	// 构建cron表达式
-	// 根据同步间隔（分钟）创建表达式
-	cronExpr := fmt.Sprintf("*/%d * * * *", plugin.SyncInterval)
+	// 根据同步间隔（分钟）创建表达式（robfig/cron/v3需要6个字段）
+	cronExpr := fmt.Sprintf("0 */%d * * * *", plugin.SyncInterval)
 	
 	// 创建任务
 	jobID, err := s.cron.AddFunc(cronExpr, func() {
@@ -159,6 +169,15 @@ func (s *TicketSyncScheduler) schedulePlugin(plugin *models.TicketPlugin) error 
 		if err := s.syncService.SyncTicketsForPlugin(plugin.ID); err != nil {
 			log.WithError(err).Errorf("同步插件 %s 失败", plugin.Name)
 		}
+		
+		// 更新下次执行时间
+		s.mu.RLock()
+		if jobID, exists := s.jobMap[plugin.ID]; exists {
+			if entry := s.cron.Entry(jobID); entry.ID != 0 {
+				s.db.Model(&models.TicketPlugin{}).Where("id = ?", plugin.ID).Update("next_run_at", entry.Next)
+			}
+		}
+		s.mu.RUnlock()
 	})
 	
 	if err != nil {
@@ -166,6 +185,12 @@ func (s *TicketSyncScheduler) schedulePlugin(plugin *models.TicketPlugin) error 
 	}
 	
 	s.jobMap[plugin.ID] = jobID
+	
+	// 更新下次执行时间
+	if entry := s.cron.Entry(jobID); entry.ID != 0 {
+		nextRun := entry.Next
+		s.db.Model(&models.TicketPlugin{}).Where("id = ?", plugin.ID).Update("next_run_at", nextRun)
+	}
 	
 	log := logger.GetLogger()
 	log.Infof("已为插件 %s 创建同步任务，间隔: %d 分钟", plugin.Name, plugin.SyncInterval)

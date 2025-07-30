@@ -269,6 +269,8 @@ func (w *Worker) registerExecutors() {
 		w.executors[taskType] = templateExecutor
 	}
 
+	// 自愈工作流不再通过 Worker 执行，而是直接由 WorkflowExecutor 处理
+	
 	// 创建Git同步执行器（不作为普通任务执行器注册）
 	w.gitSyncExecutor = executor.NewGitSyncExecutor(w.db, w.authClient, w.config.Git.RepoBaseDir, w.log)
 	
@@ -570,9 +572,14 @@ func (w *Worker) processTask(log *logrus.Entry) error {
 
 	taskLog.Info("开始处理任务")
 
-	// 更新任务状态为运行中
-	if err := w.queue.UpdateTaskStatus(taskMessage.TaskID, "running", 0, w.id); err != nil {
+	// 立即更新任务状态为已锁定
+	if err := w.queue.UpdateTaskStatus(taskMessage.TaskID, "locked", 0, w.id); err != nil {
 		taskLog.WithError(err).Error("更新任务状态失败")
+	}
+	
+	// 同时更新数据库状态为 locked
+	if err := w.updateTaskStatusInDB(taskMessage.TaskID, "locked", w.id, ""); err != nil {
+		taskLog.WithError(err).Error("更新数据库任务状态失败")
 	}
 
 	// 从数据库获取任务详情
@@ -595,14 +602,36 @@ func (w *Worker) processTask(log *logrus.Entry) error {
 	// 准备主机信息（使用新的V2版本）
 	if err := w.prepareHostInfoV2(task.TenantID, taskMessage.Params); err != nil {
 		taskLog.WithError(err).Error("准备主机信息失败")
-		// 判断是否是临时错误，决定是否重新入队
+		
+		// 参数错误不应该重试
+		if isBusinessError(err) {
+			taskLog.Error("业务错误，任务将标记为失败")
+			// 更新数据库状态为失败
+			w.updateTaskStatusInDB(taskMessage.TaskID, "failed", w.id, err.Error())
+			// 更新队列状态
+			w.queue.SetTaskResult(taskMessage.TaskID, nil, err.Error())
+			w.updateTaskInDB(task, &executor.TaskResult{
+				Success: false,
+				Error:   err.Error(),
+				Details: make(map[string]interface{}),
+			})
+			w.mu.Lock()
+			w.failedTasks++
+			w.mu.Unlock()
+			return nil
+		}
+		
+		// 判断是否是系统错误，决定是否重新入队
 		if w.shouldRetryTask(err) {
-			taskLog.Warn("主机信息准备失败，任务将重新入队")
+			taskLog.Warn("系统错误，任务将重新入队")
 			if requeueErr := w.requeueTask(taskMessage); requeueErr != nil {
 				taskLog.WithError(requeueErr).Error("重新入队失败")
+				// 重新入队失败也要更新状态
+				w.updateTaskStatusInDB(taskMessage.TaskID, "failed", w.id, "重新入队失败: " + requeueErr.Error())
 			}
 		} else {
-			// 不可恢复的错误，标记为失败
+			// 其他错误，标记为失败
+			w.updateTaskStatusInDB(taskMessage.TaskID, "failed", w.id, err.Error())
 			w.queue.SetTaskResult(taskMessage.TaskID, nil, err.Error())
 			w.updateTaskInDB(task, &executor.TaskResult{
 				Success: false,
@@ -687,6 +716,14 @@ func (w *Worker) executeTask(task *models.Task, taskMessage *queue.TaskMessage, 
 			Logs:    make([]string, 0),
 		}
 	}
+	
+	// 更新任务状态为运行中
+	if err := w.queue.UpdateTaskStatus(taskMessage.TaskID, "running", 0, w.id); err != nil {
+		log.WithError(err).Error("更新任务状态为运行中失败")
+	}
+	if err := w.updateTaskStatusInDB(taskMessage.TaskID, "running", w.id, ""); err != nil {
+		log.WithError(err).Error("更新数据库任务状态为运行中失败")
+	}
 
 	// 创建任务上下文
 	taskCtx := &executor.TaskContext{
@@ -716,6 +753,34 @@ func (w *Worker) executeTask(task *models.Task, taskMessage *queue.TaskMessage, 
 	defer cancel()
 
 	return exec.Execute(ctx, taskCtx, onProgress, onLog)
+}
+
+// updateTaskStatusInDB 更新数据库中的任务状态
+func (w *Worker) updateTaskStatusInDB(taskID string, status string, workerID string, errorMsg string) error {
+	updates := map[string]interface{}{
+		"status":     status,
+		"updated_at": time.Now(),
+	}
+	
+	if workerID != "" {
+		updates["worker_id"] = workerID
+	}
+	
+	now := time.Now()
+	switch status {
+	case "locked":
+		updates["locked_at"] = &now
+	case "running":
+		updates["started_at"] = &now
+	case "success", "failed", "cancelled", "timeout":
+		updates["finished_at"] = &now
+		if errorMsg != "" {
+			updates["error"] = errorMsg
+		}
+	}
+	
+	result := w.db.Model(&models.Task{}).Where("task_id = ?", taskID).Updates(updates)
+	return result.Error
 }
 
 // updateTaskInDB 更新数据库中的任务状态
@@ -812,6 +877,45 @@ func (w *Worker) getLocalIP() string {
 	}
 
 	return ""
+}
+
+// isBusinessError 判断是否是业务错误（不应重试）
+func isBusinessError(err error) bool {
+	if err == nil {
+		return false
+	}
+	
+	errMsg := err.Error()
+	
+	// 业务错误列表（不应重试）
+	businessErrors := []string{
+		"缺少 hosts 参数",
+		"hosts 参数格式错误",
+		"主机ID类型错误",           // 添加主机ID类型错误
+		"模板不存在",
+		"主机不存在",
+		"没有指定主机",              // 添加没有指定主机
+		"凭证不存在",
+		"凭证为空",                  // 添加凭证为空
+		"不支持的凭证类型",          // 添加不支持的凭证类型
+		"权限不足",
+		"参数验证失败",
+		"无效的参数",
+		"参数类型错误",              // 添加参数类型错误
+		"不支持的任务类型",
+		"模板文件不存在",
+		"脚本语法错误",
+		"解密",                      // 添加解密相关错误
+		"任务模板不存在",            // 添加任务模板不存在
+	}
+	
+	for _, bizErr := range businessErrors {
+		if strings.Contains(errMsg, bizErr) {
+			return true
+		}
+	}
+	
+	return false
 }
 
 // shouldRetryTask 判断错误是否应该重试任务

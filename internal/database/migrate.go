@@ -42,6 +42,12 @@ func Migrate() error {
 		// 定时任务
 		&models.ScheduledTask{},
 		&models.ScheduledTaskExecution{},
+		// 自愈模块
+		&models.HealingWorkflow{},
+		&models.HealingRule{},
+		&models.HealingExecution{},
+		&models.HealingExecutionLog{},
+		&models.HealingRuleExecution{},
 	)
 
 	if err != nil {

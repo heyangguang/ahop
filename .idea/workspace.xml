@@ -5,17 +5,41 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26fa7800-2958-40fd-b497-6c36d4420e74" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/5dd31f47-e3e0-4150-9732-b9ea9721720f/storage_v2/_src_/database/auto_healing_platform.qKpeKg/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ahop" beforeDir="false" afterPath="$PROJECT_DIR$/ahop" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/server/seed.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/seed.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/shell_parameter_guide.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/shell_parameter_guide.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/database/migrate.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/database/migrate.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/git_repository_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/git_repository_handler.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/handlers/task_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/task_handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/ticket_plugin_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/ticket_plugin_handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/models/git_repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/git_repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/models/task.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/task.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/models/ticket_plugin.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/ticket_plugin.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/router/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/router/router.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/git_sync_scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/git_sync_scheduler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/global_scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/global_scheduler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/host_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/host_service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/task_scheduler_instance.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/task_scheduler_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/task_scheduler_service.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/task_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/task_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/task_template_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/task_template_service.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/ticket_sync_scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/ticket_sync_scheduler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/ticket_sync_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/ticket_sync_service.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/app.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/app.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/queue/redis_queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/queue/redis_queue.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/realistic_mock_ticket_plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/realistic_mock_ticket_plugin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_operator_info.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_system_operator.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker-dist/internal/executor/template_executor.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/executor/template_executor.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker-dist/internal/scanner/shell_scanner.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/scanner/shell_scanner.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker-dist/internal/worker/worker.go" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/internal/worker/worker.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker-dist/logs/worker.log" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/logs/worker.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker-dist/worker" beforeDir="false" afterPath="$PROJECT_DIR$/worker-dist/worker" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,15 +57,15 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {}
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "git@github.com:heyangguang/ahop.git",
-    "accountId": "d3fb1290-3ec8-4490-a0e0-9e7120711d76"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {}
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:heyangguang/ahop.git&quot;,
+    &quot;accountId&quot;: &quot;d3fb1290-3ec8-4490-a0e0-9e7120711d76&quot;
   }
-}]]></component>
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -89,7 +113,7 @@
       <window_info id="Merge Requests" />
       <window_info id="Backup and Sync History" />
       <window_info id="Commit_Guest" show_stripe_button="false" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49640936" visible="true" weight="0.17864016" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49640936" visible="true" weight="0.16121796" />
       <window_info id="Commit" order="1" weight="0.19421199" />
       <window_info id="Structure" order="2" sideWeight="0.5035907" side_tool="true" weight="0.19421199" />
       <window_info id="Bookmarks" order="3" sideWeight="0.5064286" side_tool="true" weight="0.12944162" />
@@ -97,18 +121,18 @@
       <window_info id="Pull Requests" order="5" sideWeight="0.49820465" weight="0.19421199" />
       <window_info anchor="bottom" id="TypeScript" />
       <window_info anchor="bottom" id="File Transfer" />
-      <window_info anchor="bottom" id="Version Control" order="0" weight="0.49955437" />
+      <window_info anchor="bottom" id="Version Control" order="0" weight="0.34073108" />
       <window_info anchor="bottom" id="Problems" order="1" />
-      <window_info anchor="bottom" id="Problems View" order="2" weight="0.5676758" />
-      <window_info anchor="bottom" id="Services" order="3" weight="0.54096174" />
-      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="4" sideWeight="0.51808906" visible="true" weight="0.6131419" />
-      <window_info anchor="bottom" id="TODO" order="5" weight="0.5478677" />
-      <window_info anchor="bottom" id="Run" order="6" weight="0.45474327" />
-      <window_info anchor="bottom" id="Database Changes" order="7" weight="0.5478677" />
+      <window_info anchor="bottom" id="Problems View" order="2" weight="0.50428265" />
+      <window_info anchor="bottom" id="Services" order="3" weight="0.55221933" />
+      <window_info active="true" anchor="bottom" x="1108" y="435" width="1352" height="735" id="Terminal" order="4" sideWeight="0.51808906" visible="true" weight="0.55221933" />
+      <window_info anchor="bottom" id="TODO" order="5" weight="0.55221933" />
+      <window_info anchor="bottom" id="Run" order="6" weight="0.55221933" />
+      <window_info anchor="bottom" id="Database Changes" order="7" weight="0.6592689" />
       <window_info anchor="bottom" id="Find" order="8" show_stripe_button="false" weight="0.45474327" />
       <window_info anchor="right" id="Notifications" order="0" weight="0.22140865" />
       <window_info anchor="right" id="AIAssistant" order="1" weight="0.22140865" />
-      <window_info active="true" anchor="right" id="Database" order="2" sideWeight="0.48191094" visible="true" weight="0.26266837" />
+      <window_info active="true" anchor="right" id="Database" order="2" sideWeight="0.48191094" visible="true" weight="0.16570513" />
       <window_info anchor="right" id="Gradle" order="3" weight="0.25" />
       <window_info anchor="right" id="Maven" order="4" weight="0.25" />
       <window_info anchor="right" id="Coverage" order="5" sideWeight="0.48591548" side_tool="true" weight="0.3300866" />
@@ -194,6 +218,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

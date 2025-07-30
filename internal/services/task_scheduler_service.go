@@ -942,11 +942,34 @@ func (s *TaskSchedulerService) executeScheduledTask(scheduledTask *models.Schedu
 	}
 
 	// 8. 调用现有的模板任务创建方法
-	err := s.taskService.CreateTemplateTask(task, st.TemplateID, variables, hostIDs)
+	// 准备参数
+	// 将 []uint 转换为 []interface{}
+	hostInterfaces := make([]interface{}, len(hostIDs))
+	for i, id := range hostIDs {
+		hostInterfaces[i] = id
+	}
+	
+	params := map[string]interface{}{
+		"hosts":     hostInterfaces,
+		"variables": variables,
+		"timeout":   task.Timeout,
+	}
+	
+	createdTask, err := s.taskService.CreateTemplateTask(
+		task.TenantID,
+		st.TemplateID,
+		task.Name,
+		task.Description,
+		params,
+		task.Priority,
+	)
 	if err != nil {
 		s.updateTaskStatus(st.ID, models.ScheduledTaskStatusFailed, "")
 		return nil, fmt.Errorf("创建任务失败: %v", err)
 	}
+	
+	// 更新task为创建的任务
+	task = createdTask
 
 	// 9. 记录执行历史
 	execution := &models.ScheduledTaskExecution{
@@ -973,6 +996,9 @@ func (s *TaskSchedulerService) executeScheduledTask(scheduledTask *models.Schedu
 func (s *TaskSchedulerService) monitorTaskCompletion(scheduledTaskID uint, taskID string) {
 	// 每30秒检查一次，最多检查4小时
 	maxAttempts := 480
+	queuedTimeout := 5 * time.Minute // queued状态超时时间
+	var lastQueuedTime time.Time
+	
 	for i := 0; i < maxAttempts; i++ {
 		time.Sleep(30 * time.Second)
 
@@ -993,6 +1019,30 @@ func (s *TaskSchedulerService) monitorTaskCompletion(scheduledTaskID uint, taskI
 			// 计算下次执行时间
 			s.updateNextRunTime(scheduledTaskID)
 			return
+		}
+		
+		// 检查是否卡在 queued 状态
+		if task.Status == "queued" {
+			if lastQueuedTime.IsZero() {
+				lastQueuedTime = time.Now()
+			} else if time.Since(lastQueuedTime) > queuedTimeout {
+				// queued 状态超时，标记为失败
+				logger.GetLogger().Warnf("任务 %s 在 queued 状态超时，标记为失败", taskID)
+				
+				// 更新任务状态为失败
+				s.db.Model(&task).Updates(map[string]interface{}{
+					"status": "failed",
+					"error": "任务在队列中超时",
+					"finished_at": time.Now(),
+				})
+				
+				s.updateTaskStatus(scheduledTaskID, models.ScheduledTaskStatusFailed, taskID)
+				s.updateNextRunTime(scheduledTaskID)
+				return
+			}
+		} else {
+			// 状态变化了，重置计时器
+			lastQueuedTime = time.Time{}
 		}
 	}
 

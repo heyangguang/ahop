@@ -286,3 +286,17 @@ func (h *GitRepositoryHandler) ScanTemplates(c *gin.Context) {
 
 	response.Success(c, result)
 }
+
+// GetSchedulerStatus 获取Git同步调度器状态
+func (h *GitRepositoryHandler) GetSchedulerStatus(c *gin.Context) {
+	// 获取调度器
+	scheduler := services.GetGlobalGitSyncScheduler()
+	if scheduler == nil {
+		response.ServerError(c, "Git同步调度器未启动")
+		return
+	}
+
+	// 获取调度状态
+	status := scheduler.GetJobStatus()
+	response.Success(c, status)
+}

@@ -143,22 +143,59 @@ func (s *ShellScanner) parseParam(matches []string) *SurveyItem {
 	
 	// 检查是否是简单格式（只有参数名和描述）
 	if len(matches) > 7 && matches[7] != "" {
-		// 简单格式: @param 参数名 描述
+		// 简单格式: @param 参数名 描述 或 @param 参数名 [类型] 描述
 		description := strings.TrimSpace(matches[7])
-		
-		// 尝试从描述中推断类型
 		paramType := "text"
-		if strings.Contains(strings.ToLower(description), "password") || 
-		   strings.Contains(strings.ToLower(description), "密码") {
-			paramType = "password"
-		} else if strings.Contains(strings.ToLower(description), "number") || 
-		          strings.Contains(strings.ToLower(description), "数字") ||
-		          strings.Contains(strings.ToLower(description), "天数") ||
-		          strings.Contains(strings.ToLower(description), "端口") {
-			paramType = "integer"
-		} else if strings.Contains(strings.ToLower(description), "类型") &&
-		          strings.Contains(description, "/") {
-			paramType = "choice"
+		
+		// 检查是否有明确指定的类型 [类型]
+		typeRegex := regexp.MustCompile(`^\[([^\]]+)\]\s*(.*)`)
+		if typeMatches := typeRegex.FindStringSubmatch(description); len(typeMatches) > 2 {
+			// 用户明确指定了类型
+			specifiedType := strings.ToLower(strings.TrimSpace(typeMatches[1]))
+			description = strings.TrimSpace(typeMatches[2])
+			
+			// 映射用户指定的类型
+			switch specifiedType {
+			case "text", "string", "str":
+				paramType = "text"
+			case "password", "pwd", "密码":
+				paramType = "password"
+			case "integer", "int", "number", "整数", "数字":
+				paramType = "integer"
+			case "float", "decimal", "浮点数", "小数":
+				paramType = "float"
+			case "select", "choice", "单选", "选择":
+				paramType = "choice"
+			case "multiselect", "multichoice", "多选":
+				paramType = "multiselect"
+			case "textarea", "multiline", "多行文本", "文本域":
+				paramType = "textarea"
+			default:
+				// 未识别的类型，使用默认并记录警告
+				s.log.WithField("type", specifiedType).Warn("未识别的参数类型，使用默认类型 text")
+				paramType = "text"
+			}
+		} else {
+			// 没有明确指定类型，使用智能推断
+			if strings.Contains(strings.ToLower(description), "password") || 
+			   strings.Contains(strings.ToLower(description), "密码") {
+				paramType = "password"
+			} else if strings.Contains(strings.ToLower(description), "number") || 
+			          strings.Contains(strings.ToLower(description), "数字") ||
+			          strings.Contains(strings.ToLower(description), "天数") ||
+			          strings.Contains(strings.ToLower(description), "端口") {
+				paramType = "integer"
+			} else if (strings.Contains(strings.ToLower(description), "类型") ||
+			          strings.Contains(strings.ToLower(description), "type")) &&
+			          strings.Contains(description, "/") {
+				paramType = "choice"
+			} else if (strings.Contains(description, "（") && strings.Contains(description, "）") &&
+			          strings.Contains(description, "/")) ||
+			         (strings.Contains(description, "(") && strings.Contains(description, ")") &&
+			          strings.Contains(description, "/")) {
+				// 如果描述中有括号并且包含"/"分隔的选项，也识别为choice
+				paramType = "choice"
+			}
 		}
 		
 		// 判断是否必填：只有描述末尾有 (required) 才是必填，其他默认可选
@@ -179,11 +216,29 @@ func (s *ShellScanner) parseParam(matches []string) *SurveyItem {
 		}
 		
 		// 如果是选择类型，尝试从描述中提取选项
-		if paramType == "choice" && strings.Contains(description, "（") && strings.Contains(description, "）") {
-			start := strings.Index(description, "（")
-			end := strings.Index(description, "）")
-			if start != -1 && end != -1 && end > start {
-				choicesStr := description[start+3:end] // +3 for UTF-8 "（"
+		if paramType == "choice" {
+			// 支持中文括号和英文括号
+			var start, end int
+			var choicesStr string
+			
+			// 先尝试中文括号
+			if strings.Contains(description, "（") && strings.Contains(description, "）") {
+				start = strings.Index(description, "（")
+				end = strings.Index(description, "）")
+				if start != -1 && end != -1 && end > start {
+					choicesStr = description[start+3:end] // +3 for UTF-8 "（"
+				}
+			} else if strings.Contains(description, "(") && strings.Contains(description, ")") {
+				// 再尝试英文括号
+				start = strings.Index(description, "(")
+				end = strings.Index(description, ")")
+				if start != -1 && end != -1 && end > start {
+					choicesStr = description[start+1:end] // +1 for ASCII "("
+				}
+			}
+			
+			// 提取选项
+			if choicesStr != "" {
 				choices := strings.Split(choicesStr, "/")
 				for i := range choices {
 					choices[i] = strings.TrimSpace(choices[i])
