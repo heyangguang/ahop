@@ -92,9 +92,24 @@ func (m *AuthMiddleware) RequirePermission(permissionCode string) gin.HandlerFun
 			c.Abort()
 			return
 		}
+		
+		// 获取当前租户ID
+		currentTenantID, exists := c.Get("current_tenant_id")
+		if !exists {
+			response.ServerError(c, "无法获取当前租户")
+			c.Abort()
+			return
+		}
+		
+		// 平台管理员拥有所有权限
+		isPlatformAdmin, _ := c.Get("is_platform_admin")
+		if isPlatformAdmin.(bool) {
+			c.Next()
+			return
+		}
 
-		// 检查权限
-		hasPermission, err := m.userService.HasPermission(userID.(uint), permissionCode)
+		// 检查用户在当前租户的权限
+		hasPermission, err := m.userService.HasPermissionInTenant(userID.(uint), currentTenantID.(uint), permissionCode)
 		if err != nil {
 			response.ServerError(c, "权限检查失败")
 			c.Abort()
@@ -171,8 +186,24 @@ func (m *AuthMiddleware) RequireTenantAdmin() gin.HandlerFunc {
 		}
 
 		userObj := user.(*models.User)
-		if !userObj.IsPlatformAdmin && !userObj.IsTenantAdmin {
-			response.Forbidden(c, "需要管理员权限")
+		
+		// 平台管理员拥有所有租户的管理权限
+		if userObj.IsPlatformAdmin {
+			c.Next()
+			return
+		}
+		
+		// 获取当前租户ID
+		currentTenantID, exists := c.Get("current_tenant_id")
+		if !exists {
+			response.ServerError(c, "无法获取当前租户")
+			c.Abort()
+			return
+		}
+		
+		// 检查用户是否是当前租户的管理员
+		if !userObj.IsAdminOfTenant(m.userService.GetDB(), currentTenantID.(uint)) {
+			response.Forbidden(c, "需要租户管理员权限")
 			c.Abort()
 			return
 		}
@@ -202,8 +233,9 @@ func (m *AuthMiddleware) RequireSameTenant() gin.HandlerFunc {
 		// 获取当前操作的租户ID（支持平台管理员切换租户）
 		currentTenantID, exists := c.Get("current_tenant_id")
 		if !exists {
-			// 兼容旧版本，使用用户所属租户
-			currentTenantID = userObj.TenantID
+			response.ServerError(c, "无法获取当前租户ID")
+			c.Abort()
+			return
 		}
 
 		// 从URL参数或查询参数中获取租户ID
@@ -249,13 +281,15 @@ func (m *AuthMiddleware) RequireOwnerOrAdmin() gin.HandlerFunc {
 			return
 		}
 
-		// 🔧 修复：租户管理员可以访问同租户的所有资源
-		if userObj.IsTenantAdmin {
-			// 获取当前操作的租户ID
-			currentTenantID, exists := c.Get("current_tenant_id")
-			if !exists {
-				currentTenantID = userObj.TenantID
-			}
+		// 🔧 修复：检查用户是否是当前租户的管理员
+		currentTenantID, exists := c.Get("current_tenant_id")
+		if !exists {
+			response.ServerError(c, "无法获取当前租户ID")
+			c.Abort()
+			return
+		}
+		
+		if userObj.IsAdminOfTenant(m.userService.GetDB(), currentTenantID.(uint)) {
 			
 			// 检查是否是同租户的资源（通过查询目标用户的租户ID）
 			resourceUserIDStr := c.Param("id")
@@ -276,8 +310,8 @@ func (m *AuthMiddleware) RequireOwnerOrAdmin() gin.HandlerFunc {
 				}
 
 				// 租户管理员只能管理同租户的用户
-				// 如果是平台管理员切换到某个租户，则按照当前租户权限
-				if currentTenantID.(uint) == targetUser.TenantID {
+				// 检查目标用户是否属于当前租户
+				if targetUser.IsTenantMember(m.userService.GetDB(), currentTenantID.(uint)) {
 					c.Next()
 					return
 				}

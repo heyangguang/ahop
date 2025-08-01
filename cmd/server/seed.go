@@ -207,6 +207,13 @@ func initializePermissions(db *gorm.DB) error {
 		// 队列管理权限
 		{Code: "queue:read", Name: "查看队列状态", Module: "queue", Action: "read", Description: "查看任务队列状态和统计信息"},
 		{Code: "queue:manage", Name: "管理队列任务", Module: "queue", Action: "manage", Description: "取消或管理队列中的任务"},
+		
+		// 邀请管理权限
+		{Code: "invitation:create", Name: "创建邀请", Module: "invitation", Action: "create", Description: "邀请用户加入租户"},
+		{Code: "invitation:list", Name: "查看邀请列表", Module: "invitation", Action: "list", Description: "查看租户的邀请列表"},
+		{Code: "invitation:cancel", Name: "取消邀请", Module: "invitation", Action: "cancel", Description: "取消待处理的邀请"},
+		{Code: "invitation:accept", Name: "接受邀请", Module: "invitation", Action: "accept", Description: "接受加入租户的邀请"},
+		{Code: "invitation:reject", Name: "拒绝邀请", Module: "invitation", Action: "reject", Description: "拒绝加入租户的邀请"},
 	}
 
 	// 批量创建权限
@@ -291,13 +298,11 @@ func createDefaultAdmin(db *gorm.DB) error {
 
 	// 创建用户
 	user := &models.User{
-		TenantID:        tenant.ID,
 		Username:        "admin",
 		Email:           "admin@example.com",
 		Name:            "系统管理员",
 		Status:          models.UserStatusActive,
 		IsPlatformAdmin: true,
-		IsTenantAdmin:   true,
 	}
 
 	// 设置密码
@@ -305,7 +310,29 @@ func createDefaultAdmin(db *gorm.DB) error {
 		return fmt.Errorf("设置密码失败: %v", err)
 	}
 
-	if err := db.Create(user).Error; err != nil {
+	// 开始事务
+	tx := db.Begin()
+	
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	
+	// 创建用户-租户关联
+	userTenant := &models.UserTenant{
+		UserID:        user.ID,
+		TenantID:      tenant.ID,
+		IsTenantAdmin: true,
+		JoinedAt:      user.CreatedAt,
+	}
+	
+	if err := tx.Create(userTenant).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 

@@ -18,6 +18,8 @@ func Migrate() error {
 		&models.Role{},
 		&models.RolePermission{},
 		&models.UserRole{},
+		&models.UserTenant{},
+		&models.TenantInvitation{},
 		&models.Credential{},
 		&models.CredentialUsageLog{},
 		&models.Tag{},

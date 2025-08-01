@@ -4,8 +4,12 @@ import (
 	"ahop/internal/models"
 	"ahop/pkg/pagination"
 	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"ahop/internal/services"
 	"ahop/pkg/response"
@@ -405,7 +409,10 @@ func (h *UserHandler) AssignRoles(c *gin.Context) {
 		return
 	}
 
-	err = h.service.AssignRoles(uint(id), req.RoleIDs)
+	// 获取当前租户ID
+	currentTenantID, _ := c.Get("current_tenant_id")
+	
+	err = h.service.AssignRoles(uint(id), req.RoleIDs, currentTenantID.(uint))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "用户不存在")
@@ -439,7 +446,10 @@ func (h *UserHandler) AddRole(c *gin.Context) {
 		return
 	}
 
-	err = h.service.AddRole(uint(id), req.RoleID)
+	// 获取当前租户ID
+	currentTenantID, _ := c.Get("current_tenant_id")
+	
+	err = h.service.AddRole(uint(id), req.RoleID, currentTenantID.(uint))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			response.NotFound(c, "用户不存在")
@@ -587,5 +597,220 @@ func (h *UserHandler) CheckRole(c *gin.Context) {
 		"user_id":  uint(id),
 		"role":     roleCode,
 		"has_role": hasRole,
+	})
+}
+
+// ========== 个人设置管理方法 ==========
+
+// UpdateProfileRequest 更新个人信息请求
+type UpdateProfileRequest struct {
+	Name  string `json:"name" binding:"required"`
+	Email string `json:"email" binding:"required,email"`
+	Phone string `json:"phone" binding:"required"`
+}
+
+// UpdateProfile 更新个人信息
+func (h *UserHandler) UpdateProfile(c *gin.Context) {
+	// 从JWT获取当前用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+
+	var req UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "参数错误: "+err.Error())
+		return
+	}
+
+	// 更新用户信息（不包含status，普通用户不能修改自己的状态）
+	user, err := h.service.GetByID(userID.(uint))
+	if err != nil {
+		response.NotFound(c, "用户不存在")
+		return
+	}
+
+	// 更新信息
+	updatedUser, err := h.service.Update(userID.(uint), req.Name, req.Email, &req.Phone, user.Status)
+	if err != nil {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "邮箱已存在") {
+			response.BadRequest(c, errMsg)
+			return
+		}
+		response.ServerError(c, "更新失败")
+		return
+	}
+
+	response.Success(c, updatedUser)
+}
+
+// ChangePasswordRequest 修改密码请求
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required,min=6"`
+}
+
+// ChangePassword 修改密码
+func (h *UserHandler) ChangePassword(c *gin.Context) {
+	// 从JWT获取当前用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+
+	var req ChangePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "参数错误: "+err.Error())
+		return
+	}
+
+	// 获取用户信息
+	user, err := h.service.GetByID(userID.(uint))
+	if err != nil {
+		response.NotFound(c, "用户不存在")
+		return
+	}
+
+	// 验证旧密码
+	if !user.CheckPassword(req.OldPassword) {
+		response.BadRequest(c, "原密码错误")
+		return
+	}
+
+	// 修改密码
+	_, err = h.service.ResetPassword(userID.(uint), req.NewPassword)
+	if err != nil {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "密码长度") {
+			response.BadRequest(c, errMsg)
+			return
+		}
+		response.ServerError(c, "修改密码失败")
+		return
+	}
+
+	response.SuccessWithMessage(c, "密码修改成功", nil)
+}
+
+// UpdateAvatar 更新头像
+func (h *UserHandler) UpdateAvatar(c *gin.Context) {
+	// 从JWT获取当前用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+
+	// 处理文件上传
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		response.BadRequest(c, "请选择要上传的文件")
+		return
+	}
+
+	// 验证文件类型
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	allowedExts := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".gif":  true,
+		".webp": true,
+	}
+
+	if !allowedExts[ext] {
+		response.BadRequest(c, "不支持的文件格式，仅支持 jpg/jpeg/png/gif/webp")
+		return
+	}
+
+	// 验证文件大小（最大5MB）
+	if file.Size > 5*1024*1024 {
+		response.BadRequest(c, "文件大小不能超过5MB")
+		return
+	}
+
+	// 生成文件名
+	filename := fmt.Sprintf("avatar_%d_%d%s", userID.(uint), time.Now().Unix(), ext)
+	uploadPath := fmt.Sprintf("uploads/avatars/%s", filename)
+
+	// 确保目录存在
+	if err := os.MkdirAll("uploads/avatars", 0755); err != nil {
+		response.ServerError(c, "创建上传目录失败")
+		return
+	}
+
+	// 保存文件
+	if err := c.SaveUploadedFile(file, uploadPath); err != nil {
+		response.ServerError(c, "保存文件失败")
+		return
+	}
+
+	// 更新用户头像路径
+	user, err := h.service.UpdateAvatar(userID.(uint), "/"+uploadPath)
+	if err != nil {
+		// 如果更新失败，删除已上传的文件
+		os.Remove(uploadPath)
+		response.ServerError(c, "更新头像失败")
+		return
+	}
+
+	response.Success(c, gin.H{
+		"avatar": user.Avatar,
+		"message": "头像更新成功",
+	})
+}
+
+// GetAvatar 获取当前用户头像
+func (h *UserHandler) GetAvatar(c *gin.Context) {
+	// 从JWT获取当前用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		response.Unauthorized(c, "未登录")
+		return
+	}
+
+	// 获取用户信息
+	user, err := h.service.GetByID(userID.(uint))
+	if err != nil {
+		response.NotFound(c, "用户不存在")
+		return
+	}
+
+	response.Success(c, gin.H{
+		"user_id": user.ID,
+		"username": user.Username,
+		"name": user.Name,
+		"avatar": user.Avatar,
+	})
+}
+
+// GetUserAvatar 获取指定用户头像（公开接口，任何登录用户都可以查看其他用户头像）
+func (h *UserHandler) GetUserAvatar(c *gin.Context) {
+	// 获取用户ID参数
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		response.BadRequest(c, "用户ID格式错误")
+		return
+	}
+
+	// 获取用户信息
+	user, err := h.service.GetByID(uint(id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.NotFound(c, "用户不存在")
+			return
+		}
+		response.ServerError(c, "查询失败")
+		return
+	}
+
+	response.Success(c, gin.H{
+		"user_id": user.ID,
+		"username": user.Username,
+		"name": user.Name,
+		"avatar": user.Avatar,
 	})
 }

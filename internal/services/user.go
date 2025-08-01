@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -38,6 +39,11 @@ func NewUserService() *UserService {
 	}
 }
 
+// GetDB 获取数据库连接
+func (s *UserService) GetDB() *gorm.DB {
+	return s.db
+}
+
 // ========== 基础CRUD方法 ==========
 
 // Create 创建用户
@@ -69,14 +75,12 @@ func (s *UserService) Create(tenantID uint, username, email, password, name stri
 	}
 
 	user := &models.User{
-		TenantID:        tenantID,
 		Username:        username,
 		Email:           email,
 		Name:            name,
 		Phone:           phone,
 		Status:          models.UserStatusActive,
 		IsPlatformAdmin: false,
-		IsTenantAdmin:   false,
 	}
 
 	// 设置密码
@@ -84,8 +88,35 @@ func (s *UserService) Create(tenantID uint, username, email, password, name stri
 		return nil, fmt.Errorf("密码加密失败: %v", err)
 	}
 
-	err := s.db.Create(user).Error
-	return user, err
+	// 开始事务
+	tx := s.db.Begin()
+	
+	// 创建用户
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	
+	// 创建用户-租户关联
+	userTenant := &models.UserTenant{
+		UserID:        user.ID,
+		TenantID:      tenantID,
+		IsTenantAdmin: false,
+		JoinedAt:      time.Now(),
+	}
+	
+	if err := tx.Create(userTenant).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+	
+	
+	return user, nil
 }
 
 // CreateWithOptions 创建用户（支持设置租户管理员）
@@ -117,14 +148,12 @@ func (s *UserService) CreateWithOptions(tenantID uint, username, email, password
 	}
 
 	user := &models.User{
-		TenantID:        tenantID,
 		Username:        username,
 		Email:           email,
 		Name:            name,
 		Phone:           phone,
 		Status:          models.UserStatusActive,
 		IsPlatformAdmin: false,
-		IsTenantAdmin:   isTenantAdmin,
 	}
 
 	// 设置密码
@@ -132,23 +161,41 @@ func (s *UserService) CreateWithOptions(tenantID uint, username, email, password
 		return nil, err
 	}
 
+	// 开始事务
+	tx := s.db.Begin()
+	
 	// 创建用户
-	if err := s.db.Create(user).Error; err != nil {
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-
-	// 重新加载数据（包含关联）
-	if err := s.db.Preload("Tenant").First(user, user.ID).Error; err != nil {
+	
+	// 创建用户-租户关联
+	userTenant := &models.UserTenant{
+		UserID:        user.ID,
+		TenantID:      tenantID,
+		IsTenantAdmin: isTenantAdmin,
+		JoinedAt:      time.Now(),
+	}
+	
+	if err := tx.Create(userTenant).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-
+	
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+	
+	
 	return user, nil
 }
 
 // GetByID 根据ID获取用户
 func (s *UserService) GetByID(id uint) (*models.User, error) {
 	var user models.User
-	err := s.db.Preload("Tenant").First(&user, id).Error
+	err := s.db.First(&user, id).Error
 	return &user, err
 }
 
@@ -179,7 +226,7 @@ func (s *UserService) GetWithFiltersAndPage(tenantID *uint, status, keyword stri
 
 	// 分页查询
 	offset := (page - 1) * pageSize
-	err := query.Preload("Tenant").Offset(offset).Limit(pageSize).Find(&users).Error
+	err := query.Offset(offset).Limit(pageSize).Find(&users).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -199,7 +246,7 @@ func (s *UserService) GetRecentlyCreatedWithPage(page, pageSize int) ([]*models.
 
 	// 分页查询（按创建时间降序）
 	offset := (page - 1) * pageSize
-	err := s.db.Preload("Tenant").Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&users).Error
+	err := s.db.Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&users).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -310,19 +357,42 @@ func (s *UserService) UpdateLastLogin(id uint) error {
 	return s.db.Model(&models.User{}).Where("id = ?", id).Update("last_login_at", now).Error
 }
 
+// UpdateAvatar 更新用户头像
+func (s *UserService) UpdateAvatar(id uint, avatarPath string) (*models.User, error) {
+	var user models.User
+	err := s.db.First(&user, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// 删除旧头像文件（如果存在）
+	if user.Avatar != nil && *user.Avatar != "" {
+		// 移除开头的斜杠以获取正确的文件路径
+		oldPath := strings.TrimPrefix(*user.Avatar, "/")
+		if err := os.Remove(oldPath); err != nil {
+			// 记录错误但不影响更新流程
+		}
+	}
+
+	// 更新头像路径
+	user.Avatar = &avatarPath
+	err = s.db.Save(&user).Error
+	return &user, err
+}
+
 // ========== 查询增强方法 ==========
 
 // GetByUsername 根据用户名获取用户
 func (s *UserService) GetByUsername(username string) (*models.User, error) {
 	var user models.User
-	err := s.db.Preload("Tenant").Where("username = ?", username).First(&user).Error
+	err := s.db.Where("username = ?", username).First(&user).Error
 	return &user, err
 }
 
 // GetByEmail 根据邮箱获取用户
 func (s *UserService) GetByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := s.db.Preload("Tenant").Where("email = ?", email).First(&user).Error
+	err := s.db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
@@ -462,52 +532,75 @@ func (s *UserService) ValidateUpdateParams(name, email, status string) error {
 // ========== 角色管理方法 ==========
 
 // AssignRoles 为用户分配角色
-func (s *UserService) AssignRoles(userID uint, roleIDs []uint) error {
+func (s *UserService) AssignRoles(userID uint, roleIDs []uint, tenantID uint) error {
 	var user models.User
 	err := s.db.First(&user, userID).Error
 	if err != nil {
 		return err
 	}
 
+	// 检查用户是否属于该租户
+	if !user.IsTenantMember(s.db, tenantID) {
+		return fmt.Errorf("用户不属于该租户")
+	}
+
 	// 获取角色（确保角色存在且属于同一租户）
 	var roles []models.Role
-	err = s.db.Where("id IN ? AND tenant_id = ?", roleIDs, user.TenantID).Find(&roles).Error
+	err = s.db.Where("id IN ? AND tenant_id = ?", roleIDs, tenantID).Find(&roles).Error
 	if err != nil {
 		return err
 	}
 
 	// 验证所有角色都找到了
 	if len(roles) != len(roleIDs) {
-		return fmt.Errorf("部分角色不存在或不属于该用户的租户")
+		return fmt.Errorf("部分角色不存在或不属于该租户")
 	}
 
-	// 清除现有角色，重新分配
-	err = s.db.Model(&user).Association("Roles").Replace(roles)
+	// 获取用户在该租户的关联
+	var userTenant models.UserTenant
+	err = s.db.Where("user_id = ? AND tenant_id = ?", userID, tenantID).First(&userTenant).Error
+	if err != nil {
+		return fmt.Errorf("用户租户关联不存在")
+	}
+
+	// 更新用户在该租户的角色（只更新第一个角色）
+	if len(roles) > 0 {
+		userTenant.RoleID = &roles[0].ID
+		err = s.db.Save(&userTenant).Error
+	}
+	
 	return err
 }
 
 // AddRole 为用户添加单个角色
-func (s *UserService) AddRole(userID, roleID uint) error {
+func (s *UserService) AddRole(userID, roleID, tenantID uint) error {
 	var user models.User
 	err := s.db.First(&user, userID).Error
 	if err != nil {
 		return err
 	}
 
+	// 检查用户是否属于该租户
+	if !user.IsTenantMember(s.db, tenantID) {
+		return fmt.Errorf("用户不属于该租户")
+	}
+
 	var role models.Role
-	err = s.db.Where("id = ? AND tenant_id = ?", roleID, user.TenantID).First(&role).Error
+	err = s.db.Where("id = ? AND tenant_id = ?", roleID, tenantID).First(&role).Error
 	if err != nil {
-		return fmt.Errorf("角色不存在或不属于该用户的租户")
+		return fmt.Errorf("角色不存在或不属于该租户")
 	}
 
-	// 检查用户是否已有该角色
-	var count int64
-	s.db.Table("user_roles").Where("user_id = ? AND role_id = ?", userID, roleID).Count(&count)
-	if count > 0 {
-		return fmt.Errorf("用户已拥有该角色")
+	// 获取用户在该租户的关联
+	var userTenant models.UserTenant
+	err = s.db.Where("user_id = ? AND tenant_id = ?", userID, tenantID).First(&userTenant).Error
+	if err != nil {
+		return fmt.Errorf("用户租户关联不存在")
 	}
 
-	err = s.db.Model(&user).Association("Roles").Append(&role)
+	// 更新用户在该租户的角色
+	userTenant.RoleID = &roleID
+	err = s.db.Save(&userTenant).Error
 	return err
 }
 
@@ -557,41 +650,6 @@ func (s *UserService) GetUserPermissions(userID uint) ([]models.Permission, erro
 		return allPermissions, nil
 	}
 
-	// 租户管理员拥有本租户内的管理权限
-	if user.IsTenantAdmin {
-		var allPermissions []models.Permission
-		s.db.Find(&allPermissions)
-		
-		// 过滤掉平台级权限（tenant:*）
-		filteredPermissions := make([]models.Permission, 0)
-		for _, permission := range allPermissions {
-			if !strings.HasPrefix(permission.Code, "tenant:") {
-				filteredPermissions = append(filteredPermissions, permission)
-			}
-		}
-		
-		// 合并角色权限（如果有的话）
-		for _, role := range user.Roles {
-			if role.Status == models.RoleStatusActive {
-				for _, permission := range role.Permissions {
-					permissionMap[permission.Code] = permission
-				}
-			}
-		}
-		
-		// 将过滤后的权限也加入到map中（去重）
-		for _, permission := range filteredPermissions {
-			permissionMap[permission.Code] = permission
-		}
-		
-		// 转换为切片
-		permissions := make([]models.Permission, 0, len(permissionMap))
-		for _, permission := range permissionMap {
-			permissions = append(permissions, permission)
-		}
-		
-		return permissions, nil
-	}
 
 	// 普通用户：收集角色权限
 	for _, role := range user.Roles {
@@ -624,16 +682,6 @@ func (s *UserService) HasPermission(userID uint, permissionCode string) (bool, e
 		return true, nil
 	}
 
-	// 租户管理员拥有本租户内的管理权限
-	if user.IsTenantAdmin {
-		// 租户管理员不应该拥有平台级权限（如租户管理）
-		if strings.HasPrefix(permissionCode, "tenant:") {
-			// 租户管理权限仅限平台管理员
-			return false, nil
-		}
-		// 租户管理员拥有其他所有租户级资源的管理权限
-		return true, nil
-	}
 
 	// 检查角色权限
 	for _, role := range user.Roles {
@@ -646,6 +694,50 @@ func (s *UserService) HasPermission(userID uint, permissionCode string) (bool, e
 		}
 	}
 
+	return false, nil
+}
+
+// HasPermissionInTenant 检查用户在特定租户内是否有特定权限
+func (s *UserService) HasPermissionInTenant(userID, tenantID uint, permissionCode string) (bool, error) {
+	var user models.User
+	err := s.db.First(&user, userID).Error
+	if err != nil {
+		return false, err
+	}
+
+	// 平台管理员拥有所有权限
+	if user.IsPlatformAdmin {
+		return true, nil
+	}
+	
+	// 获取用户在该租户的角色信息
+	userTenant, err := user.GetTenantRole(s.db, tenantID)
+	if err != nil {
+		return false, nil // 用户不属于该租户
+	}
+	
+	// 租户管理员拥有本租户内的管理权限
+	if userTenant.IsTenantAdmin {
+		// 租户管理员不应该拥有平台级权限（如租户管理）
+		if strings.HasPrefix(permissionCode, "tenant:") {
+			return false, nil
+		}
+		return true, nil
+	}
+	
+	// 获取用户在该租户的权限
+	permissions, err := userTenant.GetPermissions(s.db)
+	if err != nil {
+		return false, err
+	}
+	
+	// 检查权限
+	for _, permission := range permissions {
+		if permission.Code == permissionCode {
+			return true, nil
+		}
+	}
+	
 	return false, nil
 }
 

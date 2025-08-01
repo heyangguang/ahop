@@ -23,6 +23,10 @@ func SetupRouter() *gin.Engine {
 
 	// 注册路由
 	registerRoutes(router)
+	
+	// 静态文件服务（用于头像等文件）
+	router.Static("/uploads", "./uploads")
+	
 	return router
 }
 
@@ -55,6 +59,16 @@ func registerRoutes(router *gin.Engine) {
 
 		// 用户路由（添加权限保护）
 		userHandler := handlers.NewUserHandler()
+
+		// 🆕 个人设置路由（所有登录用户均可访问）
+		profileGroup := api.Group("/profile")
+		profileGroup.Use(auth.RequireLogin())
+		{
+			profileGroup.PUT("/info", userHandler.UpdateProfile)       // 更新个人信息
+			profileGroup.PUT("/password", userHandler.ChangePassword)  // 修改密码
+			profileGroup.POST("/avatar", userHandler.UpdateAvatar)     // 上传头像
+			profileGroup.GET("/avatar", userHandler.GetAvatar)        // 获取当前用户头像
+		}
 		users := api.Group("/users")
 		{
 			// 🔒 基础CRUD（添加权限保护）
@@ -73,6 +87,7 @@ func registerRoutes(router *gin.Engine) {
 			// 🔒 查询接口（需要读取权限）
 			users.GET("/username/:username", auth.RequireLogin(), auth.RequirePermission("user:read"), userHandler.GetByUsername)
 			users.GET("/email", auth.RequireLogin(), auth.RequirePermission("user:read"), userHandler.GetByEmail)
+			users.GET("/:id/avatar", auth.RequireLogin(), userHandler.GetUserAvatar) // 获取指定用户头像（任何登录用户可访问）
 
 			// 🔒 统计接口（管理员权限）
 			users.GET("/stats", auth.RequireLogin(), auth.RequireTenantAdmin(), userHandler.GetStats)
@@ -110,6 +125,12 @@ func registerRoutes(router *gin.Engine) {
 			tenants.GET("/stats", auth.RequireLogin(), auth.RequirePlatformAdmin(), tenantHandler.GetStats)
 			tenants.GET("/recent", auth.RequireLogin(), auth.RequirePlatformAdmin(), tenantHandler.GetRecentlyCreated)
 			tenants.GET("/status-distribution", auth.RequireLogin(), auth.RequirePlatformAdmin(), tenantHandler.GetStatusDistribution)
+			
+			// 🔒 邀请管理（租户管理员）
+			invitationHandler := handlers.NewInvitationHandler()
+			tenants.POST("/:id/invitations", auth.RequireLogin(), auth.RequireTenantAdmin(), invitationHandler.CreateInvitation)
+			tenants.GET("/:id/invitations", auth.RequireLogin(), auth.RequireTenantAdmin(), invitationHandler.GetTenantInvitations)
+			tenants.POST("/:id/invitations/:invitationId/cancel", auth.RequireLogin(), auth.RequireTenantAdmin(), invitationHandler.CancelInvitation)
 		}
 
 		// 🔐 角色路由（添加权限保护）
@@ -514,6 +535,19 @@ func registerRoutes(router *gin.Engine) {
 			healingExecutions.GET("", auth.RequireLogin(), auth.RequirePermission("healing_execution:list"), healingExecutionHandler.List)
 			healingExecutions.GET("/:id", auth.RequireLogin(), auth.RequirePermission("healing_execution:read"), healingExecutionHandler.GetByID)
 			healingExecutions.GET("/:id/logs", auth.RequireLogin(), auth.RequirePermission("healing_execution:read"), healingExecutionHandler.GetLogs)
+		}
+		
+		// 🔐 邀请管理路由（不依赖租户ID的独立路由）
+		invitationHandler2 := handlers.NewInvitationHandler()
+		invitations := api.Group("/invitations")
+		{
+			// 🔒 查看我的邀请
+			invitations.GET("/my", auth.RequireLogin(), invitationHandler2.GetMyInvitations)
+			// 🔒 根据令牌查看邀请详情（用于邀请页面）
+			invitations.GET("/:token", invitationHandler2.GetInvitationByToken)
+			// 🔒 接受/拒绝邀请
+			invitations.POST("/:token/accept", auth.RequireLogin(), invitationHandler2.AcceptInvitation)
+			invitations.POST("/:token/reject", auth.RequireLogin(), invitationHandler2.RejectInvitation)
 		}
 		
 		// 🔐 队列管理路由

@@ -74,13 +74,24 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// 获取用户的第一个租户作为默认租户
+	userTenants, err := user.GetUserTenants(h.userService.GetDB())
+	if err != nil || len(userTenants) == 0 {
+		response.Unauthorized(c, "用户未关联任何租户")
+		return
+	}
+	
+	// 使用第一个租户作为默认登录租户
+	defaultTenant := userTenants[0]
+	
 	// 生成Token
-	token, err := h.jwtManager.GenerateToken(
+	token, err := h.jwtManager.GenerateTokenWithTenant(
 		user.ID,
-		user.TenantID,
+		defaultTenant.TenantID,  // 原始租户ID
+		defaultTenant.TenantID,  // 当前操作的租户ID
 		user.Username,
 		user.IsPlatformAdmin,
-		user.IsTenantAdmin,
+		defaultTenant.IsTenantAdmin,  // 使用该租户的管理员状态
 	)
 	if err != nil {
 		response.ServerError(c, "生成Token失败")
@@ -103,9 +114,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 			Username:        user.Username,
 			Email:           user.Email,
 			Name:            user.Name,
-			TenantID:        user.TenantID,
+			TenantID:        defaultTenant.TenantID,
 			IsPlatformAdmin: user.IsPlatformAdmin,
-			IsTenantAdmin:   user.IsTenantAdmin,
+			IsTenantAdmin:   defaultTenant.IsTenantAdmin,
 		},
 	}
 
@@ -200,13 +211,14 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// 生成新Token
-	newToken, err := h.jwtManager.GenerateToken(
+	// 保持当前租户状态生成新Token
+	newToken, err := h.jwtManager.GenerateTokenWithTenant(
 		user.ID,
-		user.TenantID,
+		claims.TenantID,        // 原始租户ID
+		claims.CurrentTenantID, // 当前操作的租户ID
 		user.Username,
 		user.IsPlatformAdmin,
-		user.IsTenantAdmin,
+		claims.IsTenantAdmin,   // 保持当前租户的管理员状态
 	)
 	if err != nil {
 		response.ServerError(c, "生成新Token失败")
@@ -238,9 +250,10 @@ func (h *AuthHandler) SwitchTenant(c *gin.Context) {
 	}
 	userClaims := claims.(*jwt.JWTClaims)
 
-	// 只有平台管理员可以切换租户
-	if !userClaims.IsPlatformAdmin {
-		response.Forbidden(c, "只有平台管理员可以切换租户")
+	// 获取用户信息
+	user, err := h.userService.GetByID(userClaims.UserID)
+	if err != nil {
+		response.NotFound(c, "用户不存在")
 		return
 	}
 
@@ -250,6 +263,15 @@ func (h *AuthHandler) SwitchTenant(c *gin.Context) {
 		return
 	}
 
+	// 平台管理员可以切换到任何租户
+	if !user.IsPlatformAdmin {
+		// 非平台管理员只能切换到有权限的租户
+		if !user.IsTenantMember(h.userService.GetDB(), req.TenantID) {
+			response.Forbidden(c, "无权访问该租户")
+			return
+		}
+	}
+	
 	// 验证目标租户是否存在且激活
 	tenant, err := h.tenantService.GetByID(req.TenantID)
 	if err != nil {
@@ -261,15 +283,24 @@ func (h *AuthHandler) SwitchTenant(c *gin.Context) {
 		response.BadRequest(c, "目标租户未激活")
 		return
 	}
+	
+	// 获取用户在目标租户的角色信息
+	var isTenantAdmin bool
+	if !user.IsPlatformAdmin {
+		userTenant, err := user.GetTenantRole(h.userService.GetDB(), req.TenantID)
+		if err == nil {
+			isTenantAdmin = userTenant.IsTenantAdmin
+		}
+	}
 
 	// 生成包含新租户ID的token
 	newToken, err := h.jwtManager.GenerateTokenWithTenant(
-		userClaims.UserID,
-		userClaims.TenantID, // 原始租户ID
+		user.ID,
+		userClaims.TenantID, // 原始租户ID（保持不变）
 		req.TenantID,        // 当前操作的租户ID
-		userClaims.Username,
-		userClaims.IsPlatformAdmin,
-		userClaims.IsTenantAdmin,
+		user.Username,
+		user.IsPlatformAdmin,
+		isTenantAdmin,       // 使用目标租户的管理员状态
 	)
 	if err != nil {
 		response.ServerError(c, "生成新Token失败")
@@ -339,7 +370,6 @@ func (h *AuthHandler) Me(c *gin.Context) {
 			"avatar":            user.Avatar,
 			"status":            user.Status,
 			"is_platform_admin": user.IsPlatformAdmin,
-			"is_tenant_admin":   user.IsTenantAdmin,
 			"created_at":        user.CreatedAt,
 			"last_login_at":     user.LastLoginAt,
 		},
@@ -353,22 +383,42 @@ func (h *AuthHandler) Me(c *gin.Context) {
 		"permissions": h.formatPermissions(permissions),
 	}
 
-	// 如果是平台管理员，添加可切换租户列表
-	if user.IsPlatformAdmin {
-		tenants, err := h.tenantService.GetAllActive()
-		if err == nil {
-			var switchableTenants []gin.H
-			for _, tenant := range tenants {
+	// 获取用户的所有租户
+	userTenants, err := user.GetUserTenants(h.userService.GetDB())
+	if err == nil {
+		var switchableTenants []gin.H
+		
+		// 如果是平台管理员，显示所有活跃租户
+		if user.IsPlatformAdmin {
+			tenants, err := h.tenantService.GetAllActive()
+			if err == nil {
+				for _, tenant := range tenants {
+					switchableTenants = append(switchableTenants, gin.H{
+						"id":               tenant.ID,
+						"name":             tenant.Name,
+						"code":             tenant.Code,
+						"is_current":       tenant.ID == userClaims.CurrentTenantID,
+						"is_tenant_admin":  false,  // 平台管理员在所有租户都有管理权限
+						"user_count":       tenant.UserCount,
+					})
+				}
+			}
+		} else {
+			// 普通用户只显示有权限的租户
+			for _, ut := range userTenants {
 				switchableTenants = append(switchableTenants, gin.H{
-					"id":         tenant.ID,
-					"name":       tenant.Name,
-					"code":       tenant.Code,
-					"is_current": tenant.ID == userClaims.CurrentTenantID,
-					"user_count": tenant.UserCount,
+					"id":               ut.Tenant.ID,
+					"name":             ut.Tenant.Name,
+					"code":             ut.Tenant.Code,
+					"is_current":       ut.Tenant.ID == userClaims.CurrentTenantID,
+					"is_tenant_admin":  ut.IsTenantAdmin,
+					"role_name":        ut.Role.Name,
+					"joined_at":        ut.JoinedAt,
 				})
 			}
-			responseData["switchable_tenants"] = switchableTenants
 		}
+		
+		responseData["switchable_tenants"] = switchableTenants
 	}
 
 	response.Success(c, responseData)
